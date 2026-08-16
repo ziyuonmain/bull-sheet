@@ -1,118 +1,125 @@
-// Comprehensive Game Rules & Tutorial Guide for all BullSheet Game Modes
+// Concise Game Rules Reference
 export const GAME_RULES = {
-  x01: {
-    title: "501 / X01 Darts",
+  bobs27: {
+    title: "Bob's 27",
     icon: "🎯",
-    objective: "Be the first player to reduce your starting score (501, 301, 701, 101) to exactly 0.",
+    objective: "Start at 27 points. Survive 21 rounds from D1 to D20 + Bull without dropping to 0.",
     rules: [
-      "Each turn consists of throwing 3 darts.",
-      "Your turn score is subtracted from your current total.",
-      "Double Out (Default): You MUST finish on a Double segment (or the 50 Bullseye) that brings your score to exactly 0.",
-      "Double In (Optional): You must hit any Double segment before your points start counting.",
-      "Bust: If you score more than your remaining points, leave 1 point on Double Out, or hit a non-double on 0, your turn ends immediately and your score resets to what it was at the start of that visit.",
-      "Checkouts: When your score is 170 or below, BullSheet displays the recommended PDC finish route (e.g. T20 ➔ T20 ➔ BULL).",
-      "Undo: Tap ↶ UNDO anytime to correct any misplaced dart or turn."
+      "21 total rounds: D1 in Round 1, D2 in Round 2, up to D20 and Bullseye (Round 21).",
+      "Each round, throw 3 darts at the active double target.",
+      "Hits add double points (e.g. 2 hits on D10 = +40 points).",
+      "Miss all 3 darts: The double value is subtracted (e.g. 0 hits on D20 = -40 points).",
+      "Knockout: If your score drops to 0 or below at any time, it's Game Over!",
+      "Survive all 21 rounds with the highest positive score to win."
     ],
-    proTip: "Aim to set up preferred even finishes like 40 (D20), 32 (D16), or 36 (D18). If you miss inside into a single, you still leave an even double!"
+    proTip: "Protect your score on the high doubles (D16–D20) where a miss penalty hurts most!"
+  },
+  x01: {
+    title: "501 / X01",
+    icon: "🎯",
+    objective: "Reduce score from 501/301/701 to exactly 0.",
+    rules: [
+      "3 darts per turn.",
+      "Turn score is subtracted from remaining total.",
+      "Double Out: Must finish on a Double (or 50 Bullseye) to reach 0.",
+      "Double In (Optional): Points count only after hitting a Double.",
+      "Bust: Exceeding score or leaving 1 on Double Out resets visit score.",
+      "Checkouts: Shows PDC finish route when score is ≤ 170."
+    ],
+    proTip: "Set up even finishes like 40 (D20), 32 (D16), or 36 (D18)."
   },
   cricket: {
-    title: "Cricket & Cutthroat",
+    title: "Cricket",
     icon: "🏏",
-    objective: "Close the numbers 15 through 20 and the Bullseye before your opponents, while controlling the scoreboard.",
+    objective: "Close numbers 15–20 and Bull before opponents.",
     rules: [
-      "The active targets are: 20, 19, 18, 17, 16, 15, and Bull (25 / 50).",
-      "To 'Close' a number, you must hit it 3 times (Single = 1 mark, Double = 2 marks, Treble = 3 marks, Outer Bull = 1 mark, Bullseye = 2 marks).",
-      "Standard Cricket: Once you close a number, subsequent hits on it give YOU points, provided at least one opponent has not closed it yet. Highest score with all numbers closed wins.",
-      "Cutthroat Cricket (Party favorite): Once you close a number, subsequent hits award penalty points to ALL opponents who haven't closed it. LOWEST score with all numbers closed wins!",
-      "MPR (Marks Per Round): Tracks your live throwing efficiency throughout the match."
+      "Active targets: 20, 19, 18, 17, 16, 15, and Bull.",
+      "Hit target 3 times to close (Single = 1, Double = 2, Treble = 3).",
+      "Standard: Scoring on a closed number awards points to you until all players close it.",
+      "Cutthroat: Scoring on a closed number gives penalty points to open opponents. Lowest score wins.",
+      "MPR tracks Marks Per Round efficiency."
     ],
-    proTip: "In Cutthroat, focus on closing the high numbers (20 & 19) first to punish your friends with penalty points!"
+    proTip: "In Cutthroat, close 20 and 19 first to pile penalty points onto opponents."
   },
   split_score: {
     title: "Split Score (Halve-It)",
     icon: "⚡",
-    objective: "Hit the designated target in each round. If you miss all 3 darts in a round, your total score is CUT IN HALF!",
+    objective: "Hit the round target. Zero hits in a turn halves your score.",
     rules: [
-      "Round Sequences: Choose between 🎲 Random Shuffle (default dynamic mix of board targets), 📜 Classic Sequence (15, 16, D, 17, 18, T, 19, 20, Bull), or ✏️ Custom Sequence.",
-      "Target Scoring: Every hit on the active round target adds points to your score (Single = 1x, Double = 2x, Treble = 3x, Double Round = any double, Treble Round = any treble, Bullseye = 25/50).",
-      "THE SPLIT PENALTY: If you fail to land at least 1 dart on the target during your 3-dart visit (0 hits), your entire accumulated score is divided by 2 (rounded down).",
-      "Hitting the target at least once (1, 2, or 3 hits) keeps your score SAFE and adds points.",
-      "The player with the highest total score after the final round wins."
+      "Follows round target sequence (Random, Classic, or Custom).",
+      "Target hits add points to your score.",
+      "If all 3 darts miss the target, your total score is cut in half (rounded down).",
+      "Highest total score at the end wins."
     ],
-    proTip: "When your score is high, aim for a guaranteed safe Single on your 1st dart to protect against the 50% split penalty before going for risky Trebles!"
+    proTip: "Aim for a safe Single on dart 1 to protect your score from halving."
   },
   highscore: {
-    title: "Highscore Mode",
+    title: "Highscore",
     icon: "🏆",
-    objective: "Accumulate as many total points as possible across 5, 7, or 10 rounds.",
+    objective: "Score as many points as possible across fixed rounds.",
     rules: [
-      "In each round, throw 3 darts at any section of the board.",
-      "Aim for the highest scoring segments (Treble 20 = 60, Treble 19 = 57, Bullseye = 50).",
-      "No bust rules apply—every single point landed counts towards your total.",
-      "After all rounds are complete, the player with the highest accumulated score wins the match."
+      "Throw 3 darts per round at any segment.",
+      "All landed points add to total (no busts).",
+      "Highest total score wins."
     ],
-    proTip: "If you are consistently drifting into 1s and 5s around the 20, switch your focus to Treble 19 for a more forgiving grouping."
+    proTip: "Aim for T20 (60 pts) or switch to T19 (57 pts) if drifting."
   },
   shooter: {
-    title: "Shooter (Target Drill)",
+    title: "Shooter",
     icon: "🎯",
-    objective: "Hit the designated target segment called out in each round to earn accuracy points.",
+    objective: "Hit the designated target called each round.",
     rules: [
-      "At the start of each round, a random board number is assigned as the active target (e.g. #18, #7, Bullseye).",
-      "Only darts hitting the active target award points (Single = 1 pt, Double = 2 pts, Treble = 3 pts, Bull = 2 pts).",
-      "Darts landing on other numbers score 0 points.",
-      "The player with the most accumulated target hits after all rounds wins."
+      "A random target is assigned each round.",
+      "Only hits on the active target score points (Single = 1, Double = 2, Treble = 3, Bull = 2).",
+      "Most target points wins."
     ],
-    proTip: "Great training drill to build muscle memory across unfamiliar areas of the board outside of just 20 and 19."
+    proTip: "Great drill for board-wide accuracy."
   },
   killer: {
     title: "Killer",
     icon: "🔪",
-    objective: "Qualify as a 'Killer' and hunt your friends' lives until you are the last player standing.",
+    objective: "Qualify as Killer and eliminate opponents' lives.",
     rules: [
-      "Each player is assigned a unique target number on the board (e.g., Alex = 18, Sarah = 14).",
-      "Phase 1 (Qualifying): Hit the Double of your assigned number to qualify as a 'Killer'.",
-      "Phase 2 (Hunting): Once you are a Killer, hit other players' numbers to deduct their lives (Single = -1 life, Double = -2, Treble = -3).",
-      "Friendly Fire: If you accidentally hit your own number while a Killer, you lose 1 of your own lives!",
-      "When a player loses all lives (0 lives), they are eliminated. The last surviving player wins."
+      "Each player is assigned a unique board number.",
+      "Hit your own Double to qualify as Killer.",
+      "As Killer, hit opponents' numbers to deduct their lives.",
+      "Hitting your own number as Killer costs 1 life.",
+      "Last player with lives remaining wins."
     ],
-    proTip: "Don't rush to become the first Killer if all your opponents are ready to gang up on you—strategy and timing are everything!"
+    proTip: "Time your qualification so you don't become an immediate target."
   },
   elimination: {
-    title: "Elimination (Knockout)",
+    title: "Elimination",
     icon: "💥",
-    objective: "Survive the gauntlet! Beat the 3-dart turn score set by the player before you, or lose a life.",
+    objective: "Beat the previous player's 3-dart score or lose a life.",
     rules: [
-      "Each player starts with 3 to 5 lives (shields).",
-      "The first player throws 3 darts to establish the initial 'Target Score to Beat'.",
-      "The next player must score HIGHER than the target score. If they score equal or lower, they lose 1 life!",
-      "If they successfully beat the target, they survive and their turn score becomes the NEW target score for the next player.",
-      "Lose all lives and you are eliminated. The last surviving player wins."
+      "Players start with 3 to 5 lives.",
+      "Each player must score higher than the previous player's visit.",
+      "Failing to beat the score loses 1 life.",
+      "Last survivor wins."
     ],
-    proTip: "If you are following a low target score (e.g. 26), you only need a safe 30+ to survive and pass the pressure to the next player."
+    proTip: "After a low score, play safe to pass pressure to the next player."
   },
   shanghai: {
     title: "Shanghai",
     icon: "🏮",
-    objective: "Score points on sequential numbers 1 through 7 (or 1–20), or pull off an instant **Shanghai Victory**!",
+    objective: "Score on sequential rounds 1–7 (or 1–20), or land an instant Shanghai win.",
     rules: [
-      "In Round 1 aim for 1, Round 2 aim for 2, through Round 7 (or Round 20).",
-      "Only darts hitting the active round number score points (Single, Double, Treble).",
-      "INSTANT SHANGHAI WIN: If a player hits a Single, a Double, AND a Treble of the active round number in the SAME 3-dart visit, they instantly win the entire match on the spot!",
-      "Otherwise, the player with the highest total points at the end of the final round wins."
+      "Round number is the active scoring target.",
+      "Instant Win: Hitting Single + Double + Treble in the same turn wins immediately.",
+      "Otherwise, highest total points after final round wins."
     ],
-    proTip: "Always attempt the Treble first, then Double, then Single to maximize your Shanghai attempt."
+    proTip: "Attempt Treble first, then Double, then Single."
   },
   around_clock: {
     title: "Around the Clock",
     icon: "⏰",
-    objective: "Race around the board hitting numbers 1 through 20 in sequential order, finishing on the Bullseye.",
+    objective: "Hit numbers 1 through 20 sequentially, ending on Bullseye.",
     rules: [
-      "Start by aiming for 1. Once hit, advance to 2, then 3, all the way to 20.",
-      "Bonus Multipliers: Hitting a Double leaps you 2 numbers ahead; hitting a Treble leaps you 3 numbers ahead!",
-      "After hitting 20, you must land a dart in the Bullseye to win the match.",
-      "First player to hit the Bullseye wins."
+      "Hit numbers in order: 1 to 20, then Bullseye.",
+      "Doubles leap 2 numbers; Trebles leap 3 numbers.",
+      "First to hit Bullseye wins."
     ],
-    proTip: "Aiming for the Treble ring gives you a chance to skip ahead 3 numbers at once!"
+    proTip: "Aiming for Treble leaps you forward faster."
   }
 };

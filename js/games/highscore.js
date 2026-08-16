@@ -82,6 +82,8 @@ export class HighscoreGame {
       return {
         type: 'visit_complete',
         player,
+        dart,
+        lastDart: dart,
         turnScore,
         score: player.score,
         isLastRound,

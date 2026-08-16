@@ -128,6 +128,8 @@ export class CricketGame {
       const result = {
         type: 'visit_complete',
         player,
+        dart,
+        lastDart: dart,
         marksScored,
         pointsScored
       };

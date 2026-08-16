@@ -155,6 +155,8 @@ export class X01Game {
       return {
         type: 'visit_complete',
         player,
+        dart,
+        lastDart: dart,
         turnScore,
         remaining: player.score,
         nextPlayer: this.getNextPlayer()
@@ -237,6 +239,8 @@ export class X01Game {
     const result = {
       type: 'visit_complete',
       player,
+        dart,
+        lastDart: dart,
       turnScore,
       remaining: player.score
     };

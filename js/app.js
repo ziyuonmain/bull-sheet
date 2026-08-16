@@ -17,6 +17,9 @@ import { ShanghaiGame } from './games/shanghai.js';
 import { KillerGame } from './games/killer.js';
 import { EliminationGame } from './games/elimination.js';
 import { AroundClockGame } from './games/around_clock.js';
+import { Bobs27Game } from './games/bobs27.js';
+import { DartsHeatmap } from './components/heatmap.js';
+import { MatchCardGenerator } from './components/match_card.js';
 
 class BullSheetApp {
   constructor() {
@@ -54,7 +57,10 @@ class BullSheetApp {
   init() {
     this.applyTheme(store.settings.theme || 'bullsheet');
     sound.toggle(store.settings.sound);
-    sound.setVolume(store.settings.volume || 0.8);
+    sound.setVolume(store.settings.volume !== undefined ? store.settings.volume : 0.8);
+    caller.setVolume(store.settings.volume !== undefined ? store.settings.volume : 0.8);
+    this.heatmap = new DartsHeatmap(document.getElementById('summary-heatmap-container'));
+    this.historyHeatmap = new DartsHeatmap(document.getElementById('history-heatmap-container'));
     caller.toggle(store.settings.voice);
     caller.toggleSarcasm(store.settings.sarcasm);
 
@@ -79,25 +85,50 @@ class BullSheetApp {
       });
     });
 
-    // Export history
+    // Export match history with save dialog prompt
     document.getElementById('btn-export-history')?.addEventListener('click', () => {
-      sound.playClick();
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(store.history, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `bullsheet_history_${new Date().toISOString().slice(0,10)}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
+      this.exportHistoryWithSaveDialog();
     });
 
-    // Clear history
+    // Import match history from JSON file
+    const importBtn = document.getElementById('btn-import-history');
+    const importInput = document.getElementById('input-import-history');
+    if (importBtn && importInput) {
+      importBtn.addEventListener('click', () => {
+        sound.playClick();
+        importInput.click();
+      });
+
+      importInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const res = store.importHistory(event.target.result);
+            if (res.success) {
+              this.showBanterToast(`📥 Imported ${res.count} match(es)! Total: ${res.total}`);
+              this.renderStatsView('all');
+            } else {
+              this.showBanterToast(`❌ Import error: ${res.error || 'Invalid file format'}`);
+            }
+          } catch (err) {
+            this.showBanterToast(`❌ Import error: ${err.message}`);
+          }
+          importInput.value = '';
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    // Clear match history
     document.getElementById('btn-clear-history')?.addEventListener('click', () => {
       sound.playClick();
       if (confirm("Are you sure you want to clear all match history? This cannot be undone.")) {
-        localStorage.removeItem('bullsheet_stats_history_v1');
-        store.history = [];
+        store.clearHistory();
         this.renderStatsView('all');
+        this.showBanterToast("🗑️ Match History Cleared.");
       }
     });
     this.attachSetupEvents();
@@ -135,6 +166,107 @@ class BullSheetApp {
     store.saveSettings({ theme: themeName });
     const select = document.getElementById('setting-theme');
     if (select) select.value = themeName;
+  }
+
+  showBanterToast(msg) {
+    let toast = document.getElementById('bullsheet-banter-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'bullsheet-banter-toast';
+      toast.style.position = 'fixed';
+      toast.style.bottom = '20px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.background = 'rgba(18, 21, 27, 0.95)';
+      toast.style.border = '1px solid var(--accent-gold)';
+      toast.style.color = '#fff';
+      toast.style.padding = '10px 18px';
+      toast.style.borderRadius = '24px';
+      toast.style.fontSize = '0.9rem';
+      toast.style.fontWeight = '600';
+      toast.style.zIndex = '9999';
+      toast.style.boxShadow = '0 8px 24px rgba(0,0,0,0.5)';
+      toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    toast.style.pointerEvents = 'auto';
+    clearTimeout(this._banterTimeout);
+    this._banterTimeout = setTimeout(() => {
+      if (toast) {
+        toast.style.opacity = '0';
+        toast.style.pointerEvents = 'none';
+      }
+    }, 2800);
+  }
+
+  async exportHistoryWithSaveDialog() {
+    sound.playClick();
+    const historyData = JSON.stringify(store.history || [], null, 2);
+    const fileName = `bullsheet_history_${new Date().toISOString().slice(0, 10)}.json`;
+
+    // 1. File System Access API: Prompt user for save directory & filename
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: fileName,
+          types: [{
+            description: 'JSON Match History',
+            accept: { 'application/json': ['.json'] }
+          }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(historyData);
+        await writable.close();
+        this.showBanterToast("📥 Match History Saved Successfully!");
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return; // User cancelled prompt
+        console.warn('showSaveFilePicker failed, falling back to download link:', err);
+      }
+    }
+
+    // 2. Fallback download anchor
+    const blob = new Blob([historyData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    this.showBanterToast("📥 Match History Downloaded!");
+  }
+
+  setAudioMode(mode) {
+    if (mode === 'muted') {
+      sound.toggle(false);
+      caller.toggle(false);
+      store.saveSettings({ sound: false, voice: false });
+    } else if (mode === 'sound_only') {
+      sound.toggle(true);
+      caller.toggle(false);
+      store.saveSettings({ sound: true, voice: false });
+    } else {
+      sound.toggle(true);
+      caller.toggle(true);
+      caller.setStyle(mode);
+      store.saveSettings({ sound: true, voice: true });
+    }
+
+    const gameSel = document.getElementById('game-voice-select');
+    if (gameSel) gameSel.value = mode;
+
+    const settingSel = document.getElementById('setting-voice-style');
+    if (settingSel) settingSel.value = mode;
+  }
+
+  getAudioMode() {
+    if (!store.settings.sound && !store.settings.voice) return 'muted';
+    if (store.settings.sound && !store.settings.voice) return 'sound_only';
+    return caller.style || 'russ_bray';
   }
 
   vibrate(ms = 15) {
@@ -391,6 +523,9 @@ class BullSheetApp {
       case 'around_clock':
         this.currentGame = new AroundClockGame({ players: saved.players });
         break;
+      case 'bobs27':
+        this.currentGame = new Bobs27Game(saved);
+        break;
       default:
         return;
     }
@@ -445,7 +580,7 @@ class BullSheetApp {
             ${p.isBot ? `
               <select class="bot-profile-select" data-idx="${idx}">
                 ${Object.values(BOT_PROFILES).map(prof => `
-                  <option value="${prof.id}" ${p.botProfile === prof.id ? 'selected' : ''}>${prof.name} • ${prof.skillRating}</option>
+                  <option value="${prof.id}" ${p.botProfile === prof.id ? 'selected' : ''}>${prof.name}</option>
                 `).join('')}
               </select>
             ` : ''}
@@ -660,6 +795,9 @@ class BullSheetApp {
         break;
       }
       case 'killer': {
+        if (playersCopy.length === 1) {
+          playersCopy.push({ id: 'bot_rival', name: 'Bot Rival', isBot: true, botProfile: 'pub_regular' });
+        }
         const lives = parseInt(document.getElementById('opt-party-killer-lives')?.value || '5', 10);
         this.currentGame = new KillerGame({
           startingLives: lives,
@@ -668,6 +806,9 @@ class BullSheetApp {
         break;
       }
       case 'elimination': {
+        if (playersCopy.length === 1) {
+          playersCopy.push({ id: 'bot_rival', name: 'Bot Rival', isBot: true, botProfile: 'pub_regular' });
+        }
         const lives = parseInt(document.getElementById('opt-party-killer-lives')?.value || '3', 10);
         this.currentGame = new EliminationGame({
           startingLives: lives,
@@ -677,6 +818,12 @@ class BullSheetApp {
       }
       case 'around_clock': {
         this.currentGame = new AroundClockGame({
+          players: playersCopy
+        });
+        break;
+      }
+      case 'bobs27': {
+        this.currentGame = new Bobs27Game({
           players: playersCopy
         });
         break;
@@ -762,23 +909,34 @@ class BullSheetApp {
     if (res.type === 'match_win') {
       sound.playWin();
       caller.callGameShot(res.winner.name, true);
-      store.saveMatch({
+      
+      const matchRecord = {
+        id: Date.now().toString(36),
+        date: new Date().toISOString(),
         gameType: this.selectedGameType,
+        winner: res.winner,
         players: this.currentGame.players.map(p => ({
           name: p.name,
           isBot: p.isBot,
           won: p.id === res.winner.id,
+          score: p.score,
           stats: {
-            totalDarts: p.totalDarts,
-            totalScore: p.totalScoreScored || p.score,
-            highTurn: p.highTurn || 0,
-            count180: p.count180 || 0,
-            count140: p.count140 || 0,
-            count100: p.count100 || 0
+            totalDarts: p.totalDartsThrown || p.totalDarts || 0,
+            totalScore: p.totalScoreScored || p.score || 0,
+            highTurn: p.highTurn || (p.turns && p.turns.length ? Math.max(0, ...p.turns) : 0),
+            count180: p.count180 || 0
           }
         }))
-      });
+      };
+
+      store.saveMatch(matchRecord);
+      this.lastMatchData = matchRecord;
       store.clearActiveMatch();
+
+      if (this.heatmap) {
+        this.heatmap.render(this.currentGame);
+      }
+
       this.renderSummary(res.winner);
       this.showView('view-summary', true);
       return;
@@ -795,22 +953,50 @@ class BullSheetApp {
       sound.playBust();
       caller.callBust(res.player.name);
       if (this.dartboard) this.dartboard.clearHits();
+      this.showBanterToast("💥 Bust! Pub math strikes again!");
+      return;
     }
 
-    if (res.type === 'turn_end') {
+    if (res.type === 'dart_recorded') {
+      // Dart 1 or Dart 2: Announce single dart throw
+      const dartScore = res.dart?.score !== undefined ? res.dart.score : ((res.dart?.number || 0) * (res.dart?.mult || 1));
+      caller.callSingleDart(dartScore, res.dart);
+      return;
+    }
+
+    if (res.type === 'visit_complete' || res.type === 'turn_end') {
       if (this.dartboard) this.dartboard.clearHits();
-      const nextPlayer = this.currentGame.getActivePlayer();
-      caller.callScore(res.turnScore || 0, res.player?.name);
+      
+      const lastDart = res.dart || res.lastDart || (this.currentGame?.turnDarts && this.currentGame.turnDarts[this.currentGame.turnDarts.length - 1]);
+      const lastDartScore = lastDart?.score !== undefined ? lastDart.score : ((lastDart?.number || 0) * (lastDart?.mult || 1));
 
-      setTimeout(() => {
-        if (!this.currentGame.isMatchOver) {
-          caller.callTurn(nextPlayer.name);
-          if (nextPlayer.isBot) {
-            this.triggerBotTurn();
-          }
-        }
-      }, 900);
+      // Quality sarcastic pub banter toasts on iconic scores
+      const turnTotal = res.turnScore !== undefined ? res.turnScore : (res.player?.turnScore || 0);
+      if (turnTotal === 26) {
+        this.showBanterToast("🍳 The Classic Pub Breakfast: 26 and a deep sigh.");
+      } else if (turnTotal === 3) {
+        this.showBanterToast("🎯 Three ones. Deadly precision on the wrong target.");
+      } else if (turnTotal === 7) {
+        this.showBanterToast("🍺 Seven points. At least all three hit the board.");
+      } else if (turnTotal === 180) {
+        this.showBanterToast("🔥 MAXIMUM 180! Ally Pally roof blown off!");
+      }
+
+      if (store.settings.announceTurnTotal) {
+        caller.callSingleDart(lastDartScore, lastDart, () => {
+          setTimeout(() => {
+            if (this.currentGame && !this.currentGame.isMatchOver) {
+              const turnScoreToCall = res.turnScore !== undefined ? res.turnScore : (res.player?.turnScore || 0);
+              caller.callScore(turnScoreToCall, res.player?.name);
+            }
+          }, 350);
+        });
+      } else {
+        caller.callSingleDart(lastDartScore, lastDart);
+      }
     }
+
+
   }
 
   updateScoreboard() {
@@ -844,6 +1030,9 @@ class BullSheetApp {
       case 'around_clock':
         this.scoreboard.renderAroundClock(this.currentGame);
         break;
+      case 'bobs27':
+        this.scoreboard.renderBobs27(this.currentGame);
+        break;
     }
 
     // Update target & checkout route highlighting on SVG dartboard
@@ -873,6 +1062,9 @@ class BullSheetApp {
         if (active) {
           this.dartboard.highlightTarget({ type: active.currentTarget === 25 ? 'bull' : 'num', value: active.currentTarget });
         }
+      } else if (this.selectedGameType === 'bobs27' && this.currentGame.getCurrentTarget) {
+        const t = this.currentGame.getCurrentTarget();
+        this.dartboard.highlightTarget({ type: t.number === 25 ? 'bull' : 'double', value: t.number });
       } else if (this.selectedGameType === 'killer') {
         const active = this.currentGame.getActivePlayer();
         if (active) {
@@ -956,21 +1148,11 @@ class BullSheetApp {
       });
     }
 
-    const soundBtn = document.getElementById('btn-quick-sound');
-    if (soundBtn) {
-      soundBtn.addEventListener('click', () => {
-        const enabled = sound.toggle();
-        store.saveSettings({ sound: enabled });
-        soundBtn.textContent = enabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
-      });
-    }
-
-    const voiceBtn = document.getElementById('btn-quick-voice');
-    if (voiceBtn) {
-      voiceBtn.addEventListener('click', () => {
-        const enabled = caller.toggle();
-        store.saveSettings({ voice: enabled });
-        voiceBtn.textContent = enabled ? '🗣️ Caller: ON' : '🤫 Caller: OFF';
+    const gameVoiceSelect = document.getElementById('game-voice-select');
+    if (gameVoiceSelect) {
+      gameVoiceSelect.value = this.getAudioMode();
+      gameVoiceSelect.addEventListener('change', (e) => {
+        this.setAudioMode(e.target.value);
       });
     }
 
@@ -1029,6 +1211,73 @@ class BullSheetApp {
       });
     }
 
+    // Unified Audio & Voice selector in Settings
+    const voiceStyleSel = document.getElementById('setting-voice-style');
+    if (voiceStyleSel) {
+      voiceStyleSel.value = this.getAudioMode();
+      voiceStyleSel.addEventListener('change', (e) => {
+        this.setAudioMode(e.target.value);
+      });
+    }
+
+    const announceTotalCheck = document.getElementById('setting-announce-total');
+    if (announceTotalCheck) {
+      announceTotalCheck.checked = !!store.settings.announceTurnTotal;
+      announceTotalCheck.addEventListener('change', (e) => {
+        store.saveSettings({ announceTurnTotal: e.target.checked });
+      });
+    }
+
+    document.getElementById('btn-test-voice')?.addEventListener('click', () => {
+      caller.callScore(180);
+    });
+
+    // Master Volume Slider
+    const volSlider = document.getElementById('setting-volume');
+    const volLabel = document.getElementById('setting-volume-label');
+    if (volSlider) {
+      const initialVol = Math.round((store.settings.volume !== undefined ? store.settings.volume : 0.8) * 100);
+      volSlider.value = initialVol;
+      if (volLabel) volLabel.textContent = `${initialVol}%`;
+
+      volSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        if (volLabel) volLabel.textContent = `${val}%`;
+        sound.setVolume(val / 100);
+        caller.setVolume(val / 100);
+        store.saveSettings({ volume: val / 100 });
+      });
+    }
+
+    // Shareable Match Card Actions
+    document.getElementById('btn-copy-match-card')?.addEventListener('click', () => {
+      if (!this.lastMatchData) return;
+      const text = MatchCardGenerator.formatTextSummary(this.lastMatchData);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          this.showBanterToast("📋 Match Summary Copied to Clipboard!");
+        });
+      } else {
+        this.showBanterToast("📋 Match Summary Ready to Share!");
+      }
+    });
+
+    document.getElementById('btn-download-image-card')?.addEventListener('click', () => {
+      if (!this.lastMatchData) return;
+      const dataUrl = MatchCardGenerator.generateCanvasImage(this.lastMatchData);
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `BullSheet_Match_${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      this.showBanterToast("📸 Match Card PNG Downloaded!");
+    });
+
+    document.getElementById('btn-test-26')?.addEventListener('click', () => {
+      caller.callScore(26);
+    });
+
     const rematchBtn = document.getElementById('btn-rematch');
     if (rematchBtn) {
       rematchBtn.addEventListener('click', () => {
@@ -1049,16 +1298,22 @@ class BullSheetApp {
   renderSummary(winner) {
     const winNameEl = document.getElementById('summary-winner-name');
     const tableBody = document.getElementById('summary-stats-tbody');
-    if (winNameEl) winNameEl.textContent = `🏆 ${winner.name} WINS!`;
+    if (winNameEl) {
+      if (this.selectedGameType === 'bobs27' && this.currentGame && this.currentGame.players.length === 1 && this.currentGame.players[0].isEliminated) {
+        winNameEl.textContent = `💥 BUSTED OUT! (Round ${this.currentGame.currentRound} / 21)`;
+      } else {
+        winNameEl.textContent = `🏆 ${winner ? winner.name : 'Player'} WINS!`;
+      }
+    }
 
     if (tableBody && this.currentGame) {
       tableBody.innerHTML = this.currentGame.players.map(p => `
         <tr>
           <td><strong>${p.name}</strong> ${p.isBot ? '<small>(BOT)</small>' : ''}</td>
           <td>${p.score}</td>
-          <td>${p.legsWon || 0}</td>
-          <td>${this.currentGame.getPlayerAvg ? this.currentGame.getPlayerAvg(p) : '—'}</td>
-          <td>${p.highTurn || 0}</td>
+          <td>${p.legsWon !== undefined ? p.legsWon : (p.totalDoublesHit || 0)}</td>
+          <td>${this.currentGame.getPlayerAvg ? this.currentGame.getPlayerAvg(p) : (p.totalDartsThrown ? ((p.score / p.totalDartsThrown) * 3).toFixed(1) : '—')}</td>
+          <td>${p.highTurn || (p.turns && p.turns.length ? Math.max(0, ...p.turns) : 0)}</td>
           <td>${p.count180 || 0}</td>
         </tr>
       `).join('');
@@ -1088,84 +1343,105 @@ class BullSheetApp {
     }
   }
 
-  renderStatsView(filterMode = 'all') {
+  renderStatsView(filterMode = null) {
+    if (filterMode) this.historyFilterMode = filterMode;
+    const mode = this.historyFilterMode || 'all';
+    const playerName = this.historyPlayerFilter || 'all';
+
     const listEl = document.getElementById('stats-match-history');
     const lifetimeGrid = document.getElementById('lifetime-stats-grid');
+    const playerSelect = document.getElementById('history-player-filter');
     if (!listEl) return;
 
     const history = store.history || [];
 
-    // 1. Calculate Lifetime Metrics
+    // 1. Populate Player Filter Select Dropdown (Saved Players Only)
+    if (playerSelect) {
+      const savedPlayers = store.getTrackedPlayers();
+      const currentVal = this.historyPlayerFilter || 'all';
+      
+      if (savedPlayers.length === 0) {
+        playerSelect.innerHTML = `<option value="all" selected>👤 All Matches (No Saved Players Yet)</option>`;
+      } else {
+        playerSelect.innerHTML = `
+          <option value="all" ${currentVal === 'all' ? 'selected' : ''}>👤 All Saved Players</option>
+          ${savedPlayers.map(p => `
+            <option value="${p}" ${currentVal === p ? 'selected' : ''}>🎯 ${p}</option>
+          `).join('')}
+        `;
+      }
+    }
+
+    // 2. Compute Aggregated Metrics for selected Player & Game Mode
+    const stats = store.getAggregatedStats(playerName, mode);
+
     if (lifetimeGrid) {
-      const totalMatches = history.length;
-      let total180s = 0;
-      let highestTurn = 0;
-      const winCounts = {};
-
-      history.forEach(m => {
-        m.players.forEach(p => {
-          if (p.stats?.count180) total180s += p.stats.count180;
-          if (p.stats?.highTurn && p.stats.highTurn > highestTurn) highestTurn = p.stats.highTurn;
-          if (p.won) winCounts[p.name] = (winCounts[p.name] || 0) + 1;
-        });
-      });
-
-      let topWinner = '—';
-      let topWins = 0;
-      Object.entries(winCounts).forEach(([name, wins]) => {
-        if (wins > topWins) {
-          topWins = wins;
-          topWinner = name;
-        }
-      });
-
       lifetimeGrid.innerHTML = `
         <div class="lifetime-stat-card">
-          <span class="stat-card-icon">🎯</span>
+          <span class="stat-card-icon">🏆</span>
           <div class="stat-card-info">
-            <span class="stat-card-val">${totalMatches}</span>
-            <span class="stat-card-lbl">Matches Played</span>
+            <span class="stat-card-val">${stats.totalMatches} <small style="font-size:0.8rem; color:var(--text-secondary);">(${stats.winRate}% W)</small></span>
+            <span class="stat-card-lbl">Matches / Win Rate</span>
+          </div>
+        </div>
+        <div class="lifetime-stat-card">
+          <span class="stat-card-icon">📊</span>
+          <div class="stat-card-info">
+            <span class="stat-card-val">${stats.avg}</span>
+            <span class="stat-card-lbl">3-Dart Average</span>
           </div>
         </div>
         <div class="lifetime-stat-card">
           <span class="stat-card-icon">👑</span>
           <div class="stat-card-info">
-            <span class="stat-card-val">${topWinner}</span>
-            <span class="stat-card-lbl">Win Leader (${topWins})</span>
-          </div>
-        </div>
-        <div class="lifetime-stat-card">
-          <span class="stat-card-icon">⚡</span>
-          <div class="stat-card-info">
-            <span class="stat-card-val">${total180s}</span>
-            <span class="stat-card-lbl">Total 180s Hit</span>
+            <span class="stat-card-val">${stats.count180}</span>
+            <span class="stat-card-lbl">180s Hit (${stats.count140}x 140+)</span>
           </div>
         </div>
         <div class="lifetime-stat-card">
           <span class="stat-card-icon">🔥</span>
           <div class="stat-card-info">
-            <span class="stat-card-val">${highestTurn}</span>
-            <span class="stat-card-lbl">Highest Turn</span>
+            <span class="stat-card-val">${stats.highestTurn}</span>
+            <span class="stat-card-lbl">Highest Turn Score</span>
           </div>
         </div>
       `;
     }
 
-    // 2. Filter Matches
+    // 3. Filter Match Records
     let filtered = history;
-    if (filterMode === 'x01') filtered = history.filter(m => m.gameType === 'x01');
-    else if (filterMode === 'cricket') filtered = history.filter(m => m.gameType === 'cricket');
-    else if (filterMode === 'split_score') filtered = history.filter(m => m.gameType === 'split_score');
-    else if (filterMode === 'party') filtered = history.filter(m => ['killer', 'elimination', 'shanghai', 'shooter', 'highscore', 'around_clock'].includes(m.gameType));
 
-    // 3. Render Empty State or Rich Cards
+    // Mode filter
+    if (mode === 'x01') filtered = filtered.filter(m => m.gameType === 'x01');
+    else if (mode === 'cricket') filtered = filtered.filter(m => m.gameType === 'cricket');
+    else if (mode === 'split_score') filtered = filtered.filter(m => m.gameType === 'split_score');
+    else if (mode === 'bobs27') filtered = filtered.filter(m => m.gameType === 'bobs27');
+    else if (mode === 'party') filtered = filtered.filter(m => ['killer', 'elimination', 'shanghai', 'shooter', 'highscore', 'around_clock'].includes(m.gameType));
+
+    // Player filter
+    if (playerName !== 'all') {
+      filtered = filtered.filter(m => m.players && m.players.some(p => p.name.toLowerCase() === playerName.toLowerCase()));
+    }
+
+    // 4. Render Board Hit Heatmap
+    const histHeatContainer = document.getElementById('history-heatmap-container');
+    if (this.historyHeatmap && histHeatContainer) {
+      if (filtered.length > 0) {
+        histHeatContainer.style.display = 'block';
+        const heatTitle = playerName === 'all' ? `🎯 Board Distribution (${mode.toUpperCase()})` : `🎯 ${playerName}'s Hit Heatmap (${mode.toUpperCase()})`;
+        this.historyHeatmap.render(filtered, heatTitle, playerName !== 'all' ? playerName : null);
+      } else {
+        histHeatContainer.style.display = 'none';
+      }
+    }
+
+    // 5. Render Filtered Match Cards List
     if (filtered.length === 0) {
       listEl.innerHTML = `
-        <div class="empty-history-box">
-          <div class="empty-history-icon">🎯📜</div>
-          <div class="empty-history-text">No matches recorded in this category yet.</div>
-          <div class="empty-history-sub">Step up to the oche and throw your first match!</div>
-          <button class="btn-primary-start" type="button" onclick="window.app && window.app.showView('view-setup', true)" style="max-width:240px; margin:0 auto;">Play Match 🎯</button>
+        <div class="empty-history-box" style="text-align:center; padding:30px; background:var(--bg-secondary); border-radius:var(--border-radius-md); border:1px dashed var(--border-color); margin-top:16px;">
+          <div style="font-size:2.5rem; margin-bottom:8px;">🎯📜</div>
+          <div style="font-weight:700; color:var(--text-primary); margin-bottom:4px;">No matches found for this filter.</div>
+          <div style="color:var(--text-secondary); font-size:0.9rem;">Try selecting a different player or game mode above.</div>
         </div>
       `;
       return;
@@ -1173,51 +1449,99 @@ class BullSheetApp {
 
     listEl.innerHTML = filtered.map(m => {
       const modeKey = m.gameType || 'x01';
-      const badgeCls = ['x01', 'cricket', 'split_score'].includes(modeKey) ? `mode-${modeKey}` : 'mode-party';
-      const winner = m.players.find(p => p.won) || m.players[0];
-      const dateStr = new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const badgeCls = ['x01', 'cricket', 'split_score', 'bobs27'].includes(modeKey) ? `mode-${modeKey}` : 'mode-party';
+      const winner = m.winner || m.players?.find(p => p.won) || m.players?.[0] || { name: 'Player' };
+      const dateStr = new Date(m.date || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
       return `
-        <div class="rich-history-card">
-          <div class="rich-history-header">
-            <span class="hist-game-badge ${badgeCls}">🎯 ${modeKey.toUpperCase()}</span>
-            <span class="hist-time-stamp">${dateStr}</span>
+        <div class="rich-history-card" style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--border-radius-md); padding:16px; margin-bottom:14px;">
+          <div class="rich-history-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span class="hist-game-badge ${badgeCls}" style="font-weight:700; color:var(--accent-gold);">🎯 ${modeKey.toUpperCase()}</span>
+            <span class="hist-time-stamp" style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</span>
           </div>
           
-          <div class="hist-winner-banner">
+          <div class="hist-winner-banner" style="display:flex; align-items:center; gap:6px; font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-bottom:12px;">
             <span>🏆</span>
-            <span><strong>${winner.name}</strong> Won the Match</span>
+            <span><strong>${winner.name}</strong> Won</span>
           </div>
 
-          <table class="hist-stats-table">
+          <table class="hist-stats-table" style="width:100%; border-collapse:collapse; font-size:0.9rem;">
             <thead>
-              <tr>
-                <th>Player</th>
-                <th>Result</th>
-                <th>Avg / MPR</th>
-                <th>High Turn</th>
-                <th>180s</th>
+              <tr style="border-bottom:1px solid var(--border-color); color:var(--text-secondary); text-align:left;">
+                <th style="padding:6px 0;">Player</th>
+                <th style="padding:6px 0;">Result</th>
+                <th style="padding:6px 0;">Avg / MPR</th>
+                <th style="padding:6px 0;">High Turn</th>
+                <th style="padding:6px 0;">180s</th>
               </tr>
             </thead>
             <tbody>
-              ${m.players.map(p => `
-                <tr class="${p.won ? 'winner-row' : ''}">
-                  <td><strong>${p.name}</strong> ${p.isBot ? '<small>(BOT)</small>' : ''}</td>
-                  <td>${p.won ? '👑 Winner' : 'Runner-up'}</td>
-                  <td>${p.stats?.totalDarts ? ((p.stats.totalScore / p.stats.totalDarts) * 3).toFixed(1) : '—'}</td>
-                  <td>${p.stats?.highTurn || '—'}</td>
-                  <td>${p.stats?.count180 || 0}</td>
-                </tr>
-              `).join('')}
+              ${(m.players || []).map(rawP => {
+                const p = MatchCardGenerator.extractPlayerStats(rawP);
+                const isWinner = rawP.won || rawP.name === winner.name;
+                const isSelected = playerName !== 'all' && rawP.name.toLowerCase() === playerName.toLowerCase();
+
+                return `
+                  <tr style="border-bottom:1px solid rgba(255,255,255,0.05); ${isSelected ? 'background:rgba(234,179,8,0.1);' : ''}">
+                    <td style="padding:8px 0;"><strong>${p.name}</strong> ${rawP.isBot ? '<small style="color:var(--text-muted);">(BOT)</small>' : ''}</td>
+                    <td style="padding:8px 0; color:${isWinner ? 'var(--accent-gold)' : 'var(--text-secondary)'}; font-weight:${isWinner ? '700' : '400'};">${isWinner ? '👑 Winner' : 'Runner-up'}</td>
+                    <td style="padding:8px 0;">${p.avg}</td>
+                    <td style="padding:8px 0;">${p.high}</td>
+                    <td style="padding:8px 0;">${p.maxes}</td>
+                  </tr>
+                `;
+              }).join('')}
             </tbody>
           </table>
+
+          <div class="hist-card-actions" style="display:flex; gap:8px; margin-top:12px; justify-content:flex-end;">
+            <button class="ctrl-btn btn-copy-hist-match" data-idx="${history.indexOf(m)}" type="button" style="padding:6px 12px; font-size:0.85rem;">📋 Copy Card</button>
+            <button class="ctrl-btn btn-download-hist-match" data-idx="${history.indexOf(m)}" type="button" style="padding:6px 12px; font-size:0.85rem;">📸 Save Image</button>
+          </div>
         </div>
       `;
     }).join('');
+
+    // Bind action listeners for history cards
+    listEl.querySelectorAll('.btn-copy-hist-match').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const match = history[idx];
+        if (!match) return;
+        const text = MatchCardGenerator.formatTextSummary(match);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            this.showBanterToast("📋 Match Card Copied to Clipboard!");
+          });
+        } else {
+          this.showBanterToast("📋 Match Card Ready!");
+        }
+      });
+    });
+
+    listEl.querySelectorAll('.btn-download-hist-match').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const match = history[idx];
+        if (!match) return;
+        const dataUrl = MatchCardGenerator.generateCanvasImage(match);
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `BullSheet_Match_${match.id || Date.now()}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        this.showBanterToast("📸 Match Card PNG Downloaded!");
+      });
+    });
   }
 }
 
-// Instantiate on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
+// Instantiate immediately or on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.app = new BullSheetApp();
+  });
+} else {
   window.app = new BullSheetApp();
-});
+}

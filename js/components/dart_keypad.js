@@ -1,4 +1,5 @@
-// Pro Speed Dart Keypad Component for BullSheet with Right-Half Unified Action Controls
+// Pro Speed Dart Keypad Component for BullSheet (Beginner-Friendly & Tournament-Fast)
+
 export class DartKeypad {
   constructor(containerEl, onDartSubmitCallback, onUndoCallback, onNextPlayerCallback) {
     this.container = containerEl;
@@ -35,23 +36,51 @@ export class DartKeypad {
     }
   }
 
-  render() {
-    const quickTriples = [
-      { label: 'T20', num: 20, mult: 3, score: 60, cls: 'btn-quick-t20' },
-      { label: 'T19', num: 19, mult: 3, score: 57, cls: 'btn-quick-t19' },
-      { label: 'T18', num: 18, mult: 3, score: 54, cls: 'btn-quick-treble' },
-      { label: 'T17', num: 17, mult: 3, score: 51, cls: 'btn-quick-treble' },
-      { label: 'BULL', num: 25, mult: 2, score: 50, cls: 'btn-quick-bull' },
-      { label: '25', num: 25, mult: 1, score: 25, cls: 'btn-quick-outer' }
-    ];
+  setMultiplier(mult) {
+    this.currentMultiplier = mult;
+    
+    // Update Multiplier button styles
+    this.container.querySelectorAll('.mult-btn').forEach(btn => {
+      btn.classList.toggle('active', Number(btn.dataset.mult) === mult);
+    });
 
-    const quickDoubles = [
-      { label: 'D20', num: 20, mult: 2, score: 40 },
-      { label: 'D16', num: 16, mult: 2, score: 32 },
-      { label: 'D10', num: 10, mult: 2, score: 20 },
-      { label: 'D8', num: 8, mult: 2, score: 16 },
-      { label: 'D4', num: 4, mult: 2, score: 8 },
-      { label: 'D2', num: 2, mult: 2, score: 4 }
+    // Dynamically update the main number grid buttons with live math preview
+    this.updateNumberGridLabels();
+  }
+
+  updateNumberGridLabels() {
+    const mult = this.currentMultiplier;
+    const prefix = mult === 3 ? 'T' : (mult === 2 ? 'D' : 'S');
+    const badgeCls = mult === 3 ? 'pts-treble' : (mult === 2 ? 'pts-double' : 'pts-single');
+
+    this.container.querySelectorAll('.dart-num-btn').forEach(btn => {
+      const num = Number(btn.dataset.num);
+      const score = num * mult;
+
+      if (mult === 1) {
+        btn.innerHTML = `
+          <span class="num-main">${num}</span>
+        `;
+        btn.className = `dart-num-btn ${num >= 18 ? 'top-target' : ''}`;
+      } else {
+        btn.innerHTML = `
+          <span class="num-prefix">${prefix}${num}</span>
+          <span class="num-score ${badgeCls}">${score}</span>
+        `;
+        btn.className = `dart-num-btn mult-active-${mult}`;
+      }
+    });
+  }
+
+  render() {
+    // 1-Tap Speed Bar (Frequent Pub Neighbors & Power Shots)
+    const quickDarts = [
+      { label: '20', num: 20, mult: 1, score: 20, badge: 'S20', cls: 'btn-quick-s20' },
+      { label: '1', num: 1, mult: 1, score: 1, badge: 'S1', cls: 'btn-quick-s1' },
+      { label: '5', num: 5, mult: 1, score: 5, badge: 'S5', cls: 'btn-quick-s5' },
+      { label: 'T20', num: 20, mult: 3, score: 60, badge: '60', cls: 'btn-quick-t20' },
+      { label: '🔴 Bull', num: 25, mult: 2, score: 50, badge: '50', cls: 'btn-quick-bull' },
+      { label: '🟢 25', num: 25, mult: 1, score: 25, badge: '25', cls: 'btn-quick-outer' }
     ];
 
     const numbers = [
@@ -64,7 +93,7 @@ export class DartKeypad {
     let html = `
       <div class="pro-dart-keypad">
         
-        <!-- 1. Right-Half Primary Action Bar (UNDO • MISS • NEXT PLAYER) -->
+        <!-- 1. Primary Action Bar (UNDO • MISS • NEXT PLAYER) -->
         <div class="right-actions-top-bar">
           <button class="btn-panel-action btn-action-undo" type="button" id="btn-keypad-undo" title="Undo Last Dart">
             <span>↶ UNDO</span>
@@ -77,44 +106,32 @@ export class DartKeypad {
           </button>
         </div>
 
-        <!-- 2. 1-Tap Speed Bar -->
+        <!-- 2. 1-Tap Speed Bar (Pub Neighbors & Power Darts) -->
         <div class="speed-bar-header">
-          <span class="speed-bar-label">⚡ 1-TAP INSTANT SCORING</span>
+          <span class="speed-bar-label">⚡ 1-TAP COMMON DARTS & BULLS</span>
         </div>
 
         <div class="speed-darts-grid">
-          ${quickTriples.map(d => `
+          ${quickDarts.map(d => `
             <button class="speed-dart-btn ${d.cls}" type="button" data-num="${d.num}" data-mult="${d.mult}" data-score="${d.score}" data-label="${d.label}">
               <span class="speed-lbl">${d.label}</span>
-              <span class="speed-pts">${d.score}</span>
+              <span class="speed-pts">${d.badge} pts</span>
             </button>
           `).join('')}
         </div>
 
-        <!-- 3. Fast Checkout Doubles Row -->
-        <div class="quick-doubles-row">
-          <span class="quick-doubles-label">DOUBLES:</span>
-          <div class="quick-doubles-chips">
-            ${quickDoubles.map(d => `
-              <button class="quick-double-btn" type="button" data-num="${d.num}" data-mult="${d.mult}" data-score="${d.score}" data-label="${d.label}">
-                ${d.label}
-              </button>
-            `).join('')}
-          </div>
-        </div>
-
-        <!-- 4. Multiplier Modifier Bar -->
+        <!-- 3. Multiplier Modifier Bar -->
         <div class="dart-multiplier-bar">
           <button class="mult-btn ${this.currentMultiplier === 1 ? 'active' : ''}" type="button" data-mult="1">Single (1x)</button>
           <button class="mult-btn ${this.currentMultiplier === 2 ? 'active' : ''}" type="button" data-mult="2">Double (2x)</button>
           <button class="mult-btn ${this.currentMultiplier === 3 ? 'active' : ''}" type="button" data-mult="3">Treble (3x)</button>
         </div>
 
-        <!-- 5. Main Number Grid (1 to 20) -->
+        <!-- 4. Main Number Grid (1 to 20) with Live Point Preview -->
         <div class="dart-numbers-grid">
           ${numbers.map(n => `
-            <button class="dart-num-btn" type="button" data-num="${n}">
-              ${n}
+            <button class="dart-num-btn ${n >= 18 ? 'top-target' : ''}" type="button" data-num="${n}">
+              <span class="num-main">${n}</span>
             </button>
           `).join('')}
         </div>
@@ -126,7 +143,7 @@ export class DartKeypad {
   }
 
   attachEvents() {
-    // Top Right Action Buttons: Undo & Next Player
+    // Top Action Buttons: Undo & Next Player
     this.container.querySelector('#btn-keypad-undo')?.addEventListener('click', () => {
       if (this.onUndo) this.onUndo();
     });
@@ -136,12 +153,14 @@ export class DartKeypad {
     });
 
     // 1-Tap Speed Darts & Miss Button
-    this.container.querySelectorAll('.speed-dart-btn, .quick-double-btn, .btn-action-miss').forEach(btn => {
+    this.container.querySelectorAll('.speed-dart-btn, .btn-action-miss').forEach(btn => {
       btn.addEventListener('click', () => {
         const num = Number(btn.dataset.num);
         const mult = Number(btn.dataset.mult);
         const score = Number(btn.dataset.score);
-        const label = btn.dataset.label;
+        let label = btn.dataset.label;
+        if (label.includes('Bull')) label = 'Bull';
+        if (label.includes('25')) label = '25';
 
         if (this.onDartSubmit) {
           this.onDartSubmit({ number: num, mult, score, label });
@@ -152,9 +171,8 @@ export class DartKeypad {
     // Multiplier Toggle Selection
     this.container.querySelectorAll('.mult-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        this.currentMultiplier = Number(btn.dataset.mult);
-        this.container.querySelectorAll('.mult-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        const mult = Number(btn.dataset.mult);
+        this.setMultiplier(mult);
       });
     });
 
@@ -171,11 +189,10 @@ export class DartKeypad {
           this.onDartSubmit({ number: num, mult, score, label });
         }
 
-        // Auto-reset multiplier back to Single (1x)
-        this.currentMultiplier = 1;
-        this.container.querySelectorAll('.mult-btn').forEach(b => {
-          b.classList.toggle('active', Number(b.dataset.mult) === 1);
-        });
+        // Auto-reset multiplier back to Single (1x) after throw
+        if (this.currentMultiplier !== 1) {
+          this.setMultiplier(1);
+        }
       });
     });
   }

@@ -1,42 +1,82 @@
-// Web Speech API Voice Caller for BullSheet
-class DartsCaller {
+// Human Audio Caller System for BullSheet
+// Uses authentic studio recordings for Russ Bray (Ally Pally), George Noble (PDC Referee), and British Studio Referee.
+
+const CALLER_PACKS = {
+  russ_bray: {
+    id: 'russ_bray',
+    name: '🎙️ Russ Bray ("The Voice" - Ally Pally Legend)',
+    localPath: './audio/russ_bray/',
+    remoteUrl: 'https://autodarts.x10.mx/russ_bray/'
+  },
+  george_noble: {
+    id: 'george_noble',
+    name: '🎯 George Noble (Official PDC Tournament Referee)',
+    localPath: './audio/george_noble/',
+    remoteUrl: 'https://autodarts.x10.mx/georgeno/'
+  },
+  british_ref: {
+    id: 'british_ref',
+    name: '🍺 British Studio Referee (Clean Announcer)',
+    localPath: './audio/british_ref/',
+    remoteUrl: 'https://autodarts.x10.mx/1_male_eng/'
+  }
+};
+
+export class DartsCaller {
   constructor() {
     this.enabled = true;
-    this.voice = null;
-    this.sarcasm = true;
+    this.volume = 0.8;
+    this.style = localStorage.getItem('bullsheet_voice_style') || 'russ_bray';
+    // Backwards compatibility migration
+    if (this.style === 'ally_pally' || !CALLER_PACKS[this.style]) {
+      this.style = 'russ_bray';
+    }
+
+    this.currentAudio = null;
+    this.audioCache = new Map();
     this.synth = window.speechSynthesis;
-
-    this.sarcastic26 = [
-      "Classic twenty-six. Pure bull-sheet.",
-      "Twenty-six. Fish and chips is served.",
-      "Twenty-six. The board sends its condolences.",
-      "A stunning twenty-six. True pub quality.",
-      "Twenty-six. Have you tried aiming at the top?"
-    ];
-
-    this.sarcasticBusts = [
-      "Bust! Overcooked it mate.",
-      "Busted. That went according to plan.",
-      "Bust! More bull-sheet.",
-      "Busted. The math is hard, isn't it?",
-      "Bust! Time to consult the excuse generator."
-    ];
+    this.synthVoice = null;
 
     if (this.synth) {
       if (this.synth.onvoiceschanged !== undefined) {
-        this.synth.onvoiceschanged = () => this.loadVoices();
+        this.synth.onvoiceschanged = () => this.loadSynthVoice();
       }
-      this.loadVoices();
+      this.loadSynthVoice();
+    }
+
+    // Preload signature clips for instant playback
+    this.preloadKeySounds();
+  }
+
+  loadSynthVoice() {
+    if (!this.synth) return;
+    const voices = this.synth.getVoices();
+    if (!voices || voices.length === 0) return;
+    this.synthVoice = voices.find(v => (v.lang.includes('en-GB') || v.lang.includes('en_GB'))) ||
+                      voices.find(v => v.lang.startsWith('en')) ||
+                      voices[0];
+  }
+
+  preloadKeySounds() {
+    const pack = CALLER_PACKS[this.style] || CALLER_PACKS.russ_bray;
+    ['180', '140', '100', '26', '0', 'gameshot'].forEach(key => {
+      const audio = new Audio(`${pack.localPath}${key}.mp3`);
+      audio.preload = 'auto';
+      this.audioCache.set(`${this.style}_${key}`, audio);
+    });
+  }
+
+  setVolume(val) {
+    this.volume = Math.max(0, Math.min(1, val));
+    if (this.currentAudio) {
+      try { this.currentAudio.volume = this.volume; } catch (e) {}
     }
   }
 
-  loadVoices() {
-    if (!this.synth) return;
-    const voices = this.synth.getVoices();
-    this.voice = voices.find(v => v.lang.includes('en-GB') || v.lang.includes('en_GB')) ||
-                 voices.find(v => v.lang.includes('en-US')) ||
-                 voices.find(v => v.lang.startsWith('en')) ||
-                 voices[0];
+  setStyle(styleId) {
+    this.style = CALLER_PACKS[styleId] ? styleId : 'russ_bray';
+    localStorage.setItem('bullsheet_voice_style', this.style);
+    this.preloadKeySounds();
   }
 
   toggle(enabled) {
@@ -45,74 +85,143 @@ class DartsCaller {
   }
 
   toggleSarcasm(enabled) {
-    this.sarcasm = enabled !== undefined ? enabled : !this.sarcasm;
-    return this.sarcasm;
+    // Retained for interface compatibility
+    return true;
   }
 
-  speak(text, { pitch = 1.0, rate = 1.0, volume = 1.0 } = {}) {
-    if (!this.enabled || !this.synth) return;
-    try {
-      this.synth.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      if (this.voice) utter.voice = this.voice;
-      utter.pitch = pitch;
-      utter.rate = rate;
-      utter.volume = volume;
-      this.synth.speak(utter);
-    } catch (e) {
-      console.warn('Speech synthesis error:', e);
+  speak(text) {
+    // Retained for interface compatibility
+  }
+
+  // Play real human audio file with remote streaming fallback and optional completion callback
+  playHumanAudio(key, onEnded = null) {
+    if (!this.enabled) {
+      if (onEnded) onEnded();
+      return;
+    }
+
+    if (this.currentAudio) {
+      try {
+        this.currentAudio.onended = null;
+        this.currentAudio.pause();
+        this.currentAudio.currentTime = 0;
+      } catch (e) {}
+    }
+
+    const pack = CALLER_PACKS[this.style] || CALLER_PACKS.russ_bray;
+    const cacheKey = `${this.style}_${key}`;
+
+    let audio = this.audioCache.get(cacheKey);
+    if (!audio) {
+      audio = new Audio(`${pack.localPath}${key}.mp3`);
+      this.audioCache.set(cacheKey, audio);
+    }
+
+    audio.currentTime = 0;
+    try { audio.volume = this.volume; } catch (e) {}
+    this.currentAudio = audio;
+
+    if (onEnded) {
+      audio.onended = () => {
+        audio.onended = null;
+        onEnded();
+      };
+    }
+
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        // Stream from remote voice pack if local asset not bundled
+        const remoteAudio = new Audio(`${pack.remoteUrl}${key}.mp3`);
+        try { remoteAudio.volume = this.volume; } catch (e) {}
+        this.currentAudio = remoteAudio;
+        if (onEnded) {
+          remoteAudio.onended = () => {
+            remoteAudio.onended = null;
+            onEnded();
+          };
+        }
+        remoteAudio.play().catch(e => {
+          console.warn('Audio call error for key:', key, e);
+          if (onEnded) onEnded();
+        });
+      });
     }
   }
+
+  // Announce single dart throw (Dart 1, 2, and 3)
+  callSingleDart(score, dart = null, onEnded = null) {
+    if (!this.enabled) {
+      if (onEnded) onEnded();
+      return;
+    }
+
+    if (score === 0) {
+      this.playHumanAudio('0', onEnded);
+      return;
+    }
+
+    if (score === 50 || (dart && dart.number === 25 && dart.mult === 2)) {
+      this.playHumanAudio('50', onEnded);
+      return;
+    }
+
+    if (score === 25 || (dart && dart.number === 25 && dart.mult === 1)) {
+      this.playHumanAudio('25', onEnded);
+      return;
+    }
+
+    // Direct score human recording (1 to 60)
+    this.playHumanAudio(`${score}`, onEnded);
+  }
+
+  // --- Public Announcer Calls ---
 
   callScore(score, playerName = '') {
     if (!this.enabled) return;
 
     if (score === 180) {
-      this.speak("ONE HUNDRED AND EIGHTY!", { pitch: 1.15, rate: 1.05 });
+      this.playHumanAudio('180');
       return;
     }
 
-    if (score === 26 && this.sarcasm) {
-      const phrase = this.sarcastic26[Math.floor(Math.random() * this.sarcastic26.length)];
-      this.speak(phrase);
+    if (score === 140) {
+      this.playHumanAudio('140');
+      return;
+    }
+
+    if (score === 100) {
+      this.playHumanAudio('100');
+      return;
+    }
+
+    if (score === 26) {
+      this.playHumanAudio('26');
       return;
     }
 
     if (score === 0) {
-      this.speak("No score. Zero points.");
+      this.playHumanAudio('0');
       return;
     }
 
-    this.speak(`${score}`);
+    // Direct score human call
+    this.playHumanAudio(`${score}`);
   }
 
   callBust(playerName = '') {
     if (!this.enabled) return;
-    if (this.sarcasm && Math.random() > 0.3) {
-      const phrase = this.sarcasticBusts[Math.floor(Math.random() * this.sarcasticBusts.length)];
-      this.speak(phrase);
-    } else {
-      this.speak("Bust! Score remains.");
-    }
-  }
-
-  callCheckoutReq(score) {
-    if (!this.enabled || score > 170 || score <= 1) return;
-    this.speak(`You require ${score}`, { rate: 1.0 });
+    this.playHumanAudio('0');
   }
 
   callGameShot(playerName = '', isMatch = false) {
     if (!this.enabled) return;
-    if (isMatch) {
-      this.speak(`Game shot and the match! Congratulations ${playerName || 'Player'}!`, { pitch: 1.1, rate: 1.05 });
-    } else {
-      this.speak(`Game shot! Leg to ${playerName || 'Player'}!`, { pitch: 1.05 });
-    }
+    this.playHumanAudio('gameshot');
   }
 
   callTurn(playerName) {
-    if (!this.enabled) return;
-    this.speak(`${playerName}, your throw.`, { rate: 1.05 });
+    // Pure human audio mode - no robotic speech between turns
   }
 }
 

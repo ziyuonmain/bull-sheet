@@ -89,6 +89,8 @@ export class AroundClockGame {
       const res = {
         type: 'visit_complete',
         player,
+        dart,
+        lastDart: dart,
         currentTarget: player.currentTarget
       };
       return res;

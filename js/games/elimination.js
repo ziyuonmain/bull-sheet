@@ -84,7 +84,7 @@ export class EliminationGame {
 
       // Check remaining survivor
       const survivors = this.players.filter(p => !p.isEliminated);
-      if (survivors.length === 1) {
+      if (this.players.length > 1 && survivors.length === 1) {
         this.isMatchOver = true;
         this.winner = survivors[0];
         return {
@@ -97,6 +97,8 @@ export class EliminationGame {
       const res = {
         type: 'visit_complete',
         player,
+        dart,
+        lastDart: dart,
         turnScore: turnTotal,
         lostLife,
         livesRemaining: player.lives

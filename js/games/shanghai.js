@@ -92,6 +92,8 @@ export class ShanghaiGame {
       return {
         type: 'visit_complete',
         player,
+        dart,
+        lastDart: dart,
         turnScore,
         score: player.score
       };

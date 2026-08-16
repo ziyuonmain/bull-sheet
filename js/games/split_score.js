@@ -151,6 +151,8 @@ export class SplitScoreGame {
       return {
         type: 'visit_complete',
         player,
+        dart,
+        lastDart: dart,
         halved,
         turnScore,
         roundHits: player.hitsThisRound,

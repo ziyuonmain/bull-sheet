@@ -93,7 +93,7 @@ export class KillerGame {
 
     // Win condition: Only 1 survivor left
     const survivors = this.players.filter(p => !p.isEliminated);
-    if (survivors.length === 1) {
+    if (this.players.length > 1 && survivors.length === 1) {
       this.isMatchOver = true;
       this.winner = survivors[0];
       return {

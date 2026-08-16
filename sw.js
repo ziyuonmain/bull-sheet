@@ -1,5 +1,5 @@
 // BullSheet PWA Service Worker (Network-First with Offline Cache Fallback)
-const CACHE_NAME = 'bullsheet-cache-v23';
+const CACHE_NAME = 'bullsheet-cache-v31';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -26,10 +26,23 @@ const ASSETS_TO_CACHE = [
   './js/games/killer.js',
   './js/games/elimination.js',
   './js/games/around_clock.js',
+  './js/games/bobs27.js',
+  './js/components/heatmap.js',
+  './js/components/match_card.js',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
+  './icons/apple-touch-icon.png',
+  './audio/russ_bray/180.mp3',
+  './audio/russ_bray/140.mp3',
+  './audio/russ_bray/100.mp3',
+  './audio/russ_bray/26.mp3',
+  './audio/russ_bray/0.mp3',
+  './audio/russ_bray/gameshot.mp3',
+  './audio/george_noble/180.mp3',
+  './audio/george_noble/gameshot.mp3',
+  './audio/british_ref/180.mp3',
+  './audio/british_ref/gameshot.mp3'
 ];
 
 // Install: Cache core assets and immediately activate
@@ -60,6 +73,12 @@ self.addEventListener('activate', (event) => {
 
 // Fetch: Network-First (Fetches newest updates instantly, falls back to offline cache)
 self.addEventListener('fetch', (event) => {
+  // On localhost / 127.0.0.1, always fetch fresh from network
+  if (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {

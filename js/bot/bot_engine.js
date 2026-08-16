@@ -4,7 +4,7 @@ import { CHECKOUT_TABLE, BOGEY_NUMBERS } from '../components/checkout.js';
 export const BOT_PROFILES = {
   bullshitter: {
     id: 'bullshitter',
-    name: 'The Bullshitter 🤡',
+    name: '🤡 Beginner',
     description: 'Casual beginner with shaky aim, frequent misses, and chaotic pressure play.',
     skillRating: 'Beginner',
     t20Chance: 0.02,
@@ -16,7 +16,7 @@ export const BOT_PROFILES = {
   },
   pub_regular: {
     id: 'pub_regular',
-    name: 'Pub Regular Dave 🍺',
+    name: '🍺 Casual',
     description: 'Steady pub league thrower with dependable single scoring and relaxed rhythm.',
     skillRating: 'Casual',
     t20Chance: 0.15,
@@ -28,7 +28,7 @@ export const BOT_PROFILES = {
   },
   accountant: {
     id: 'accountant',
-    name: 'Clinical Accountant 📊',
+    name: '📊 Tactician',
     description: 'Disciplined match player. Calculates every risk and excels in defensive play.',
     skillRating: 'Tactician',
     t20Chance: 0.35,
@@ -40,7 +40,7 @@ export const BOT_PROFILES = {
   },
   oche_master: {
     id: 'oche_master',
-    name: 'Oche Master Jack 🎯',
+    name: '🎯 Semi-Pro',
     description: 'Tournament county ace with heavy treble scoring and clutch double finishes.',
     skillRating: 'Semi-Pro',
     t20Chance: 0.58,
@@ -52,7 +52,7 @@ export const BOT_PROFILES = {
   },
   machine180: {
     id: 'machine180',
-    name: 'The 180 Machine 👑',
+    name: '👑 Master',
     description: 'World-class stage champion. Near-flawless precision across all game modes.',
     skillRating: 'Master',
     t20Chance: 0.80,
@@ -92,10 +92,20 @@ export class BotEngine {
         return this.throwDartAroundClock(activePlayer);
       case 'shooter':
         return this.throwDartShooter(gameInstance);
+      case 'bobs27':
+        return this.throwDartBobs27(gameInstance, activePlayer);
       case 'highscore':
       default:
         return this.throwDartHighscore();
     }
+  }
+
+  // 9. Bob's 27 Mode
+  throwDartBobs27(game, player) {
+    const prof = this.profile;
+    const target = game.getCurrentTarget ? game.getCurrentTarget() : { number: 1, mult: 2, label: 'D1' };
+    const aimTarget = target.label === 'Bull' ? 'Bull' : `D${target.number}`;
+    return this.simulateAimAt(aimTarget, prof.doubleHitChance);
   }
 
   // 1. X01 Mode (501 / 301)
@@ -303,6 +313,37 @@ export class BotEngine {
   throwDartHighscore() {
     const prof = this.profile;
     return this.simulateAimAt('T20', prof.t20Chance);
+  }
+
+  // Dynamic Live Calibration: Mirrors human player's current match form +- 3 pts
+  adjustAdaptiveProfile(game) {
+    if (this.profile.id !== 'adaptive' || !game || !game.players) return;
+    const human = game.players.find(p => !p.isBot);
+    if (!human) return;
+
+    let humanAvg = 50;
+    if (human.turns && human.turns.length > 0) {
+      const sum = human.turns.reduce((a, b) => a + (typeof b === 'number' ? b : 0), 0);
+      humanAvg = sum / human.turns.length;
+    } else if (human.totalScoreScored && human.totalDartsThrown > 0) {
+      humanAvg = (human.totalScoreScored / human.totalDartsThrown) * 3;
+    }
+
+    const norm = Math.max(0.05, Math.min(0.95, (humanAvg - 20) / 75));
+    this.profile.trebleHitChance = 0.05 + norm * 0.55;
+    this.profile.t20Chance = this.profile.trebleHitChance;
+    this.profile.doubleHitChance = 0.12 + norm * 0.60;
+    this.profile.singleChance = 0.50 + (1 - norm) * 0.15;
+    this.profile.missChance = Math.max(0.01, 0.25 * (1 - norm));
+    this.profile.tacticalIQ = 0.3 + norm * 0.6;
+  }
+
+  // 10. Bob's 27 Double Training
+  throwDartBobs27(game) {
+    this.adjustAdaptiveProfile(game);
+    const prof = this.profile;
+    const target = game.getCurrentTarget ? game.getCurrentTarget() : { number: 1, mult: 2, label: 'D1' };
+    return this.simulateAimAt(target.label, prof.doubleHitChance);
   }
 
   // --- Segment Physics & Accuracy Simulation ---

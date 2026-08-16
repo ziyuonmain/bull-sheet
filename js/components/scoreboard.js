@@ -517,7 +517,83 @@ export class Scoreboard {
     this.container.innerHTML = html;
   }
 
-  // 9. Render Around the Clock Scoreboard
+  // 9. Render Bob's 27 World Standard Double Practice Scoreboard
+  renderBobs27(game) {
+    if (!this.container || !game) return;
+    const active = game.getActivePlayer();
+    const target = game.getCurrentTarget ? game.getCurrentTarget() : { label: 'D1', value: 2, number: 1 };
+    const isVisitDone = game.turnDarts && game.turnDarts.length >= 3;
+    const nextPlayer = game.getNextPlayer ? game.getNextPlayer() : active;
+
+    let html = `
+      <div class="scoreboard-bobs27">
+        <div class="hero-player-card">
+          <div class="hero-header">
+            <div class="hero-player-name">
+              <span class="active-pulse-badge">▶ THROWING</span>
+              <h2>${active.name} ${active.isBot ? '<span class="bot-badge">BOT</span>' : ''}</h2>
+            </div>
+            <span class="pill-stat highlight-legs">Round: <strong>${game.currentRound} / 21</strong></span>
+          </div>
+
+          <div class="bobs-target-hero-banner" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 14px; margin: 12px 0; text-align: center;">
+            <span class="score-sub-label" style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">ACTIVE TARGET DOUBLE</span>
+            <div class="bobs-target-huge" style="font-size: 2.5rem; font-weight: 900; color: var(--accent-gold); margin: 4px 0;">${target.label}</div>
+            <span class="target-pts-sub" style="font-size: 0.9rem; color: var(--text-muted);">Hit: <strong style="color:#10b981;">+${target.value} pts</strong> each • 0 Hits: <strong style="color:#ef4444;">-${target.value} pts</strong></span>
+          </div>
+
+          <div class="hero-score-display" style="text-align: center; margin: 12px 0;">
+            <span class="score-sub-label" style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">CURRENT SCORE</span>
+            <div class="main-score-huge" style="font-size: 3.5rem; font-weight: 900; color: ${active.score <= 10 ? '#ef4444' : 'var(--text-primary)'}; line-height: 1;">
+              ${active.isEliminated ? '☠️ 0' : active.score}
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+              Doubles Hit: <strong>${active.totalDoublesHit || 0}</strong> • Round Hits: <strong>${active.hitsThisRound || 0} / 3</strong>
+            </div>
+          </div>
+
+          <!-- 3-Dart Slots -->
+          <div class="turn-breakdown-box" style="margin-top: 12px;">
+            <div class="turn-box-title" style="font-size: 0.8rem; color: var(--text-secondary); text-align: center; margin-bottom: 6px;">
+              VISIT DARTS (3 Darts at ${target.label}):
+            </div>
+            <div class="hero-turn-darts" style="display: flex; justify-content: center; gap: 8px;">
+              <div class="dart-slot ${game.turnDarts[0] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[0]?.label || '—'}</strong></div>
+              <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong></div>
+              <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
+            </div>
+          </div>
+
+          ${isVisitDone && !game.isMatchOver ? `
+            <div class="next-player-prompt-banner" style="margin-top: 14px;">
+              <button id="btn-scoreboard-next-player" class="btn-primary-start" type="button" style="width: 100%; padding: 12px; font-weight: 700; font-size: 1rem;">
+                ➔ NEXT ${game.players.length > 1 ? `PLAYER (${nextPlayer.name})` : 'ROUND ➔'}
+              </button>
+            </div>
+          ` : ''}
+          
+        </div>
+
+        ${game.players.length > 1 ? `
+          <div class="multiplayer-strip-container" style="margin-top: 14px;">
+            <div class="strip-header-label" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 6px;">ALL PLAYERS STANDINGS</div>
+            <div class="multiplayer-strip" style="display: flex; gap: 8px; overflow-x: auto;">
+              ${game.players.map((p, i) => `
+                <div class="player-mini-card ${i === game.activePlayerIndex ? 'is-active' : ''} ${p.isEliminated ? 'eliminated-player' : ''}" style="flex: 1; min-width: 100px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: 8px; text-align: center;">
+                  <div class="mini-name" style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">${p.name} ${p.isBot ? '<small>(BOT)</small>' : ''}</div>
+                  <div class="mini-score" style="font-size: 1.2rem; font-weight: 800; color: ${p.isEliminated ? '#ef4444' : 'var(--accent-gold)'}; margin: 2px 0;">${p.isEliminated ? '☠️ OUT' : p.score}</div>
+                  <div class="mini-avg-badge" style="font-size: 0.75rem; color: var(--text-muted);">${p.totalDoublesHit || 0} Doubles</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    this.container.innerHTML = html;
+  }
+
   renderAroundClock(game) {
     const active = game.getActivePlayer();
 

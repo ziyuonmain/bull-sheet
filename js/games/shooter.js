@@ -89,6 +89,8 @@ export class ShooterGame {
       return {
         type: 'visit_complete',
         player,
+        dart,
+        lastDart: dart,
         turnScore: turnHits,
         score: player.score
       };

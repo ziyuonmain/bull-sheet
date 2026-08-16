@@ -58,7 +58,7 @@
         <!-- Game Mode Selection Grid -->
         <div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 class="setup-section-title" style="margin:0;">Select Game Mode</h2>
+            <h2 class="setup-section-title" style="margin:0;">Game Mode</h2>
             <button id="btn-rules-setup" class="ctrl-btn btn-rules-pill" type="button">ℹ️ How to Play</button>
           </div>
           
@@ -108,6 +108,11 @@
               <span class="mode-title">Around Clock</span>
               <span class="mode-desc">1 to 20 + Bull training</span>
             </div>
+            <div class="game-mode-card" data-mode="bobs27">
+              <span class="mode-icon">🎯</span>
+              <span class="mode-title">Bob's 27</span>
+              <span class="mode-desc">Double training drill</span>
+            </div>
           </div>
         </div>
 
@@ -120,18 +125,18 @@
             <div class="option-group">
               <label for="opt-x01-score">Starting Score</label>
               <select id="opt-x01-score">
-                <option value="501" selected>501 (PDC Standard)</option>
-                <option value="301">301 (Fast)</option>
-                <option value="701">701 (Marathon)</option>
-                <option value="101">101 (Sprint)</option>
+                <option value="501" selected>501</option>
+                <option value="301">301</option>
+                <option value="701">701</option>
+                <option value="101">101</option>
               </select>
             </div>
             <div class="option-group">
               <label for="opt-x01-out">Out Mode</label>
               <select id="opt-x01-out">
-                <option value="double" selected>Double Out (Pro)</option>
-                <option value="single">Single Out (Casual)</option>
-                <option value="master">Master Out (Double/Treble)</option>
+                <option value="double" selected>Double Out</option>
+                <option value="single">Single Out</option>
+                <option value="master">Master Out</option>
               </select>
             </div>
             <div class="option-group">
@@ -144,8 +149,8 @@
             <div class="option-group">
               <label for="opt-x01-legs">First to (Legs)</label>
               <select id="opt-x01-legs">
-                <option value="1">1 Leg (Sudden Death)</option>
-                <option value="3" selected>3 Legs (Best of 5)</option>
+                <option value="1">1 Leg</option>
+                <option value="3" selected>3 Legs</option>
                 <option value="5">5 Legs</option>
                 <option value="7">7 Legs</option>
               </select>
@@ -157,18 +162,18 @@
             <div class="option-group">
               <label for="opt-split-order">Round Order Mode</label>
               <select id="opt-split-order">
-                <option value="random" selected>🎲 Random Shuffle (Default - Fresh Board Targets)</option>
-                <option value="classic">📜 Classic Sequence (15, 16, D, 17, 18, T, 19, 20, Bull)</option>
-                <option value="custom">✏️ Custom Sequence (Type your targets below)</option>
+                <option value="random" selected>🎲 Random Shuffle</option>
+                <option value="classic">📜 Classic Sequence</option>
+                <option value="custom">✏️ Custom Sequence</option>
               </select>
             </div>
             <div class="option-group">
               <label for="opt-split-start-score">Starting Score</label>
               <select id="opt-split-start-score">
-                <option value="40" selected>40 points (Standard)</option>
-                <option value="50">50 points</option>
-                <option value="100">100 points</option>
-                <option value="0">0 points</option>
+                <option value="40" selected>40</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="0">0</option>
               </select>
             </div>
             <div class="option-group" id="opt-split-custom-group" style="display: none; width: 100%;">
@@ -182,8 +187,8 @@
             <div class="option-group">
               <label for="opt-cricket-mode">Cricket Variant</label>
               <select id="opt-cricket-mode">
-                <option value="standard" selected>Standard Cricket (Points to scorer)</option>
-                <option value="cutthroat">Cutthroat Cricket (Penalty points to friends)</option>
+                <option value="standard" selected>Standard</option>
+                <option value="cutthroat">Cutthroat</option>
               </select>
             </div>
           </div>
@@ -193,9 +198,9 @@
             <div class="option-group">
               <label for="opt-highscore-rounds">Total Rounds</label>
               <select id="opt-highscore-rounds">
-                <option value="5">5 Rounds (Speed)</option>
-                <option value="7" selected>7 Rounds (Standard)</option>
-                <option value="10">10 Rounds (Pro)</option>
+                <option value="5">5 Rounds</option>
+                <option value="7" selected>7 Rounds</option>
+                <option value="10">10 Rounds</option>
               </select>
             </div>
           </div>
@@ -205,16 +210,16 @@
             <div class="option-group">
               <label for="opt-party-killer-lives">Starting Lives / Strikes</label>
               <select id="opt-party-killer-lives">
-                <option value="3">3 Lives (Fast)</option>
-                <option value="5" selected>5 Lives (Standard)</option>
-                <option value="7">7 Lives (Epic)</option>
+                <option value="3">3 Lives</option>
+                <option value="5" selected>5 Lives</option>
+                <option value="7">7 Lives</option>
               </select>
             </div>
             <div class="option-group">
               <label for="opt-party-shanghai-rounds">Shanghai Rounds</label>
               <select id="opt-party-shanghai-rounds">
                 <option value="7" selected>Rounds 1–7</option>
-                <option value="20">Rounds 1–20 (Full Board)</option>
+                <option value="20">Rounds 1–20</option>
               </select>
             </div>
           </div>
@@ -257,8 +262,13 @@
           <button id="btn-excuse-generator" class="ctrl-btn btn-excuse" type="button">🐂 Excuse</button>
         </div>
         <div class="game-controls-right">
-          <button id="btn-quick-sound" class="ctrl-btn" type="button">🔊 Sound: ON</button>
-          <button id="btn-quick-voice" class="ctrl-btn" type="button">🗣️ Caller: ON</button>
+          <select id="game-voice-select" class="ctrl-btn" title="Audio & Referee Voice" style="padding: 6px 10px; cursor: pointer; font-size: 0.85rem;">
+            <option value="muted">🔇 Sound Off</option>
+            <option value="sound_only">🔊 Sound Only</option>
+            <option value="russ_bray" selected>🎙️ Russ Bray</option>
+            <option value="george_noble">🎯 George Noble</option>
+            <option value="british_ref">🍺 British Ref</option>
+          </select>
           <button id="btn-end-game" class="ctrl-btn btn-end" type="button">End Game</button>
         </div>
       </div>
@@ -306,7 +316,15 @@
           </table>
         </div>
 
-        <div style="display: flex; gap: 12px; margin-top: 20px;">
+        <!-- Heatmap Visualizer Container -->
+        <div id="summary-heatmap-container"></div>
+
+        <div style="display: flex; gap: 10px; margin-top: 16px;">
+          <button id="btn-copy-match-card" class="ctrl-btn" type="button" style="flex: 1; padding: 12px; font-weight: 600;">📋 Copy Match Card</button>
+          <button id="btn-download-image-card" class="ctrl-btn" type="button" style="flex: 1; padding: 12px; font-weight: 600;">📸 Save Image Card</button>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 16px;">
           <button id="btn-rematch" class="btn-primary-start" type="button" style="flex: 1;">REMATCH 🔄</button>
           <button id="btn-new-match" class="btn-primary-start" type="button" style="flex: 1; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">New Game</button>
         </div>
@@ -320,11 +338,13 @@
         <!-- Lifetime Stats Dashboard Overview -->
         <div class="history-dashboard-header">
           <div class="history-title-wrap">
-            <h1 class="setup-section-title" style="margin:0; font-size:1.6rem;">🏆 Match History & Pub Stats</h1>
-            <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:4px;">Persistent local match records with full player performance breakdown.</p>
+            <h1 class="setup-section-title" style="margin:0; font-size:1.6rem;">Match History</h1>
+            <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:4px;">Local match records and player stats.</p>
           </div>
           <div class="history-quick-actions">
             <button id="btn-export-history" class="ctrl-btn" type="button" title="Export Match History JSON">📥 Export</button>
+            <button id="btn-import-history" class="ctrl-btn" type="button" title="Import Match History JSON">📤 Import</button>
+            <input type="file" id="input-import-history" accept=".json,application/json" style="display:none;" />
             <button id="btn-clear-history" class="ctrl-btn btn-end" type="button" title="Clear Match History">🗑️ Clear</button>
           </div>
         </div>
@@ -334,12 +354,24 @@
           <!-- Populated via JS -->
         </div>
 
+        <!-- Lifetime Hit Heatmap Container -->
+        <div id="history-heatmap-container"></div>
+
+        <!-- Player Drilldown Selector -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 12px 0 6px 0;">
+          <label for="history-player-filter" style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);">Player Drilldown:</label>
+          <select id="history-player-filter" class="ctrl-btn" style="padding: 6px 12px; font-size: 0.85rem; cursor: pointer; min-width: 150px;">
+            <option value="all" selected>👤 All Players</option>
+          </select>
+        </div>
+
         <!-- Filter Tabs -->
         <div class="history-filters-bar">
           <button class="hist-filter-btn active" data-filter="all">All Matches</button>
           <button class="hist-filter-btn" data-filter="x01">501 / X01</button>
           <button class="hist-filter-btn" data-filter="cricket">Cricket</button>
           <button class="hist-filter-btn" data-filter="split_score">Split Score</button>
+          <button class="hist-filter-btn" data-filter="bobs27">Bob's 27</button>
           <button class="hist-filter-btn" data-filter="party">Party Games</button>
         </div>
 
@@ -354,32 +386,58 @@
     <main id="view-settings" class="app-view">
       <div class="setup-container">
         <div class="setup-options-panel">
-          <h2 class="setup-section-title">App Theme & Appearance</h2>
+          <h2 class="setup-section-title">Appearance</h2>
           <div class="option-group">
-            <label for="setting-theme">Scoreboard Theme</label>
+            <label for="setting-theme">Theme</label>
             <select id="setting-theme">
-              <option value="bullsheet" selected>🐂 BullSheet Pub Chalkboard (Authentic Dark)</option>
-              <option value="excel">📊 BullSheet Corporate Excel (Disguised at Work)</option>
-              <option value="neon">⚡ PDC Broadcast Arena (Neon Cyan & Purple)</option>
-              <option value="dark">🌑 OLED Midnight (Pure Minimalist Black)</option>
+              <option value="bullsheet" selected>🐂 Pub Chalkboard</option>
+              <option value="excel">📊 Excel Sheet</option>
+              <option value="neon">⚡ PDC Arena</option>
+              <option value="dark">🌑 OLED Midnight</option>
             </select>
           </div>
         </div>
 
         <div class="setup-options-panel">
-          <h2 class="setup-section-title">Open Source & About</h2>
-          <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;">
-            <strong>BullSheet</strong> is a 100% free, zero-ad, offline Progressive Web App (PWA) licensed under the <strong>GNU General Public License v3.0 (GPL-3.0)</strong>.
+          <h2 class="setup-section-title">Audio & Referee Voice</h2>
+          <div class="option-group">
+            <label for="setting-voice-style">Audio Mode</label>
+            <select id="setting-voice-style">
+              <option value="muted">🔇 Sound Off</option>
+              <option value="sound_only">🔊 Sound Only</option>
+              <option value="russ_bray" selected>🎙️ Russ Bray</option>
+              <option value="george_noble">🎯 George Noble</option>
+              <option value="british_ref">🍺 British Referee</option>
+            </select>
+          </div>
+          <div class="checkbox-option-row">
+            <input type="checkbox" id="setting-announce-total" />
+            <label for="setting-announce-total">Announce Turn Total (on 3rd Dart)</label>
+          </div>
+          <div class="option-group" style="margin-top: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label for="setting-volume" style="margin: 0; font-size: 0.95rem; font-weight: 500;">Master Volume</label>
+              <span id="setting-volume-label" style="font-size: 0.85rem; color: var(--accent-gold); font-weight: 600;">80%</span>
+            </div>
+            <input type="range" id="setting-volume" min="0" max="100" value="80" style="width: 100%; cursor: pointer; accent-color: var(--accent-gold);" />
+          </div>
+          <div style="margin-top: 14px; display: flex; gap: 10px;">
+            <button id="btn-test-voice" class="ctrl-btn" type="button">🗣️ Test 180</button>
+            <button id="btn-test-26" class="ctrl-btn" type="button">🐂 Test 26</button>
+          </div>
+        </div>
+
+        <div class="setup-options-panel">
+          <h2 class="setup-section-title">About</h2>
+          <p style="color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
+            Free, open-source darts scoreboard licensed under GPL-3.0.
           </p>
-          <div style="margin: 16px 0;">
-            <a href="https://github.com/zyu-wok/bull-sheet" target="_blank" rel="noopener noreferrer" class="btn-primary-start" style="display:inline-flex; align-items:center; gap:8px; text-decoration:none; width:auto; padding:10px 20px; font-size:0.95rem;">
-              <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-              View Source Code on GitHub
+          <div>
+            <a href="https://github.com/zyu-wok/bull-sheet" target="_blank" rel="noopener noreferrer" class="btn-primary-start" style="display:inline-flex; align-items:center; gap:8px; text-decoration:none; width:auto; padding:8px 16px; font-size:0.9rem;">
+              <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+              GitHub Repository
             </a>
           </div>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top:8px;">
-            To install on iPad/iPhone: Open in Safari &rarr; Tap Share (square with arrow) &rarr; Tap <strong>"Add to Home Screen"</strong>. Works 100% offline.
-          </p>
         </div>
       </div>
     </main>
@@ -390,9 +448,9 @@
     <div class="modal-backdrop"></div>
     <div class="modal-content" style="max-width: 440px;">
       <button class="modal-top-close-btn modal-close" type="button" aria-label="Close">✕</button>
-      <div class="modal-title" style="color:#ef4444;">⚠️ Match in Progress</div>
-      <p style="color: var(--text-secondary); font-size: 1.05rem; line-height: 1.5;">
-        A game is currently being played. Leaving now will forfeit the match and discard in-game progress.
+      <div class="modal-title" style="color:#ef4444;">Exit Match?</div>
+      <p style="color: var(--text-secondary); font-size: 1.0rem; line-height: 1.5;">
+        Leaving now will discard current match progress.
       </p>
       <div class="modal-actions" style="margin-top: 12px;">
         <button id="btn-confirm-stay" class="modal-btn btn-modal-next" type="button">Resume Game 🎯</button>
@@ -472,6 +530,23 @@
   </div>
 
   <!-- Main JavaScript App Entry -->
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/app.js?v=31"></script>
+  <!-- Export History Dialog Modal -->
+  <div id="modal-export-history" class="modal-window">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content" style="max-width: 440px;">
+      <button class="modal-top-close-btn modal-close" type="button" aria-label="Close">✕</button>
+      <div class="modal-title" style="color: var(--accent-gold);">📥 Export Match History</div>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; margin-bottom: 16px;">
+        Choose how you would like to export your local match archive:
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button id="btn-export-save-picker" class="btn-primary-start" type="button" style="font-size: 0.95rem; padding: 12px;">📁 Choose Save Location...</button>
+        <button id="btn-export-download-direct" class="ctrl-btn" type="button" style="font-size: 0.95rem; padding: 12px;">💾 Direct Browser Download</button>
+        <button id="btn-export-copy-clipboard" class="ctrl-btn" type="button" style="font-size: 0.95rem; padding: 12px;">📋 Copy JSON to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
