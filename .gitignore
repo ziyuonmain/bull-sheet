@@ -16,7 +16,18 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 
-# Python
+# Node & Playwright
+node_modules/
+test-results/
+playwright-report/
+playwright/.cache/
+blob-report/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python (legacy)
 __pycache__/
 *.py[cod]
 *$py.class

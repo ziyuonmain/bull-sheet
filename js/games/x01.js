@@ -258,8 +258,9 @@ export class X01Game {
   }
 
   getScoreAtStartOfTurn(player) {
-    const scoredThisTurn = this.turnDarts.reduce((acc, d) => acc + (d.score || 0), 0);
-    return player.score + scoredThisTurn;
+    const priorDartsThisTurn = this.turnDarts.slice(0, -1);
+    const scoredPriorDarts = priorDartsThisTurn.reduce((acc, d) => acc + (d.score || 0), 0);
+    return player.score + scoredPriorDarts;
   }
 
   finishTurn() {

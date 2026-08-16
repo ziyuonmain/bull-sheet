@@ -97,7 +97,7 @@ Then open `http://localhost:8080/`.
 ### Tests
 
 ```bash
-python3 -m unittest discover tests -v
+pytest
 ```
 
 Covers game mechanics, turn flow, Bob's 27 edge cases, UI structure, and asset integrity.
@@ -127,7 +127,10 @@ bull-sheet/
 │   ├── russ_bray/
 │   ├── george_noble/
 │   └── british_ref/
-└── tests/                   # Python unit tests
+├── pyproject.toml            # Python project & dev dependencies config
+└── tests/
+    ├── unit/                # Unit test suites (X01, Cricket, Party games, Bots, Stats)
+    └── e2e/                 # E2E & browser test suites (Bob's 27, Selenium)
 ```
 
 ---
