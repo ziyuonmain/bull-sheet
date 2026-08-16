@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>BullSheet - Zero-BS Darts Scoreboard</title>
+  
+  <!-- PWA & iOS Home Screen Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BullSheet" />
+  <meta name="theme-color" content="#12151b" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/themes.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body class="theme-bullsheet">
+
+  <div id="confetti-container"></div>
+
+  <div id="app-root">
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="brand-logo">
+        <span class="brand-bull-icon">🎯🐂</span>
+        <div>
+          <span>BullSheet</span>
+          <div class="brand-tagline">No Ads • Zero BS Darts</div>
+        </div>
+      </div>
+      <nav class="nav-tabs">
+        <button class="nav-tab-btn active" data-target="view-setup">Play</button>
+        <button class="nav-tab-btn" data-target="view-stats">History</button>
+        <button class="nav-tab-btn" data-target="view-settings">Settings</button>
+      </nav>
+    </header>
+
+    <!-- 1. SETUP / NEW GAME VIEW -->
+    <main id="view-setup" class="app-view active-view">
+      <div class="setup-container">
+        
+        <!-- Game Mode Selection Grid -->
+        <div>
+          <h2 class="setup-section-title">Select Game Mode</h2>
+          <div class="game-modes-grid">
+            <div class="game-mode-card selected" data-mode="x01">
+              <span class="mode-icon">🎯</span>
+              <span class="mode-title">501 / X01</span>
+              <span class="mode-desc">Standard Legs & Sets</span>
+            </div>
+            <div class="game-mode-card" data-mode="cricket">
+              <span class="mode-icon">🏏</span>
+              <span class="mode-title">Cricket</span>
+              <span class="mode-desc">Standard & Cutthroat</span>
+            </div>
+            <div class="game-mode-card" data-mode="killer">
+              <span class="mode-icon">🔪</span>
+              <span class="mode-title">Killer</span>
+              <span class="mode-desc">Hunt your friends' lives</span>
+            </div>
+            <div class="game-mode-card" data-mode="elimination">
+              <span class="mode-icon">💥</span>
+              <span class="mode-title">Elimination</span>
+              <span class="mode-desc">Beat the leader or bust</span>
+            </div>
+            <div class="game-mode-card" data-mode="split_score">
+              <span class="mode-icon">⚡</span>
+              <span class="mode-title">Split Score</span>
+              <span class="mode-desc">Halve-It on miss</span>
+            </div>
+            <div class="game-mode-card" data-mode="shanghai">
+              <span class="mode-icon">🏮</span>
+              <span class="mode-title">Shanghai</span>
+              <span class="mode-desc">Rounds 1–7 instant win</span>
+            </div>
+            <div class="game-mode-card" data-mode="around_clock">
+              <span class="mode-icon">⏰</span>
+              <span class="mode-title">Around Clock</span>
+              <span class="mode-desc">1 to 20 + Bull training</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode Specific Options -->
+        <div class="setup-options-panel">
+          <h2 class="setup-section-title">Match Rules</h2>
+          
+          <!-- X01 Options -->
+          <div id="setup-x01-options" class="options-row">
+            <div class="option-group">
+              <label for="opt-x01-score">Starting Score</label>
+              <select id="opt-x01-score">
+                <option value="501" selected>501 (PDC Standard)</option>
+                <option value="301">301 (Fast)</option>
+                <option value="701">701 (Marathon)</option>
+                <option value="101">101 (Sprint)</option>
+              </select>
+            </div>
+            <div class="option-group">
+              <label for="opt-x01-out">Out Mode</label>
+              <select id="opt-x01-out">
+                <option value="double" selected>Double Out (Pro)</option>
+                <option value="single">Single Out (Casual)</option>
+                <option value="master">Master Out (Double/Treble)</option>
+              </select>
+            </div>
+            <div class="option-group">
+              <label for="opt-x01-in">In Mode</label>
+              <select id="opt-x01-in">
+                <option value="straight" selected>Straight In</option>
+                <option value="double">Double In</option>
+              </select>
+            </div>
+            <div class="option-group">
+              <label for="opt-x01-legs">First to (Legs)</label>
+              <select id="opt-x01-legs">
+                <option value="1">1 Leg (Sudden Death)</option>
+                <option value="3" selected>3 Legs (Best of 5)</option>
+                <option value="5">5 Legs</option>
+                <option value="7">7 Legs</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Cricket Options -->
+          <div id="setup-cricket-options" class="options-row" style="display: none;">
+            <div class="option-group">
+              <label for="opt-cricket-mode">Cricket Variant</label>
+              <select id="opt-cricket-mode">
+                <option value="standard" selected>Standard Cricket (Points to scorer)</option>
+                <option value="cutthroat">Cutthroat Cricket (Penalty points to friends)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Party Options (Killer / Elimination / Shanghai) -->
+          <div id="setup-party-options" class="options-row" style="display: none;">
+            <div class="option-group">
+              <label for="opt-party-killer-lives">Starting Lives / Strikes</label>
+              <select id="opt-party-killer-lives">
+                <option value="3">3 Lives (Fast)</option>
+                <option value="5" selected>5 Lives (Standard)</option>
+                <option value="7">7 Lives (Epic)</option>
+              </select>
+            </div>
+            <div class="option-group">
+              <label for="opt-party-shanghai-rounds">Shanghai Rounds</label>
+              <select id="opt-party-shanghai-rounds">
+                <option value="7" selected>Rounds 1–7</option>
+                <option value="20">Rounds 1–20 (Full Board)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Player Roster & Friends Management -->
+        <div class="setup-options-panel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2 class="setup-section-title" style="margin:0;">Players & Friends (1 to 8)</h2>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Pass-and-play or AI Bots</span>
+          </div>
+
+          <div id="setup-player-list" class="roster-list">
+            <!-- Populated via JS -->
+          </div>
+
+          <button id="btn-add-player" class="btn-add-player">+ Add Friend / Player</button>
+        </div>
+
+        <!-- Start Game Button -->
+        <button id="btn-start-match" class="btn-primary-start">START MATCH 🎯</button>
+      </div>
+    </main>
+
+    <!-- 2. ACTIVE GAME SCOREBOARD VIEW -->
+    <main id="view-game" class="app-view">
+      <div class="game-controls-bar">
+        <div class="game-controls-left">
+          <button id="btn-toggle-input-mode" class="ctrl-btn">🎯 Switch to Dartboard</button>
+          <button id="btn-excuse-generator" class="ctrl-btn btn-excuse">🐂 Excuse Generator</button>
+        </div>
+        <div class="game-controls-right">
+          <button id="btn-quick-sound" class="ctrl-btn">🔊 Sound: ON</button>
+          <button id="btn-quick-voice" class="ctrl-btn">🗣️ Caller: ON</button>
+          <button id="btn-end-game" class="ctrl-btn btn-end">End Game</button>
+        </div>
+      </div>
+
+      <div class="game-layout">
+        <!-- Dynamic Scoreboard Area (Left / Top) -->
+        <div class="scoreboard-area" id="scoreboard-container">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Input Area: Keypad or Interactive Dartboard (Right / Bottom) -->
+        <div class="input-area">
+          <div id="keypad-container">
+            <!-- Keypad injected via JS -->
+          </div>
+          <div id="dartboard-container">
+            <!-- SVG Dartboard injected via JS -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 3. MATCH SUMMARY / CELEBRATION VIEW -->
+    <main id="view-summary" class="app-view">
+      <div class="setup-container" style="text-align: center;">
+        <h1 id="summary-winner-name" style="font-size: 2.5rem; color: var(--accent-gold); margin-bottom: 8px;">🏆 Match Complete!</h1>
+        <p style="color: var(--text-secondary); margin-bottom: 24px;">Match recorded to local history with zero ads.</p>
+
+        <div class="setup-options-panel">
+          <h2 class="setup-section-title">Final Match Statistics</h2>
+          <table class="cricket-table" style="margin-top: 12px;">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Final Score</th>
+                <th>Legs Won</th>
+                <th>3-Dart Avg</th>
+                <th>High Turn</th>
+                <th>180s</th>
+              </tr>
+            </thead>
+            <tbody id="summary-stats-tbody">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 20px;">
+          <button id="btn-rematch" class="btn-primary-start" style="flex: 1;">REMATCH 🔄</button>
+          <button id="btn-new-match" class="btn-primary-start" style="flex: 1; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">New Game</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- 4. STATS & MATCH HISTORY VIEW -->
+    <main id="view-stats" class="app-view">
+      <div class="setup-container">
+        <h2 class="setup-section-title">Recent Matches & History</h2>
+        <div id="stats-match-history" class="roster-list">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+    </main>
+
+    <!-- 5. SETTINGS VIEW -->
+    <main id="view-settings" class="app-view">
+      <div class="setup-container">
+        <div class="setup-options-panel">
+          <h2 class="setup-section-title">App Theme & Appearance</h2>
+          <div class="option-group">
+            <label for="setting-theme">Scoreboard Theme</label>
+            <select id="setting-theme">
+              <option value="bullsheet" selected>🐂 BullSheet Pub Chalkboard (Authentic Dark)</option>
+              <option value="excel">📊 BullSheet Corporate Excel (Disguised at Work)</option>
+              <option value="neon">⚡ PDC Broadcast Arena (Neon Cyan & Purple)</option>
+              <option value="dark">🌑 OLED Midnight (Pure Minimalist Black)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="setup-options-panel">
+          <h2 class="setup-section-title">About BullSheet</h2>
+          <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;">
+            <strong>BullSheet</strong> is a 100% free, open-source darts scoreboard licensed under <strong>GNU GPL v3.0</strong>.
+            Designed specifically for iPad and mobile touchscreens with zero ads, zero trackers, and complete offline PWA capability.
+          </p>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">
+            To install on iPad: Open Safari &rarr; Tap Share (square with arrow) &rarr; Tap <strong>"Add to Home Screen"</strong>.
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Excuse Generator Modal -->
+  <div id="modal-excuse" class="modal-window">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-title">🐂 BullSheet Official Excuse</div>
+      <div class="excuse-quote" id="excuse-text">"The board is hung 2.5 millimeters too high."</div>
+      <div class="modal-actions">
+        <button id="btn-next-excuse" class="modal-btn btn-modal-next">Another Excuse 🎲</button>
+        <button class="modal-btn btn-modal-close modal-close">Back to Throw</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript App Entry -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

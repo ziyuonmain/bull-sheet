@@ -1,0 +1,112 @@
+/* BullSheet Custom Themes */
+
+/* 1. BullSheet Pub Chalkboard (Default) */
+body.theme-bullsheet {
+  --bg-primary: #12151a;
+  --bg-secondary: #1a1f28;
+  --bg-tertiary: #242c3b;
+  --bg-card: rgba(26, 31, 40, 0.85);
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --accent-gold: #f59e0b;
+  --accent-amber: #d97706;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --accent-blue: #3b82f6;
+
+  --border-color: rgba(245, 158, 11, 0.18);
+}
+
+/* 2. BullSheet Corporate Spreadsheet Parody */
+body.theme-excel {
+  --font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+  --bg-primary: #f3f4f6;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e5e7eb;
+  --bg-card: #ffffff;
+  
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+  
+  --accent-gold: #107c41; /* Excel Green */
+  --accent-amber: #0b6a37;
+  --accent-green: #107c41;
+  --accent-red: #d83b01;
+  --accent-blue: #0078d4;
+
+  --border-color: #d1d5db;
+  --border-radius-sm: 2px;
+  --border-radius-md: 4px;
+  --border-radius-lg: 6px;
+}
+
+body.theme-excel .hero-player-card {
+  border: 1px solid #107c41;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+body.theme-excel .hero-big-score {
+  color: #107c41;
+}
+
+body.theme-excel .num-btn {
+  background: #f9fafb;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+
+/* 3. PDC Broadcast Arena */
+body.theme-neon {
+  --bg-primary: #0a0d1a;
+  --bg-secondary: #12182e;
+  --bg-tertiary: #1b2342;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a5b4fc;
+  --text-muted: #6366f1;
+  
+  --accent-gold: #00f0ff; /* Electric Cyan */
+  --accent-amber: #38bdf8;
+  --accent-green: #22c55e;
+  --accent-red: #ff007f;
+  --accent-blue: #818cf8;
+
+  --border-color: rgba(0, 240, 255, 0.25);
+}
+
+body.theme-neon .hero-player-card {
+  border: 2px solid #00f0ff;
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.2);
+}
+
+body.theme-neon .hero-big-score {
+  color: #00f0ff;
+  text-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
+}
+
+/* 4. OLED Midnight Minimalist */
+body.theme-dark {
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #141414;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --text-muted: #525252;
+  
+  --accent-gold: #ffffff;
+  --accent-amber: #e5e5e5;
+  --accent-green: #22c55e;
+  --accent-red: #ef4444;
+  --accent-blue: #3b82f6;
+
+  --border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.theme-dark .hero-player-card {
+  border: 1px solid #ffffff;
+}
