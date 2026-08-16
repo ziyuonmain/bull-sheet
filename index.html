@@ -486,85 +486,12 @@
           </div>
         </div>
 
-        <!-- Changelog Cards List -->
-        <div class="changelog-page-list">
-          <!-- v1.4.0 -->
-          <article class="changelog-card-page">
-            <div class="cl-page-header">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="cl-ver-page">v1.4.0</span>
-                <span class="cl-tag tag-latest">LATEST</span>
-              </div>
-              <span class="cl-date-page">2026-08-16</span>
-            </div>
-            <h3 class="cl-title-page">Mobile Portrait Overhaul & UI Streamlining</h3>
-            <ul class="cl-list-page">
-              <li><strong>🍔 Sandwich Navigation Drawer:</strong> Smooth slide-over navigation with quick access to Play, History, Settings, and Changelog.</li>
-              <li><strong>📐 Card Width Alignment:</strong> Keypad, Dartboard, and Standings cards share 100% border-to-border outer width alignment.</li>
-              <li><strong>🚫 Zero Horizontal Scrolling:</strong> Wrapped multi-row layouts for roster chips, history filters, and timelines in portrait mode.</li>
-              <li><strong>🧹 UI Clutter Removal:</strong> Clean TV finish pill (<code>[FINISH]</code> / <code>[SETUP]</code>), removed redundant emojis and prefixes.</li>
-              <li><strong>🛡️ Party Scoreboards:</strong> Polished elimination target banners and survivor status cards.</li>
-            </ul>
-          </article>
-
-          <!-- v1.3.0 -->
-          <article class="changelog-card-page">
-            <div class="cl-page-header">
-              <span class="cl-ver-page">v1.3.0</span>
-              <span class="cl-date-page">2026-08-16</span>
-            </div>
-            <h3 class="cl-title-page">Player Analytics, Voice Packs & Saved Rosters</h3>
-            <ul class="cl-list-page">
-              <li><strong>📊 Lifetime Player Analytics:</strong> 3-Dart Avg, First-9 Avg, Checkout %, and radial throw heatmaps.</li>
-              <li><strong>🎙️ Referee Voice Packs:</strong> Russ Bray, George Noble, and British Pub Ref with master volume slider.</li>
-              <li><strong>👥 Saved Rosters:</strong> Persistent player lineup management with quick selection chips.</li>
-              <li><strong>📸 Match Cards:</strong> Exportable high-resolution match summary PNGs.</li>
-              <li><strong>🧪 Automated Test Suite:</strong> Python unit tests covering all game engines and turn mechanics.</li>
-            </ul>
-          </article>
-
-          <!-- v1.2.0 -->
-          <article class="changelog-card-page">
-            <div class="cl-page-header">
-              <span class="cl-ver-page">v1.2.0</span>
-              <span class="cl-date-page">2026-08-16</span>
-            </div>
-            <h3 class="cl-title-page">Pro Speed Keypad & Visual Route Guidance</h3>
-            <ul class="cl-list-page">
-              <li><strong>⚡ Pro Speed Keypad:</strong> 1-Tap Pub Neighbors speed bar (20, 1, 5, T20, Bull, 25) and live point multiplier preview.</li>
-              <li><strong>🎯 Dual-Color Checkout Paths:</strong> Primary gold + secondary cyan guidance directly on the interactive dartboard.</li>
-              <li><strong>⏱️ Turn Pacing:</strong> 3rd throw slot retention and Next Player advancement banner.</li>
-            </ul>
-          </article>
-
-          <!-- v1.1.0 -->
-          <article class="changelog-card-page">
-            <div class="cl-page-header">
-              <span class="cl-ver-page">v1.1.0</span>
-              <span class="cl-date-page">2026-08-16</span>
-            </div>
-            <h3 class="cl-title-page">Party Games Suite & Tactical Bot AI</h3>
-            <ul class="cl-list-page">
-              <li><strong>🎮 10 Game Modes:</strong> Split Score (Halve-It), Killer, Elimination, Shanghai, Shooter, Highscore, Bob's 27, and Around the Clock.</li>
-              <li><strong>🤖 Tactical Bot AI:</strong> 4 skill profiles (Pub Casual to Ally Pally Master) with 1-player solo auto-pairing.</li>
-              <li><strong>ℹ️ Rules Modal:</strong> Comprehensive rules & drill guides for all modes.</li>
-            </ul>
-          </article>
-
-          <!-- v1.0.0 -->
-          <article class="changelog-card-page">
-            <div class="cl-page-header">
-              <span class="cl-ver-page">v1.0.0</span>
-              <span class="cl-date-page">2026-08-16</span>
-            </div>
-            <h3 class="cl-title-page">Initial Release: Core Darts PWA</h3>
-            <ul class="cl-list-page">
-              <li><strong>🎯 Scoring Engine:</strong> Standard 501 / X01 and Cricket with real-time MPR scoring.</li>
-              <li><strong>🎯 Interactive Dartboard:</strong> High-precision SVG dartboard with tactile coordinate detection.</li>
-              <li><strong>📱 100% Offline PWA:</strong> Zero ads, zero paywalls, 100% free open-source software.</li>
-            </ul>
-          </article>
-        </div>
+        <!-- Changelog Cards List (Populated Dynamically from CHANGELOG.md) -->
+        <div id="changelog-page-list" class="changelog-page-list">
+          <div style="padding: 32px 16px; text-align: center; color: var(--text-secondary);">
+            <div style="font-size: 1.5rem; margin-bottom: 8px;">📜</div>
+            <div>Loading release notes...</div>
+          </div>        </div>
 
       </div>
     </main>

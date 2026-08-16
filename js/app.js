@@ -1,3 +1,4 @@
+import { loadAndRenderChangelog } from './components/changelog_loader.js';
 // Main BullSheet Application Controller
 import { sound } from './audio/sound_effects.js';
 import { caller } from './audio/caller.js';
@@ -68,6 +69,7 @@ class BullSheetApp {
     this.initDartboard();
     this.initDartKeypad();
     this.attachNavEvents();
+    loadAndRenderChangelog(document.getElementById('changelog-page-list'));
     // Delegated click for Scoreboard Next Player banner
     document.getElementById('scoreboard-container')?.addEventListener('click', (e) => {
       if (e.target.closest('#btn-scoreboard-next-player')) {
@@ -332,6 +334,10 @@ class BullSheetApp {
 
     // Auto-close sandwich drawer on route change
     this.closeBurgerDrawer();
+
+    if (viewId === 'view-changelog') {
+      loadAndRenderChangelog(document.getElementById('changelog-page-list'));
+    }
 
     window.scrollTo(0, 0);
   }

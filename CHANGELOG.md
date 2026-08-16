@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1] - 2026-08-16
+### 🧹 UI Cleanup, Navigation Polish & Dynamic Changelog
+#### Added
+- **📄 Dynamic In-App Changelog Loader**: The in-app release viewer now dynamically loads and parses `CHANGELOG.md` as the single source of truth, removing duplicate HTML markup and keeping release notes seamlessly synchronized offline.
+
+#### Changed
+- **Header & Title Streamlining**: Removed redundant promo subbadges (`No Ads • 100% Offline PWA`) and cleaned window title and drawer footer.
+- **Navigation Icon Consistency**: Synchronized `📊` History and related navigation icons identically across mobile drawer and desktop tabs.
+- **Repository Hygiene**: Untracked compiled `.pyc` / `.venv` cache files and updated `.gitignore`.
+
+---
+
 ## [1.4.0] - 2026-08-16
 ### 📱 Mobile Portrait Overhaul & UI Streamlining
 #### Added
