@@ -37,3 +37,5 @@ scratch/
 .gemini/
 .venv/
 venv/
+__pycache__/
+*.pyc

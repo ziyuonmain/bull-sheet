@@ -26,25 +26,42 @@
   <div id="app-root">
     <!-- Top Navigation Header -->
     <header class="app-header">
-      <button class="brand-logo" id="brand-logo-btn" type="button" aria-label="BullSheet Home" onclick="window.app && window.app.handleBrandClick()">
-        <span class="brand-bull-icon">🎯🐂</span>
-        <div class="brand-text-wrap">
-          <span class="brand-title">BullSheet</span>
-          <span class="brand-tagline">Because pub math is total bull-sheet.</span>
-          <span class="brand-subbadge">No Ads • 100% Offline PWA</span>
-        </div>
-      </button>
+      <div class="brand-logo-area">
+        <button class="brand-logo" id="brand-logo-btn" type="button" aria-label="BullSheet Home" onclick="window.app && window.app.handleBrandClick()">
+          <span class="brand-bull-icon">🎯🐂</span>
+          <div class="brand-text-wrap">
+            <span class="brand-title">BullSheet</span>
+            <span class="brand-tagline">Because pub math is total bull-sheet.</span>
+            <span class="brand-subbadge">No Ads • 100% Offline PWA</span>
+          </div>
+        </button>
+        <button class="brand-version-badge" id="btn-header-version" type="button" aria-label="View Version 1.4.0 Changelog" title="Version 1.4.0 • Click to view Changelog" onclick="event.stopPropagation(); window.app && window.app.navigateTo('view-changelog')">
+          v1.4.0
+        </button>
+      </div>
 
       <div class="header-right-group">
         <nav class="nav-tabs">
-          <button class="nav-tab-btn active" data-target="view-setup">Play</button>
-          <button class="nav-tab-btn" data-target="view-stats">History</button>
-          <button class="nav-tab-btn" data-target="view-settings">Settings</button>
+          <button class="nav-tab-btn active" data-target="view-setup" title="Play Matches">
+            <span class="tab-icon">🎯</span><span class="tab-label">Play</span>
+          </button>
+          <button class="nav-tab-btn" data-target="view-stats" title="Match History & Stats">
+            <span class="tab-icon">📜</span><span class="tab-label">History</span>
+          </button>
+          <button class="nav-tab-btn" data-target="view-settings" title="Audio & Settings">
+            <span class="tab-icon">⚙️</span><span class="tab-label">Settings</span>
+          </button>
         </nav>
         <a href="https://github.com/zyu-wok/bull-sheet" target="_blank" rel="noopener noreferrer" class="btn-github-link" title="View Source on GitHub">
           <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           <span class="github-text">GitHub</span>
         </a>
+        <!-- Mobile Sandwich / Hamburger Menu Button -->
+        <button id="btn-burger-menu" class="btn-burger-trigger" type="button" aria-label="Open Navigation Menu" title="Menu" onclick="window.app && window.app.openBurgerDrawer()">
+          <span class="burger-bar"></span>
+          <span class="burger-bar"></span>
+          <span class="burger-bar"></span>
+        </button>
       </div>
     </header>
 
@@ -59,7 +76,7 @@
         <div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <h2 class="setup-section-title" style="margin:0;">Game Mode</h2>
-            <button id="btn-rules-setup" class="ctrl-btn btn-rules-pill" type="button">ℹ️ How to Play</button>
+            <button id="btn-rules-setup" class="ctrl-btn btn-rules-pill" type="button">Rules</button>
           </div>
           
           <div class="game-modes-grid">
@@ -228,8 +245,14 @@
         <!-- Saved Player Profiles & Match Lineup -->
         <div class="setup-options-panel">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h2 class="setup-section-title" style="margin:0;">Match Lineup (1 to 8 Players)</h2>
-            <button id="btn-open-roster-manager" class="ctrl-btn btn-rules-pill" type="button">👥 Manage Saved Roster</button>
+            <div class="lineup-title-group">
+              <h2 class="setup-section-title" style="margin:0; display:flex; align-items:center; gap:6px;">
+                Match Lineup <span class="lineup-count-pill">1–8</span>
+              </h2>
+            </div>
+            <button id="btn-open-roster-manager" class="ctrl-btn btn-roster-compact" type="button" title="Manage Saved Roster">
+              👥 <span class="roster-btn-text">Roster</span>
+            </button>
           </div>
 
           <!-- Quick-Add Saved Friends Pills -->
@@ -248,7 +271,7 @@
         </div>
 
         <!-- Start Game Button -->
-        <button id="btn-start-match" class="btn-primary-start" type="button">START MATCH 🎯</button>
+        <button id="btn-start-match" class="btn-primary-start" type="button">START MATCH</button>
       </div>
     </main>
 
@@ -256,20 +279,19 @@
     <main id="view-game" class="app-view">
       <div class="game-controls-bar">
         <div class="game-controls-left">
-          
-          <button id="btn-rules-game" class="ctrl-btn btn-rules-pill" type="button">ℹ️ Rules</button>
-          <button id="btn-toggle-input-mode" class="ctrl-btn" type="button">🎨 Dartboard View</button>
-          <button id="btn-excuse-generator" class="ctrl-btn btn-excuse" type="button">🐂 Excuse</button>
+          <button id="btn-rules-game" class="ctrl-btn btn-icon-only" type="button" title="View Game Rules">ℹ️<span class="ctrl-text"> Rules</span></button>
+          <button id="btn-toggle-input-mode" class="ctrl-btn btn-icon-only" type="button" title="Switch to Interactive Dartboard">🎯<span class="ctrl-text"> Board</span></button>
+          <button id="btn-excuse-generator" class="ctrl-btn btn-excuse btn-icon-only" type="button" title="Generate Pub Excuse">🐂<span class="ctrl-text"> Excuse</span></button>
         </div>
         <div class="game-controls-right">
-          <select id="game-voice-select" class="ctrl-btn" title="Audio & Referee Voice" style="padding: 6px 10px; cursor: pointer; font-size: 0.85rem;">
-            <option value="muted">🔇 Sound Off</option>
-            <option value="sound_only">🔊 Sound Only</option>
+          <select id="game-voice-select" class="ctrl-btn voice-select-compact" title="Audio & Referee Voice">
+            <option value="muted">🔇 Off</option>
+            <option value="sound_only">🔊 Sound</option>
             <option value="russ_bray" selected>🎙️ Russ Bray</option>
-            <option value="george_noble">🎯 George Noble</option>
-            <option value="british_ref">🍺 British Ref</option>
+            <option value="george_noble">🎯 G. Noble</option>
+            <option value="british_ref">🍺 Brit Ref</option>
           </select>
-          <button id="btn-end-game" class="ctrl-btn btn-end" type="button">End Game</button>
+          <button id="btn-end-game" class="ctrl-btn btn-end" type="button" title="End Current Match">✕<span class="ctrl-text"> End</span></button>
         </div>
       </div>
 
@@ -320,7 +342,7 @@
         <div id="summary-heatmap-container"></div>
 
         <div style="display: flex; gap: 10px; margin-top: 16px;">
-          <button id="btn-copy-match-card" class="ctrl-btn" type="button" style="flex: 1; padding: 12px; font-weight: 600;">📋 Copy Match Card</button>
+          <button id="btn-copy-match-card" class="ctrl-btn" type="button" style="flex: 1; padding: 12px; font-weight: 600;">Copy Match Card</button>
           <button id="btn-download-image-card" class="ctrl-btn" type="button" style="flex: 1; padding: 12px; font-weight: 600;">📸 Save Image Card</button>
         </div>
 
@@ -423,7 +445,7 @@
           </div>
           <div style="margin-top: 14px; display: flex; gap: 10px;">
             <button id="btn-test-voice" class="ctrl-btn" type="button">🗣️ Test 180</button>
-            <button id="btn-test-26" class="ctrl-btn" type="button">🐂 Test 26</button>
+            <button id="btn-test-26" class="ctrl-btn" type="button">Test "26!"</button>
           </div>
         </div>
 
@@ -441,6 +463,113 @@
         </div>
       </div>
     </main>
+
+    <!-- 6. CHANGELOG & UPDATES VIEW -->
+    <main id="view-changelog" class="app-view">
+      <div class="setup-container" style="max-width: 760px;">
+        
+        <!-- Header with Back Button & Version Pill -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <button id="btn-changelog-back" class="ctrl-btn" type="button" style="padding: 8px 14px; font-size: 0.85rem;">
+            ← Back to Play
+          </button>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Current Version</span>
+            <span class="version-pill-badge">v1.4.0</span>
+          </div>
+        </div>
+
+        <div class="history-dashboard-header" style="margin-bottom: 20px;">
+          <div class="history-title-wrap">
+            <h1 class="history-main-title" style="display: flex; align-items: center; gap: 10px;">
+              <span>📜 Release Notes & Changelog</span>
+            </h1>
+            <p class="history-subtitle">All notable updates, feature additions, and refinements to BullSheet.</p>
+          </div>
+        </div>
+
+        <!-- Changelog Cards List -->
+        <div class="changelog-page-list">
+          <!-- v1.4.0 -->
+          <article class="changelog-card-page">
+            <div class="cl-page-header">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="cl-ver-page">v1.4.0</span>
+                <span class="cl-tag tag-latest">LATEST</span>
+              </div>
+              <span class="cl-date-page">2026-08-16</span>
+            </div>
+            <h3 class="cl-title-page">Mobile Portrait Overhaul & UI Streamlining</h3>
+            <ul class="cl-list-page">
+              <li><strong>🍔 Sandwich Navigation Drawer:</strong> Smooth slide-over navigation with quick access to Play, History, Settings, and Changelog.</li>
+              <li><strong>📐 Card Width Alignment:</strong> Keypad, Dartboard, and Standings cards share 100% border-to-border outer width alignment.</li>
+              <li><strong>🚫 Zero Horizontal Scrolling:</strong> Wrapped multi-row layouts for roster chips, history filters, and timelines in portrait mode.</li>
+              <li><strong>🧹 UI Clutter Removal:</strong> Clean TV finish pill (<code>[FINISH]</code> / <code>[SETUP]</code>), removed redundant emojis and prefixes.</li>
+              <li><strong>🛡️ Party Scoreboards:</strong> Polished elimination target banners and survivor status cards.</li>
+            </ul>
+          </article>
+
+          <!-- v1.3.0 -->
+          <article class="changelog-card-page">
+            <div class="cl-page-header">
+              <span class="cl-ver-page">v1.3.0</span>
+              <span class="cl-date-page">2026-08-16</span>
+            </div>
+            <h3 class="cl-title-page">Player Analytics, Voice Packs & Saved Rosters</h3>
+            <ul class="cl-list-page">
+              <li><strong>📊 Lifetime Player Analytics:</strong> 3-Dart Avg, First-9 Avg, Checkout %, and radial throw heatmaps.</li>
+              <li><strong>🎙️ Referee Voice Packs:</strong> Russ Bray, George Noble, and British Pub Ref with master volume slider.</li>
+              <li><strong>👥 Saved Rosters:</strong> Persistent player lineup management with quick selection chips.</li>
+              <li><strong>📸 Match Cards:</strong> Exportable high-resolution match summary PNGs.</li>
+              <li><strong>🧪 Automated Test Suite:</strong> Python unit tests covering all game engines and turn mechanics.</li>
+            </ul>
+          </article>
+
+          <!-- v1.2.0 -->
+          <article class="changelog-card-page">
+            <div class="cl-page-header">
+              <span class="cl-ver-page">v1.2.0</span>
+              <span class="cl-date-page">2026-08-16</span>
+            </div>
+            <h3 class="cl-title-page">Pro Speed Keypad & Visual Route Guidance</h3>
+            <ul class="cl-list-page">
+              <li><strong>⚡ Pro Speed Keypad:</strong> 1-Tap Pub Neighbors speed bar (20, 1, 5, T20, Bull, 25) and live point multiplier preview.</li>
+              <li><strong>🎯 Dual-Color Checkout Paths:</strong> Primary gold + secondary cyan guidance directly on the interactive dartboard.</li>
+              <li><strong>⏱️ Turn Pacing:</strong> 3rd throw slot retention and Next Player advancement banner.</li>
+            </ul>
+          </article>
+
+          <!-- v1.1.0 -->
+          <article class="changelog-card-page">
+            <div class="cl-page-header">
+              <span class="cl-ver-page">v1.1.0</span>
+              <span class="cl-date-page">2026-08-16</span>
+            </div>
+            <h3 class="cl-title-page">Party Games Suite & Tactical Bot AI</h3>
+            <ul class="cl-list-page">
+              <li><strong>🎮 10 Game Modes:</strong> Split Score (Halve-It), Killer, Elimination, Shanghai, Shooter, Highscore, Bob's 27, and Around the Clock.</li>
+              <li><strong>🤖 Tactical Bot AI:</strong> 4 skill profiles (Pub Casual to Ally Pally Master) with 1-player solo auto-pairing.</li>
+              <li><strong>ℹ️ Rules Modal:</strong> Comprehensive rules & drill guides for all modes.</li>
+            </ul>
+          </article>
+
+          <!-- v1.0.0 -->
+          <article class="changelog-card-page">
+            <div class="cl-page-header">
+              <span class="cl-ver-page">v1.0.0</span>
+              <span class="cl-date-page">2026-08-16</span>
+            </div>
+            <h3 class="cl-title-page">Initial Release: Core Darts PWA</h3>
+            <ul class="cl-list-page">
+              <li><strong>🎯 Scoring Engine:</strong> Standard 501 / X01 and Cricket with real-time MPR scoring.</li>
+              <li><strong>🎯 Interactive Dartboard:</strong> High-precision SVG dartboard with tactile coordinate detection.</li>
+              <li><strong>📱 100% Offline PWA:</strong> Zero ads, zero paywalls, 100% free open-source software.</li>
+            </ul>
+          </article>
+        </div>
+
+      </div>
+    </main>
   </div>
 
   <!-- Exit Match Confirmation Dialog Modal -->
@@ -453,7 +582,7 @@
         Leaving now will discard current match progress.
       </p>
       <div class="modal-actions" style="margin-top: 12px;">
-        <button id="btn-confirm-stay" class="modal-btn btn-modal-next" type="button">Resume Game 🎯</button>
+        <button id="btn-confirm-stay" class="modal-btn btn-modal-next" type="button">Resume Game</button>
         <button id="btn-confirm-leave" class="modal-btn" type="button" style="background: rgba(239, 68, 68, 0.2); color:#ef4444; border: 1px solid #ef4444;">Exit & Forfeit</button>
       </div>
     </div>
@@ -510,10 +639,11 @@
       <div class="rules-protip-box" id="rules-modal-protip"></div>
 
       <div class="modal-actions" style="margin-top: 12px;">
-        <button class="modal-btn btn-modal-next modal-close" type="button" style="width:100%;">Got it, Let's Play! 🎯</button>
+        <button class="modal-btn btn-modal-next modal-close" type="button" style="width:100%;">Got it, Let's Play!</button>
       </div>
     </div>
   </div>
+
 
   <!-- Excuse Generator Modal -->
   <div id="modal-excuse" class="modal-window">
@@ -523,14 +653,14 @@
       <div class="modal-title">🐂 BullSheet Official Excuse</div>
       <div class="excuse-quote" id="excuse-text">"The board is hung 2.5 millimeters too high."</div>
       <div class="modal-actions">
-        <button id="btn-next-excuse" class="modal-btn btn-modal-next" type="button">Another Excuse 🎲</button>
+        <button id="btn-next-excuse" class="modal-btn btn-modal-next" type="button">Another Excuse</button>
         <button class="modal-btn btn-modal-close modal-close" type="button">Back to Throw</button>
       </div>
     </div>
   </div>
 
   <!-- Main JavaScript App Entry -->
-  <script type="module" src="js/app.js?v=31"></script>
+  
   <!-- Export History Dialog Modal -->
   <div id="modal-export-history" class="modal-window">
     <div class="modal-backdrop"></div>
@@ -541,12 +671,73 @@
         Choose how you would like to export your local match archive:
       </p>
       <div style="display: flex; flex-direction: column; gap: 10px;">
-        <button id="btn-export-save-picker" class="btn-primary-start" type="button" style="font-size: 0.95rem; padding: 12px;">📁 Choose Save Location...</button>
-        <button id="btn-export-download-direct" class="ctrl-btn" type="button" style="font-size: 0.95rem; padding: 12px;">💾 Direct Browser Download</button>
-        <button id="btn-export-copy-clipboard" class="ctrl-btn" type="button" style="font-size: 0.95rem; padding: 12px;">📋 Copy JSON to Clipboard</button>
+        <button id="btn-export-save-picker" class="btn-primary-start" type="button" style="font-size: 0.95rem; padding: 12px;">Choose Save Location...</button>
+        <button id="btn-export-download-direct" class="ctrl-btn" type="button" style="font-size: 0.95rem; padding: 12px;">Direct Download</button>
+        <button id="btn-export-copy-clipboard" class="ctrl-btn" type="button" style="font-size: 0.95rem; padding: 12px;">Copy JSON to Clipboard</button>
       </div>
     </div>
   </div>
 
+
+  <!-- Mobile Sandwich / Hamburger Slide-Over Drawer -->
+  <div id="drawer-burger-backdrop" class="drawer-backdrop" onclick="window.app && window.app.closeBurgerDrawer()"></div>
+  <aside id="drawer-burger-menu" class="drawer-sidebar" aria-label="Navigation Menu">
+    <div class="drawer-header">
+      <div class="drawer-brand">
+        <span class="drawer-bull-icon">🎯🐂</span>
+        <span class="drawer-title">BullSheet</span>
+      </div>
+      <button id="btn-close-burger" class="btn-drawer-close" type="button" aria-label="Close Menu" onclick="window.app && window.app.closeBurgerDrawer()">✕</button>
+    </div>
+
+    <nav class="drawer-nav">
+      <button class="drawer-nav-item active" data-target="view-setup" type="button">
+        <span class="dnav-icon">🎯</span>
+        <div class="dnav-text">
+          <span class="dnav-title">Play Matches</span>
+          <span class="dnav-desc">501, Cricket, Bob's 27, Party</span>
+        </div>
+      </button>
+      <button class="drawer-nav-item" data-target="view-stats" type="button">
+        <span class="dnav-icon">📜</span>
+        <div class="dnav-text">
+          <span class="dnav-title">History & Lifetime Stats</span>
+          <span class="dnav-desc">Player drilldown, Heatmaps, Share cards</span>
+        </div>
+      </button>
+      <button class="drawer-nav-item" data-target="view-settings" type="button">
+        <span class="dnav-icon">⚙️</span>
+        <div class="dnav-text">
+          <span class="dnav-title">Audio & Settings</span>
+          <span class="dnav-desc">Caller voice, sound, themes</span>
+        </div>
+      </button>
+      <button class="drawer-nav-item" data-target="view-changelog" type="button">
+        <span class="dnav-icon">📜</span>
+        <div class="dnav-text">
+          <span class="dnav-title">Changelog & Updates</span>
+          <span class="dnav-desc">What's new in v1.4.0</span>
+        </div>
+        <span class="version-pill-badge" style="margin-left: auto;">v1.4.0</span>
+      </button>
+    </nav>
+
+    <div class="drawer-footer">
+      <button id="btn-drawer-changelog" class="drawer-secondary-btn" type="button">
+        <span>📜 What's New (v1.4.0)</span>
+      </button>
+      <button id="btn-drawer-rules" class="drawer-secondary-btn" type="button">
+        <span>ℹ️ Game Rules & Objectives</span>
+      </button>
+      <a href="https://github.com/zyu-wok/bull-sheet" target="_blank" rel="noopener noreferrer" class="drawer-github-link">
+        <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span>Open Source on GitHub</span>
+      </a>
+      <div class="drawer-tagline">v1.4.0 • 100% Free • No Ads • Offline PWA</div>
+    </div>
+  </aside>
+
+  <!-- Main JavaScript App Entry -->
+  <script type="module" src="js/app.js?v=33"></script>
 </body>
 </html>

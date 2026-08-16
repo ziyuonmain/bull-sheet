@@ -42,7 +42,7 @@ export class Scoreboard {
           <!-- Main Giant Score -->
           <div class="hero-score-row">
             <div class="score-display-block">
-              <span class="score-sub-label">POINTS REMAINING</span>
+              
               <div class="hero-big-score" id="hero-score-val">${active.score}</div>
             </div>
             
@@ -66,13 +66,10 @@ export class Scoreboard {
             </div>
           </div>
 
-          <!-- Prominent Checkout Route Guidance -->
-          <div class="checkout-banner ${checkout ? 'has-checkout' : 'no-checkout'}">
-            <div class="checkout-icon">🎯</div>
-            <div class="checkout-content">
-              <span class="checkout-label">${checkout ? 'RECOMMENDED FINISH ROUTE:' : 'TACTICAL ADVICE:'}</span>
-              <span class="checkout-route">${checkout ? checkout.join(' ➔ ') : (active.score <= 170 ? 'Bogey number — Set up a finish' : 'Setup target: Treble 20 (60 pts)')}</span>
-            </div>
+          <!-- Clean Checkout / Setup Pill -->
+          <div class="checkout-pill-bar ${checkout ? 'has-checkout' : 'no-checkout'}">
+            <span class="checkout-pill-tag">${checkout ? 'FINISH' : 'SETUP'}</span>
+            <span class="checkout-pill-route">${checkout ? checkout.join(' • ') : (active.score <= 170 ? 'Bogey number — set up a double' : 'Aim Treble 20')}</span>
           </div>
 
           
@@ -80,7 +77,7 @@ export class Scoreboard {
           <!-- Live Player Statistics Bar -->
           <div class="hero-stats-bar">
             <div class="stat-item">
-              <span class="stat-label">3-Dart Average</span>
+              <span class="stat-label">3-Dart Avg</span>
               <span class="stat-val">${game.getPlayerAvg(active)}</span>
             </div>
             <div class="stat-item">
@@ -88,7 +85,7 @@ export class Scoreboard {
               <span class="stat-val">${game.getFirst9Avg(active)}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">Highest Visit</span>
+              <span class="stat-label">Best Turn</span>
               <span class="stat-val">${active.highTurn || 0}</span>
             </div>
             <div class="stat-item">
@@ -200,7 +197,7 @@ export class Scoreboard {
 
           <div class="hero-score-row">
             <div class="score-display-block">
-              <span class="score-sub-label">TOTAL ACCUMULATED</span>
+              
               <div class="hero-big-score">${active.score}</div>
             </div>
 
@@ -238,7 +235,7 @@ export class Scoreboard {
   renderShooter(game) {
     const active = game.getActivePlayer();
     const target = game.getCurrentTarget();
-    const targetLabel = target === 25 ? 'BULLSEYE 🎯' : `#${target}`;
+    const targetLabel = target === 25 ? 'BULLSEYE' : `#${target}`;
 
     let html = `
       <div class="scoreboard-shooter">
@@ -252,7 +249,7 @@ export class Scoreboard {
           </div>
 
           <div class="shooter-target-banner-hero">
-            <span class="score-sub-label">ACTIVE TARGET</span>
+            
             <div class="shooter-target-large">${targetLabel}</div>
             <span class="target-sub-hint">Hit Single (1x), Double (2x), Treble (3x)</span>
           </div>
@@ -353,7 +350,7 @@ export class Scoreboard {
 
           <!-- Massive Ultra-Glowing Target Box -->
           <div class="split-target-box-hero">
-            <span class="split-target-sublabel">🎯 CURRENT ROUND TARGET</span>
+            <span class="split-target-sublabel">ROUND TARGET</span>
             <div class="split-target-giant-title">${round.label}</div>
             <div class="split-target-desc-badge">
               ${round.targetType === 'num' ? `Aim for segment ${round.value} (Single, Double, Treble)` : (round.targetType === 'double' ? 'Aim for ANY Outer Ring Double or Bullseye' : (round.targetType === 'treble' ? 'Aim for ANY Inner Treble Ring' : 'Aim for the Center Bullseye'))}
@@ -365,7 +362,7 @@ export class Scoreboard {
 
           <!-- Turn Darts Progress -->
           <div class="turn-breakdown-box" style="margin-top:12px; align-items:center;">
-            <div class="turn-box-title">DART PROGRESS THIS ROUND:</div>
+            
             <div class="hero-turn-darts">
               <div class="dart-slot ${game.turnDarts[0] ? (game.turnDarts[0].isHit ? 'filled-hit' : 'filled-miss') : ''}">
                 <span class="dart-slot-num">1</span>
@@ -433,9 +430,9 @@ export class Scoreboard {
           </div>
 
           <div class="shanghai-target-hero">
-            <span class="score-sub-label">ACTIVE TARGET</span>
+            
             <div class="shanghai-target-big">#${game.currentRound}</div>
-            <span class="shanghai-golden-rule">🔥 Hit Single, Double, & Treble in one visit for INSTANT SHANGHAI WIN!</span>
+            <span class="shanghai-golden-rule">Single, Double & Treble = Instant Win</span>
           </div>
 
           <div class="hero-turn-darts" style="justify-content:center; margin-top:12px;">
@@ -467,6 +464,9 @@ export class Scoreboard {
   renderElimination(game) {
     const active = game.getActivePlayer();
     const turnTotal = game.turnDarts.reduce((acc, d) => acc + (d.score || 0), 0);
+    const target = game.targetScoreToBeat || 0;
+    const isFirstPlayer = target === 0;
+    const isBeat = turnTotal > target;
 
     let html = `
       <div class="scoreboard-elimination">
@@ -476,18 +476,32 @@ export class Scoreboard {
               <span class="active-pulse-badge">▶ THROWING</span>
               <h2>${active.name} ${active.isBot ? '<span class="bot-badge">BOT</span>' : ''}</h2>
             </div>
-            <span class="pill-stat highlight-legs">Shields: <strong>${active.lives}</strong></span>
+            <span class="pill-stat highlight-legs">🛡️ Shields: <strong>${active.lives}</strong></span>
           </div>
 
-          <div class="elim-target-hero-banner">
-            <span class="score-sub-label">SCORE TO BEAT</span>
-            <div class="elim-target-huge">${game.targetScoreToBeat}</div>
-            <span class="target-by-text">${game.targetSetByPlayer ? `Set by ${game.targetSetByPlayer}` : 'First player sets the target!'}</span>
+          <!-- Hero Target Banner -->
+          <div class="party-target-banner elim-target-banner">
+            <span class="banner-sublabel">🎯 SCORE TO BEAT</span>
+            <div class="banner-target-val">${target > 0 ? target : '👑 NEW TARGET'}</div>
+            <div class="banner-target-hint">
+              ${isFirstPlayer ? 'First player sets the target to beat!' : `Target set by <strong>${game.targetSetByPlayer || 'Leader'}</strong>`}
+            </div>
           </div>
 
-          <div class="turn-breakdown-box" style="margin-top:12px;">
-            <div class="turn-box-title">CURRENT VISIT: <strong class="turn-sum-val">${turnTotal}</strong> / Need ${game.targetScoreToBeat}</div>
-            <div class="hero-turn-darts" style="justify-content:center;">
+          <!-- Visit Scoring Progress -->
+          <div class="party-visit-status ${isBeat ? 'status-safe' : (isFirstPlayer ? 'status-setting' : 'status-danger')}">
+            ${isFirstPlayer ? 
+              `🔥 Throw high to set a difficult target! (Current: <strong>${turnTotal} pts</strong>)` : 
+              (isBeat ? 
+                `✅ SAFE! Current: <strong>${turnTotal} pts</strong> (Beat ${target}!)` : 
+                `⚠️ Current: <strong>${turnTotal} pts</strong> (Need <strong>${target + 1}+</strong> to survive!)`
+              )
+            }
+          </div>
+
+          <!-- 3-Dart Slots -->
+          <div class="turn-breakdown-box" style="margin-top: 10px;">
+            <div class="hero-turn-darts" style="justify-content: center; gap: 8px;">
               <div class="dart-slot ${game.turnDarts[0] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[0]?.label || '—'}</strong></div>
               <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong></div>
               <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
@@ -496,20 +510,28 @@ export class Scoreboard {
           
         </div>
 
-        <div class="elim-players-grid" style="margin-top:16px;">
-          ${game.players.map((p, i) => {
-            const strikes = Array.from({ length: game.startingLives }, (_, idx) => idx < p.lives);
-            return `
-              <div class="elim-card ${i === game.activePlayerIdx ? 'is-active' : ''} ${p.isEliminated ? 'is-eliminated' : ''}">
-                <div class="el-name">${p.name} ${p.isBot ? '<small>(BOT)</small>' : ''}</div>
-                <div class="el-status">${p.isEliminated ? '☠️ OUT' : '🛡️ SURVIVING'}</div>
-                <div class="el-strikes">
-                  ${strikes.map(alive => `<span class="shield-icon ${alive ? 'alive' : 'lost'}">${alive ? '🛡️' : '💥'}</span>`).join('')}
+        <!-- Standings Cards Grid -->
+        <div class="party-standings-section" style="margin-top: 12px;">
+          <div class="strip-header-label">ALL SURVIVORS STANDINGS</div>
+          <div class="party-players-grid">
+            ${game.players.map((p, i) => {
+              const shields = Array.from({ length: game.startingLives }, (_, idx) => idx < p.lives);
+              return `
+                <div class="party-player-card ${i === game.activePlayerIdx ? 'is-active' : ''} ${p.isEliminated ? 'is-eliminated' : ''}">
+                  <div class="party-card-header">
+                    <span class="party-pname">${p.name} ${p.isBot ? '<small>(BOT)</small>' : ''}</span>
+                    <span class="party-status-tag ${p.isEliminated ? 'tag-out' : 'tag-alive'}">
+                      ${p.isEliminated ? '☠️ OUT' : '🛡️ ALIVE'}
+                    </span>
+                  </div>
+                  <div class="party-shields-row">
+                    ${shields.map(alive => `<span class="shield-badge ${alive ? 'shield-on' : 'shield-off'}">${alive ? '🛡️' : '💥'}</span>`).join('')}
+                  </div>
+                  <div class="party-stat-sub">Survived: <strong>${p.roundsSurvived}</strong> rounds</div>
                 </div>
-                <div class="el-survived">Survived: <strong>${p.roundsSurvived}</strong></div>
-              </div>
-            `;
-          }).join('')}
+              `;
+            }).join('')}
+          </div>
         </div>
       </div>
     `;
@@ -537,13 +559,13 @@ export class Scoreboard {
           </div>
 
           <div class="bobs-target-hero-banner" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 14px; margin: 12px 0; text-align: center;">
-            <span class="score-sub-label" style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">ACTIVE TARGET DOUBLE</span>
+            
             <div class="bobs-target-huge" style="font-size: 2.5rem; font-weight: 900; color: var(--accent-gold); margin: 4px 0;">${target.label}</div>
             <span class="target-pts-sub" style="font-size: 0.9rem; color: var(--text-muted);">Hit: <strong style="color:#10b981;">+${target.value} pts</strong> each • 0 Hits: <strong style="color:#ef4444;">-${target.value} pts</strong></span>
           </div>
 
           <div class="hero-score-display" style="text-align: center; margin: 12px 0;">
-            <span class="score-sub-label" style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">CURRENT SCORE</span>
+            
             <div class="main-score-huge" style="font-size: 3.5rem; font-weight: 900; color: ${active.score <= 10 ? '#ef4444' : 'var(--text-primary)'}; line-height: 1;">
               ${active.isEliminated ? '☠️ 0' : active.score}
             </div>
@@ -555,7 +577,7 @@ export class Scoreboard {
           <!-- 3-Dart Slots -->
           <div class="turn-breakdown-box" style="margin-top: 12px;">
             <div class="turn-box-title" style="font-size: 0.8rem; color: var(--text-secondary); text-align: center; margin-bottom: 6px;">
-              VISIT DARTS (3 Darts at ${target.label}):
+              
             </div>
             <div class="hero-turn-darts" style="display: flex; justify-content: center; gap: 8px;">
               <div class="dart-slot ${game.turnDarts[0] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[0]?.label || '—'}</strong></div>
@@ -577,7 +599,7 @@ export class Scoreboard {
         ${game.players.length > 1 ? `
           <div class="multiplayer-strip-container" style="margin-top: 14px;">
             <div class="strip-header-label" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; margin-bottom: 6px;">ALL PLAYERS STANDINGS</div>
-            <div class="multiplayer-strip" style="display: flex; gap: 8px; overflow-x: auto;">
+            <div class="multiplayer-strip" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 6px;">
               ${game.players.map((p, i) => `
                 <div class="player-mini-card ${i === game.activePlayerIndex ? 'is-active' : ''} ${p.isEliminated ? 'eliminated-player' : ''}" style="flex: 1; min-width: 100px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: 8px; text-align: center;">
                   <div class="mini-name" style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">${p.name} ${p.isBot ? '<small>(BOT)</small>' : ''}</div>
@@ -609,8 +631,8 @@ export class Scoreboard {
           </div>
 
           <div class="clock-hero-target">
-            <span class="score-sub-label">TARGET NUMBER</span>
-            <div class="clock-big-num">${active.currentTarget === 25 ? 'BULLSEYE 🎯' : active.currentTarget}</div>
+            
+            <div class="clock-big-num">${active.currentTarget === 25 ? 'BULLSEYE' : active.currentTarget}</div>
             <div class="clock-progress-bar-container">
               <div class="clock-fill-bar" style="width: ${Math.min(100, (active.currentTarget / 21) * 100)}%"></div>
             </div>

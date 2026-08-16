@@ -306,6 +306,10 @@ class BullSheetApp {
     }
   }
 
+  navigateTo(viewId, force = false) {
+    return this.showView(viewId, force);
+  }
+
   // Route Switcher with Tab Sync and Progress Loss Guard
   showView(viewId, force = false) {
     if (!force && this.isMatchInProgress() && viewId !== 'view-game' && viewId !== 'view-summary') {
@@ -321,10 +325,13 @@ class BullSheetApp {
     const target = document.getElementById(viewId);
     if (target) target.classList.add('active-view');
 
-    // Sync top nav tabs
-    document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+    // Sync top and drawer nav tabs
+    document.querySelectorAll('.nav-tab-btn, .drawer-nav-item').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.target === viewId);
     });
+
+    // Auto-close sandwich drawer on route change
+    this.closeBurgerDrawer();
 
     window.scrollTo(0, 0);
   }
@@ -568,25 +575,31 @@ class BullSheetApp {
       const isSaved = store.savedPlayers.some(sp => sp.name.toLowerCase() === p.name.toLowerCase());
       return `
         <div class="roster-item ${p.isBot ? 'is-bot-item' : ''}" data-idx="${idx}">
-          <span class="player-num">#${idx + 1}</span>
-          <input type="text" class="player-name-input" value="${p.name}" data-idx="${idx}" placeholder="Player Name" />
-          <div class="roster-actions">
-            ${!isSaved && !p.isBot && p.name.trim() ? `
-              <button class="btn-save-to-roster" type="button" data-idx="${idx}" title="Save to permanent roster">💾 Save</button>
-            ` : ''}
-            <button class="btn-toggle-bot ${p.isBot ? 'active' : ''}" type="button" data-idx="${idx}" title="Toggle Bot/Human">
-              ${p.isBot ? '🤖 BOT' : '👤 HUMAN'}
-            </button>
-            ${p.isBot ? `
-              <select class="bot-profile-select" data-idx="${idx}">
-                ${Object.values(BOT_PROFILES).map(prof => `
-                  <option value="${prof.id}" ${p.botProfile === prof.id ? 'selected' : ''}>${prof.name}</option>
-                `).join('')}
-              </select>
-            ` : ''}
+          <div class="roster-top-row">
+            <span class="player-num">#${idx + 1}</span>
+            <input type="text" class="player-name-input" value="${p.name}" data-idx="${idx}" placeholder="Player Name" />
             ${this.matchPlayers.length > 1 ? `
               <button class="btn-remove-player" type="button" data-idx="${idx}" title="Remove Player">✕</button>
             ` : ''}
+          </div>
+          <div class="roster-actions-row">
+            <div class="roster-actions-left">
+              <button class="btn-toggle-bot ${p.isBot ? 'active' : ''}" type="button" data-idx="${idx}" title="Toggle Bot/Human">
+                ${p.isBot ? '🤖 BOT' : '👤 HUMAN'}
+              </button>
+              ${p.isBot ? `
+                <select class="bot-profile-select" data-idx="${idx}">
+                  ${Object.values(BOT_PROFILES).map(prof => `
+                    <option value="${prof.id}" ${p.botProfile === prof.id ? 'selected' : ''}>${prof.name}</option>
+                  `).join('')}
+                </select>
+              ` : ''}
+            </div>
+            <div class="roster-actions-right">
+              ${!isSaved && !p.isBot && p.name.trim() ? `
+                <button class="btn-save-to-roster" type="button" data-idx="${idx}" title="Save to permanent roster">💾 Save</button>
+              ` : ''}
+            </div>
           </div>
         </div>
       `;
@@ -858,10 +871,16 @@ class BullSheetApp {
 
     if (mode === 'dartboard') {
       if (dbContainer) dbContainer.style.display = 'flex';
-      if (toggleBtn) toggleBtn.textContent = '🎯 Keypad View';
+      if (toggleBtn) {
+        toggleBtn.innerHTML = '🔢<span class="ctrl-text"> Keypad</span>';
+        toggleBtn.title = 'Switch to Keypad Input';
+      }
     } else {
       if (dkpContainer) dkpContainer.style.display = 'block';
-      if (toggleBtn) toggleBtn.textContent = '🎨 Dartboard View';
+      if (toggleBtn) {
+        toggleBtn.innerHTML = '🎯<span class="ctrl-text"> Board</span>';
+        toggleBtn.title = 'Switch to Interactive Dartboard';
+      }
     }
   }
 
@@ -1192,8 +1211,19 @@ class BullSheetApp {
     }
   }
 
+  openBurgerDrawer() {
+    sound.playClick();
+    document.getElementById('drawer-burger-menu')?.classList.add('open');
+    document.getElementById('drawer-burger-backdrop')?.classList.add('open');
+  }
+
+  closeBurgerDrawer() {
+    document.getElementById('drawer-burger-menu')?.classList.remove('open');
+    document.getElementById('drawer-burger-backdrop')?.classList.remove('open');
+  }
+
   attachNavEvents() {
-    document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+    document.querySelectorAll('.nav-tab-btn, .drawer-nav-item').forEach(btn => {
       btn.addEventListener('click', () => {
         sound.playClick();
         const targetView = btn.dataset.target;
@@ -1202,6 +1232,48 @@ class BullSheetApp {
           this.renderStatsView();
         }
       });
+    });
+
+    // Sandwich / Burger Menu Handlers
+    document.getElementById('btn-burger-menu')?.addEventListener('click', () => {
+      this.openBurgerDrawer();
+    });
+
+    document.getElementById('btn-close-burger')?.addEventListener('click', () => {
+      sound.playClick();
+      this.closeBurgerDrawer();
+    });
+
+    document.getElementById('drawer-burger-backdrop')?.addEventListener('click', () => {
+      this.closeBurgerDrawer();
+    });
+
+    document.getElementById('btn-drawer-rules')?.addEventListener('click', () => {
+      this.closeBurgerDrawer();
+      this.showRulesModal(this.selectedGameType);
+    });
+
+    document.getElementById('btn-header-version')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      sound.playClick();
+      this.showView('view-changelog');
+    });
+
+    document.getElementById('btn-drawer-changelog')?.addEventListener('click', () => {
+      sound.playClick();
+      this.closeBurgerDrawer();
+      this.showView('view-changelog');
+    });
+
+    document.getElementById('btn-open-changelog-settings')?.addEventListener('click', () => {
+      sound.playClick();
+      this.showView('view-changelog');
+    });
+
+    document.getElementById('btn-changelog-back')?.addEventListener('click', () => {
+      sound.playClick();
+      this.showView('view-setup');
     });
 
     const themeSel = document.getElementById('setting-theme');
