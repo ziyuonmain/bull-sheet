@@ -24,6 +24,11 @@ export class CricketGame {
     this.winner = null;
   }
 
+  getNextPlayer() {
+    const nextIdx = (this.activePlayerIdx + 1) % this.players.length;
+    return this.players[nextIdx];
+  }
+
   getActivePlayer() {
     return this.players[this.activePlayerIdx];
   }
@@ -34,6 +39,11 @@ export class CricketGame {
 
   recordDart(dart) {
     if (this.isMatchOver) return null;
+
+    if (this.turnDarts.length >= 3) {
+      const fin = this.finishTurn();
+      if (fin && fin.type === 'match_win') return fin;
+    }
 
     const player = this.getActivePlayer();
     const targetNum = Number(dart.number) === 25 ? 25 : Number(dart.number);
@@ -116,12 +126,11 @@ export class CricketGame {
     if (this.turnDarts.length === 3) {
       player.roundsPlayed++;
       const result = {
-        type: 'turn_end',
+        type: 'visit_complete',
         player,
         marksScored,
         pointsScored
       };
-      this.finishTurn();
       return result;
     }
 

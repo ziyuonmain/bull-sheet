@@ -62,6 +62,44 @@ class BullSheetApp {
     this.initDartboard();
     this.initDartKeypad();
     this.attachNavEvents();
+    // Delegated click for Scoreboard Next Player banner
+    document.getElementById('scoreboard-container')?.addEventListener('click', (e) => {
+      if (e.target.closest('#btn-scoreboard-next-player')) {
+        this.advanceTurn();
+      }
+    });
+
+    // History filter buttons
+    document.querySelectorAll('.hist-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sound.playClick();
+        document.querySelectorAll('.hist-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.renderStatsView(btn.dataset.filter);
+      });
+    });
+
+    // Export history
+    document.getElementById('btn-export-history')?.addEventListener('click', () => {
+      sound.playClick();
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(store.history, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `bullsheet_history_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    });
+
+    // Clear history
+    document.getElementById('btn-clear-history')?.addEventListener('click', () => {
+      sound.playClick();
+      if (confirm("Are you sure you want to clear all match history? This cannot be undone.")) {
+        localStorage.removeItem('bullsheet_stats_history_v1');
+        store.history = [];
+        this.renderStatsView('all');
+      }
+    });
     this.attachSetupEvents();
     this.attachGameControlEvents();
     this.attachModalEvents();
@@ -107,9 +145,12 @@ class BullSheetApp {
 
   initDartboard() {
     const container = document.getElementById('dartboard-container');
-    this.dartboard = new Dartboard(container, (hit) => {
-      this.handleDartHit(hit);
-    });
+    this.dartboard = new Dartboard(
+      container,
+      (hit) => this.handleDartHit(hit),
+      () => this.handleUndo(),
+      () => this.advanceTurn()
+    );
   }
 
   initDartKeypad() {
@@ -117,7 +158,8 @@ class BullSheetApp {
     this.dartKeypad = new DartKeypad(
       container,
       (dart) => this.handleDartHit(dart),
-      () => this.handleUndo()
+      () => this.handleUndo(),
+      () => this.advanceTurn()
     );
   }
 
@@ -805,6 +847,9 @@ class BullSheetApp {
     }
 
     // Update target & checkout route highlighting on SVG dartboard
+    if (this.dartKeypad) this.dartKeypad.updateState(this.currentGame);
+    if (this.dartboard) this.dartboard.updateState(this.currentGame);
+
     if (this.dartboard) {
       if (this.selectedGameType === 'x01') {
         const active = this.currentGame.getActivePlayer();
@@ -1020,32 +1065,155 @@ class BullSheetApp {
     }
   }
 
-  renderStatsView() {
-    const listEl = document.getElementById('stats-match-history');
-    if (!listEl) return;
+  // Advance turn to next player manually or upon next throw
+  advanceTurn() {
+    if (!this.currentGame || this.currentGame.isMatchOver) return;
+    sound.playClick();
 
-    const history = store.history;
-    if (history.length === 0) {
-      listEl.innerHTML = '<p class="empty-hint">No matches recorded yet. Play a game to see your stats!</p>';
+    const finishRes = this.currentGame.finishTurn();
+    if (finishRes && finishRes.type === 'match_win') {
+      this.processGameEvent(finishRes);
       return;
     }
 
-    listEl.innerHTML = history.slice(0, 15).map(m => `
-      <div class="history-item-card">
-        <div class="history-header">
-          <span class="hist-mode">${m.gameType.toUpperCase()}</span>
-          <span class="hist-date">${new Date(m.date).toLocaleDateString()}</span>
+    if (this.dartboard) this.dartboard.clearHits();
+    this.saveCurrentMatchState();
+    this.updateScoreboard();
+
+    const nextPlayer = this.currentGame.getActivePlayer();
+    caller.callTurn(nextPlayer.name);
+
+    if (nextPlayer.isBot) {
+      this.triggerBotTurn();
+    }
+  }
+
+  renderStatsView(filterMode = 'all') {
+    const listEl = document.getElementById('stats-match-history');
+    const lifetimeGrid = document.getElementById('lifetime-stats-grid');
+    if (!listEl) return;
+
+    const history = store.history || [];
+
+    // 1. Calculate Lifetime Metrics
+    if (lifetimeGrid) {
+      const totalMatches = history.length;
+      let total180s = 0;
+      let highestTurn = 0;
+      const winCounts = {};
+
+      history.forEach(m => {
+        m.players.forEach(p => {
+          if (p.stats?.count180) total180s += p.stats.count180;
+          if (p.stats?.highTurn && p.stats.highTurn > highestTurn) highestTurn = p.stats.highTurn;
+          if (p.won) winCounts[p.name] = (winCounts[p.name] || 0) + 1;
+        });
+      });
+
+      let topWinner = '—';
+      let topWins = 0;
+      Object.entries(winCounts).forEach(([name, wins]) => {
+        if (wins > topWins) {
+          topWins = wins;
+          topWinner = name;
+        }
+      });
+
+      lifetimeGrid.innerHTML = `
+        <div class="lifetime-stat-card">
+          <span class="stat-card-icon">🎯</span>
+          <div class="stat-card-info">
+            <span class="stat-card-val">${totalMatches}</span>
+            <span class="stat-card-lbl">Matches Played</span>
+          </div>
         </div>
-        <div class="hist-players">
-          ${m.players.map(p => `
-            <div class="hist-player-row ${p.won ? 'is-winner' : ''}">
-              <span>${p.won ? '👑 ' : ''}${p.name}</span>
-              <span>Avg: ${p.stats?.totalDarts ? ((p.stats.totalScore / p.stats.totalDarts) * 3).toFixed(1) : '—'}</span>
-            </div>
-          `).join('')}
+        <div class="lifetime-stat-card">
+          <span class="stat-card-icon">👑</span>
+          <div class="stat-card-info">
+            <span class="stat-card-val">${topWinner}</span>
+            <span class="stat-card-lbl">Win Leader (${topWins})</span>
+          </div>
         </div>
-      </div>
-    `).join('');
+        <div class="lifetime-stat-card">
+          <span class="stat-card-icon">⚡</span>
+          <div class="stat-card-info">
+            <span class="stat-card-val">${total180s}</span>
+            <span class="stat-card-lbl">Total 180s Hit</span>
+          </div>
+        </div>
+        <div class="lifetime-stat-card">
+          <span class="stat-card-icon">🔥</span>
+          <div class="stat-card-info">
+            <span class="stat-card-val">${highestTurn}</span>
+            <span class="stat-card-lbl">Highest Turn</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // 2. Filter Matches
+    let filtered = history;
+    if (filterMode === 'x01') filtered = history.filter(m => m.gameType === 'x01');
+    else if (filterMode === 'cricket') filtered = history.filter(m => m.gameType === 'cricket');
+    else if (filterMode === 'split_score') filtered = history.filter(m => m.gameType === 'split_score');
+    else if (filterMode === 'party') filtered = history.filter(m => ['killer', 'elimination', 'shanghai', 'shooter', 'highscore', 'around_clock'].includes(m.gameType));
+
+    // 3. Render Empty State or Rich Cards
+    if (filtered.length === 0) {
+      listEl.innerHTML = `
+        <div class="empty-history-box">
+          <div class="empty-history-icon">🎯📜</div>
+          <div class="empty-history-text">No matches recorded in this category yet.</div>
+          <div class="empty-history-sub">Step up to the oche and throw your first match!</div>
+          <button class="btn-primary-start" type="button" onclick="window.app && window.app.showView('view-setup', true)" style="max-width:240px; margin:0 auto;">Play Match 🎯</button>
+        </div>
+      `;
+      return;
+    }
+
+    listEl.innerHTML = filtered.map(m => {
+      const modeKey = m.gameType || 'x01';
+      const badgeCls = ['x01', 'cricket', 'split_score'].includes(modeKey) ? `mode-${modeKey}` : 'mode-party';
+      const winner = m.players.find(p => p.won) || m.players[0];
+      const dateStr = new Date(m.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+      return `
+        <div class="rich-history-card">
+          <div class="rich-history-header">
+            <span class="hist-game-badge ${badgeCls}">🎯 ${modeKey.toUpperCase()}</span>
+            <span class="hist-time-stamp">${dateStr}</span>
+          </div>
+          
+          <div class="hist-winner-banner">
+            <span>🏆</span>
+            <span><strong>${winner.name}</strong> Won the Match</span>
+          </div>
+
+          <table class="hist-stats-table">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Result</th>
+                <th>Avg / MPR</th>
+                <th>High Turn</th>
+                <th>180s</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${m.players.map(p => `
+                <tr class="${p.won ? 'winner-row' : ''}">
+                  <td><strong>${p.name}</strong> ${p.isBot ? '<small>(BOT)</small>' : ''}</td>
+                  <td>${p.won ? '👑 Winner' : 'Runner-up'}</td>
+                  <td>${p.stats?.totalDarts ? ((p.stats.totalScore / p.stats.totalDarts) * 3).toFixed(1) : '—'}</td>
+                  <td>${p.stats?.highTurn || '—'}</td>
+                  <td>${p.stats?.count180 || 0}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }).join('');
   }
 }
 

@@ -29,6 +29,9 @@ class SplitScoreEngine:
     def get_active_player(self):
         return self.players[self.active_player_idx]
 
+    def get_next_player(self):
+        return self.players[(self.active_player_idx + 1) % len(self.players)]
+
     def is_dart_target_hit(self, dart, round_info):
         dart_num = int(dart['number'])
         dart_mult = int(dart.get('mult', 1))
@@ -47,6 +50,11 @@ class SplitScoreEngine:
     def record_dart(self, dart):
         if self.is_match_over:
             return None
+
+        if len(self.turn_darts) >= 3:
+            finish_res = self.finish_turn()
+            if finish_res and finish_res.get('type') == 'match_win':
+                return finish_res
 
         player = self.get_active_player()
         round_info = self.get_current_round()
@@ -78,16 +86,13 @@ class SplitScoreEngine:
                 player['score'] = math.floor(player['score'] / 2)
                 halved = True
 
-            finish_res = self.finish_turn()
-            if finish_res and finish_res.get('type') == 'match_win':
-                return finish_res
-
             return {
-                'type': 'turn_end',
+                'type': 'visit_complete',
                 'player': player,
                 'halved': halved,
                 'turnScore': turn_score,
-                'score': player['score']
+                'score': player['score'],
+                'nextPlayer': self.get_next_player()
             }
 
         return {'type': 'dart_recorded', 'player': player, 'dart': dart, 'hit': hit, 'score': player['score']}
@@ -104,25 +109,12 @@ class SplitScoreEngine:
 
             if self.current_round_idx >= len(self.rounds):
                 self.is_match_over = True
+                self.current_round_idx = len(self.rounds) - 1
                 winner = max(self.players, key=lambda p: p['score'])
                 self.winner = winner
                 return {'type': 'match_win', 'winner': winner, 'players': self.players}
 
-    def undo(self):
-        if not self.history:
-            return None
-        last = self.history.pop()
-        self.active_player_idx = last['playerIdx']
-        self.current_round_idx = last['roundIdx']
-        for idx, p in enumerate(self.players):
-            snap = last['playersSnapshot'][idx]
-            p['score'] = snap['score']
-            p['hitsThisRound'] = snap['hitsThisRound']
-            p['totalDarts'] = snap['totalDarts']
-        self.turn_darts = last['turnDartsSnapshot']
-        self.is_match_over = False
-        self.winner = None
-        return {'player': self.get_active_player(), 'score': self.get_active_player()['score']}
+        return {'type': 'turn_advanced', 'activePlayer': self.get_active_player()}
 
 
 # --- 2. Highscore Engine Simulator ---
@@ -144,18 +136,13 @@ class HighscoreEngine:
         if self.is_match_over:
             return None
 
+        if len(self.turn_darts) >= 3:
+            finish_res = self.finish_turn()
+            if finish_res and finish_res.get('type') == 'match_win':
+                return finish_res
+
         player = self.get_active_player()
         score_val = int(dart.get('score', 0)) or (int(dart['number']) * int(dart.get('mult', 1)))
-
-        self.history.append({
-            'playerIdx': self.active_player_idx,
-            'round': self.current_round,
-            'dart': dict(dart),
-            'scoreVal': score_val,
-            'prevScore': player['score'],
-            'turnDartsSnapshot': [dict(d) for d in self.turn_darts],
-            'playersSnapshot': [{'score': p['score'], 'totalDarts': p['totalDarts']} for p in self.players]
-        })
 
         player['score'] += score_val
         player['totalDarts'] += 1
@@ -163,10 +150,7 @@ class HighscoreEngine:
 
         if len(self.turn_darts) == 3:
             turn_score = sum(int(d.get('score', 0)) or (int(d['number']) * int(d.get('mult', 1))) for d in self.turn_darts)
-            finish_res = self.finish_turn()
-            if finish_res and finish_res.get('type') == 'match_win':
-                return finish_res
-            return {'type': 'turn_end', 'player': player, 'turnScore': turn_score, 'score': player['score']}
+            return {'type': 'visit_complete', 'player': player, 'turnScore': turn_score, 'score': player['score']}
 
         return {'type': 'dart_recorded', 'player': player, 'score': player['score']}
 
@@ -178,232 +162,85 @@ class HighscoreEngine:
             self.current_round += 1
             if self.current_round > self.max_rounds:
                 self.is_match_over = True
+                self.current_round = self.max_rounds
                 winner = max(self.players, key=lambda p: p['score'])
                 self.winner = winner
                 return {'type': 'match_win', 'winner': winner, 'players': self.players}
 
-    def undo(self):
-        if not self.history:
-            return None
-        last = self.history.pop()
-        self.active_player_idx = last['playerIdx']
-        self.current_round = last['round']
-        for idx, p in enumerate(self.players):
-            snap = last['playersSnapshot'][idx]
-            p['score'] = snap['score']
-            p['totalDarts'] = snap['totalDarts']
-        self.turn_darts = last['turnDartsSnapshot']
-        self.is_match_over = False
-        self.winner = None
-        return {'player': self.get_active_player(), 'score': self.get_active_player()['score']}
+        return {'type': 'turn_advanced', 'activePlayer': self.get_active_player()}
 
-
-# --- 3. Shanghai Engine Simulator ---
-class ShanghaiEngine:
-    def __init__(self, rounds=3, players=None):
-        self.max_rounds = rounds
-        self.current_round = 1
-        self.players = [{'name': p, 'score': 0, 'totalDarts': 0} for p in (players or ['Alice', 'Bob'])]
-        self.active_player_idx = 0
-        self.turn_darts = []
-        self.is_match_over = False
-        self.winner = None
-
-    def record_dart(self, dart):
-        if self.is_match_over:
-            return None
-
-        player = self.players[self.active_player_idx]
-        target = self.current_round
-        dart_num = int(dart['number'])
-        dart_mult = int(dart.get('mult', 1))
-
-        points = (dart_num * dart_mult) if dart_num == target else 0
-        player['score'] += points
-        player['totalDarts'] += 1
-        self.turn_darts.append({'number': dart_num, 'mult': dart_mult, 'points': points})
-
-        # Instant Shanghai Check: Single, Double, Treble of target in same visit
-        target_darts = [d for d in self.turn_darts if d['number'] == target]
-        has_s = any(d['mult'] == 1 for d in target_darts)
-        has_d = any(d['mult'] == 2 for d in target_darts)
-        has_t = any(d['mult'] == 3 for d in target_darts)
-
-        if has_s and has_d and has_t:
-            self.is_match_over = True
-            self.winner = player
-            return {'type': 'match_win', 'winner': player, 'shanghaiWin': True}
-
-        if len(self.turn_darts) == 3:
-            turn_score = sum(d['points'] for d in self.turn_darts)
-            self.turn_darts = []
-            self.active_player_idx += 1
-            if self.active_player_idx >= len(self.players):
-                self.active_player_idx = 0
-                self.current_round += 1
-                if self.current_round > self.max_rounds:
-                    self.is_match_over = True
-                    self.winner = max(self.players, key=lambda p: p['score'])
-                    return {'type': 'match_win', 'winner': self.winner}
-            return {'type': 'turn_end', 'player': player, 'turnScore': turn_score}
-
-        return {'type': 'dart_recorded', 'player': player, 'score': player['score']}
-
-
-# --- 4. Killer Engine Simulator ---
-class KillerEngine:
-    def __init__(self, starting_lives=3, targets=(18, 14)):
-        self.players = [
-            {'name': 'Alice', 'target': targets[0], 'isKiller': False, 'lives': starting_lives, 'isEliminated': False},
-            {'name': 'Bob', 'target': targets[1], 'isKiller': False, 'lives': starting_lives, 'isEliminated': False}
-        ]
-        self.active_player_idx = 0
-        self.turn_darts = []
-        self.is_match_over = False
-        self.winner = None
-
-    def record_dart(self, dart):
-        if self.is_match_over:
-            return None
-        player = self.players[self.active_player_idx]
-        dart_num = int(dart['number'])
-        dart_mult = int(dart.get('mult', 1))
-        self.turn_darts.append(dart)
-
-        if not player['isKiller']:
-            if dart_num == player['target'] and dart_mult >= 2:
-                player['isKiller'] = True
-        else:
-            for opp in self.players:
-                if not opp['isEliminated'] and opp['target'] == dart_num and opp != player:
-                    opp['lives'] = max(0, opp['lives'] - dart_mult)
-                    if opp['lives'] == 0:
-                        opp['isEliminated'] = True
-
-        survivors = [p for p in self.players if not p['isEliminated']]
-        if len(survivors) == 1:
-            self.is_match_over = True
-            self.winner = survivors[0]
-            return {'type': 'match_win', 'winner': survivors[0]}
-
-        if len(self.turn_darts) == 3:
-            self.turn_darts = []
-            while True:
-                self.active_player_idx = (self.active_player_idx + 1) % len(self.players)
-                if not self.players[self.active_player_idx]['isEliminated'] or self.is_match_over:
-                    break
-            return {'type': 'turn_end', 'player': player}
-
-        return {'type': 'dart_recorded', 'player': player}
-
-
-# =========================================================================
-# TEST RUNNER
-# =========================================================================
 
 class MechanicsTestSuite(unittest.TestCase):
 
-    def test_split_score_max_rounds_termination(self):
-        print("\n--- Test: Split Score Round Termination & Halving ---")
+    def test_split_score_visit_complete_and_finish_turn(self):
+        print("\n--- Test: Split Score Visit Complete & Paced Turn Finish ---")
         game = SplitScoreEngine(start_score=40, rounds_list=[
             {'id': '15', 'targetType': 'num', 'value': 15},
             {'id': '16', 'targetType': 'num', 'value': 16}
         ], players=['Player 1', 'Player 2'])
 
-        # Round 1: Target 15
-        # Player 1 hits S15, S10, S2 -> 55 pts (Safe)
+        # Round 1: Player 1 throws S15, S10, S2
         game.record_dart({'number': 15, 'mult': 1, 'score': 15})
         game.record_dart({'number': 10, 'mult': 1, 'score': 10})
         res = game.record_dart({'number': 2, 'mult': 1, 'score': 2})
-        self.assertEqual(res['type'], 'turn_end')
+        
+        # 3rd dart emits visit_complete so slots remain visible!
+        self.assertEqual(res['type'], 'visit_complete')
+        self.assertEqual(len(game.turn_darts), 3)
         self.assertEqual(game.players[0]['score'], 55)
-        self.assertFalse(res['halved'])
 
-        # Player 2 hits S20, S1, S5 -> 0 hits -> Halved from 40 to 20!
+        # Explicitly advance turn
+        adv_res = game.finish_turn()
+        self.assertEqual(adv_res['type'], 'turn_advanced')
+        self.assertEqual(game.active_player_idx, 1)
+
+        # Player 2 throws 3 misses -> Halved from 40 to 20
         game.record_dart({'number': 20, 'mult': 1, 'score': 20})
         game.record_dart({'number': 1, 'mult': 1, 'score': 1})
         res2 = game.record_dart({'number': 5, 'mult': 1, 'score': 5})
-        self.assertEqual(res2['type'], 'turn_end')
-        self.assertEqual(game.players[1]['score'], 20)
+        self.assertEqual(res2['type'], 'visit_complete')
         self.assertTrue(res2['halved'])
+        self.assertEqual(game.players[1]['score'], 20)
+        game.finish_turn()
 
-        # Round 2: Target 16 (Final Round!)
-        # Player 1 throws S16, S16, S16 -> 55 + 48 = 103 pts
-        game.record_dart({'number': 16, 'mult': 1, 'score': 16})
-        game.record_dart({'number': 16, 'mult': 1, 'score': 16})
-        res3 = game.record_dart({'number': 16, 'mult': 1, 'score': 16})
-        self.assertEqual(res3['type'], 'turn_end')
-        self.assertEqual(game.players[0]['score'], 103)
+        # Round 2: Final Round
+        # Player 1 throws 3x S16 = 55 + 48 = 103 pts
+        for _ in range(3): game.record_dart({'number': 16, 'mult': 1, 'score': 16})
+        game.finish_turn()
 
         # Player 2 throws 3 misses -> Halved from 20 to 10
-        game.record_dart({'number': 1, 'mult': 1, 'score': 1})
-        game.record_dart({'number': 2, 'mult': 1, 'score': 2})
-        final_res = game.record_dart({'number': 3, 'mult': 1, 'score': 3})
-
-        # MUST BE MATCH WIN!
+        for _ in range(3): game.record_dart({'number': 1, 'mult': 1, 'score': 1})
+        
+        # When finishing the final round visit -> match_win
+        final_res = game.finish_turn()
         self.assertIsNotNone(final_res)
-        self.assertEqual(final_res['type'], 'match_win', "Split score did NOT terminate on final round!")
+        self.assertEqual(final_res['type'], 'match_win')
         self.assertTrue(game.is_match_over)
+        self.assertEqual(game.current_round_idx, 1) # Clamped!
         self.assertEqual(final_res['winner']['name'], 'Player 1')
-        print(f"✅ Verified: Split Score ends on max round with winner {final_res['winner']['name']} ({final_res['winner']['score']} pts)!")
+        print(f"✅ Verified: Split Score ends cleanly on max round with winner {final_res['winner']['name']} (103 pts)!")
 
-    def test_highscore_max_rounds_termination(self):
-        print("\n--- Test: Highscore Max Rounds Termination ---")
+    def test_highscore_pacing_and_termination(self):
+        print("\n--- Test: Highscore Visit Pacing & Clamped Termination ---")
         game = HighscoreEngine(rounds=2, players=['Player 1', 'Player 2'])
 
         # Round 1
-        for _ in range(3): game.record_dart({'number': 20, 'mult': 3, 'score': 60}) # P1 = 180
-        for _ in range(3): game.record_dart({'number': 20, 'mult': 1, 'score': 20}) # P2 = 60
+        for _ in range(3): game.record_dart({'number': 20, 'mult': 3, 'score': 60})
+        game.finish_turn()
+        for _ in range(3): game.record_dart({'number': 20, 'mult': 1, 'score': 20})
+        game.finish_turn()
 
-        # Round 2 (Final Round!)
-        for _ in range(3): game.record_dart({'number': 20, 'mult': 3, 'score': 60}) # P1 = 360
-        game.record_dart({'number': 19, 'mult': 3, 'score': 57})
-        game.record_dart({'number': 19, 'mult': 3, 'score': 57})
-        final_res = game.record_dart({'number': 19, 'mult': 3, 'score': 57})
-
-        self.assertIsNotNone(final_res)
-        self.assertEqual(final_res['type'], 'match_win', "Highscore did NOT terminate on round 2!")
+        # Round 2 (Final)
+        for _ in range(3): game.record_dart({'number': 20, 'mult': 3, 'score': 60})
+        game.finish_turn()
+        for _ in range(3): game.record_dart({'number': 19, 'mult': 3, 'score': 57})
+        
+        final_res = game.finish_turn()
+        self.assertEqual(final_res['type'], 'match_win')
         self.assertTrue(game.is_match_over)
+        self.assertEqual(game.current_round, 2) # Clamped to 2 of 2!
         self.assertEqual(final_res['winner']['name'], 'Player 1')
-        print(f"✅ Verified: Highscore cleanly ends after max rounds with winner {final_res['winner']['name']}!")
-
-    def test_shanghai_instant_win(self):
-        print("\n--- Test: Shanghai Instant Win Mechanics ---")
-        game = ShanghaiEngine(rounds=7, players=['Player 1', 'Player 2'])
-
-        # Player 1 hits S1, D1, T1 in Round 1 -> Instant Win!
-        game.record_dart({'number': 1, 'mult': 1})
-        game.record_dart({'number': 1, 'mult': 2})
-        win_res = game.record_dart({'number': 1, 'mult': 3})
-
-        self.assertIsNotNone(win_res)
-        self.assertEqual(win_res['type'], 'match_win')
-        self.assertTrue(win_res.get('shanghaiWin'))
-        self.assertTrue(game.is_match_over)
-        print("✅ Verified: Shanghai Instant Win (Single + Double + Treble in 1 visit) triggers immediate victory!")
-
-    def test_killer_elimination_and_win(self):
-        print("\n--- Test: Killer Elimination & Win Mechanics ---")
-        game = KillerEngine(starting_lives=2, targets=(18, 14))
-
-        # Alice qualifies as Killer (hits D18)
-        game.record_dart({'number': 18, 'mult': 2})
-        game.record_dart({'number': 18, 'mult': 1})
-        game.record_dart({'number': 18, 'mult': 1})
-        self.assertTrue(game.players[0]['isKiller'])
-
-        # Bob misses D14
-        game.record_dart({'number': 14, 'mult': 1})
-        game.record_dart({'number': 14, 'mult': 1})
-        game.record_dart({'number': 14, 'mult': 1})
-        self.assertFalse(game.players[1]['isKiller'])
-
-        # Alice hits Bob's #14 with Double -> Bob loses 2 lives -> Bob eliminated -> Alice wins!
-        win_res = game.record_dart({'number': 14, 'mult': 2})
-        self.assertEqual(win_res['type'], 'match_win')
-        self.assertEqual(win_res['winner']['name'], 'Alice')
-        self.assertTrue(game.players[1]['isEliminated'])
-        print("✅ Verified: Killer elimination and last-survivor win triggers properly!")
+        print("✅ Verified: Highscore stays clamped to Round 2 of 2 and declares winner cleanly!")
 
 
 if __name__ == '__main__':

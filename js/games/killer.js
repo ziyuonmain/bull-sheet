@@ -29,12 +29,22 @@ export class KillerGame {
     return [...nums].sort(() => 0.5 - Math.random()).slice(0, playerCount);
   }
 
+  getNextPlayer() {
+    const nextIdx = (this.activePlayerIdx + 1) % this.players.length;
+    return this.players[nextIdx];
+  }
+
   getActivePlayer() {
     return this.players[this.activePlayerIdx];
   }
 
   recordDart(dart) {
     if (this.isMatchOver) return null;
+
+    if (this.turnDarts.length >= 3) {
+      const fin = this.finishTurn();
+      if (fin && fin.type === 'match_win') return fin;
+    }
 
     const player = this.getActivePlayer();
     const dartNum = Number(dart.number);
@@ -95,10 +105,9 @@ export class KillerGame {
 
     if (this.turnDarts.length === 3) {
       const res = {
-        type: 'turn_end',
+        type: 'visit_complete',
         player
       };
-      this.finishTurn();
       return res;
     }
 

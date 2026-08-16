@@ -251,7 +251,7 @@
     <main id="view-game" class="app-view">
       <div class="game-controls-bar">
         <div class="game-controls-left">
-          <button id="btn-game-undo" class="ctrl-btn btn-undo-main" type="button" title="Undo Last Dart / Turn">↶ UNDO</button>
+          
           <button id="btn-rules-game" class="ctrl-btn btn-rules-pill" type="button">ℹ️ Rules</button>
           <button id="btn-toggle-input-mode" class="ctrl-btn" type="button">🎨 Dartboard View</button>
           <button id="btn-excuse-generator" class="ctrl-btn btn-excuse" type="button">🐂 Excuse</button>
@@ -313,11 +313,38 @@
       </div>
     </main>
 
-    <!-- 4. STATS & MATCH HISTORY VIEW -->
+        <!-- 4. STATS & MATCH HISTORY VIEW -->
     <main id="view-stats" class="app-view">
-      <div class="setup-container">
-        <h2 class="setup-section-title">Recent Matches & History</h2>
-        <div id="stats-match-history" class="roster-list">
+      <div class="setup-container" style="max-width: 760px;">
+        
+        <!-- Lifetime Stats Dashboard Overview -->
+        <div class="history-dashboard-header">
+          <div class="history-title-wrap">
+            <h1 class="setup-section-title" style="margin:0; font-size:1.6rem;">🏆 Match History & Pub Stats</h1>
+            <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:4px;">Persistent local match records with full player performance breakdown.</p>
+          </div>
+          <div class="history-quick-actions">
+            <button id="btn-export-history" class="ctrl-btn" type="button" title="Export Match History JSON">📥 Export</button>
+            <button id="btn-clear-history" class="ctrl-btn btn-end" type="button" title="Clear Match History">🗑️ Clear</button>
+          </div>
+        </div>
+
+        <!-- Lifetime Metric Counter Tiles -->
+        <div id="lifetime-stats-grid" class="lifetime-stats-grid">
+          <!-- Populated via JS -->
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="history-filters-bar">
+          <button class="hist-filter-btn active" data-filter="all">All Matches</button>
+          <button class="hist-filter-btn" data-filter="x01">501 / X01</button>
+          <button class="hist-filter-btn" data-filter="cricket">Cricket</button>
+          <button class="hist-filter-btn" data-filter="split_score">Split Score</button>
+          <button class="hist-filter-btn" data-filter="party">Party Games</button>
+        </div>
+
+        <!-- Match Cards List -->
+        <div id="stats-match-history" class="history-cards-list">
           <!-- Populated via JS -->
         </div>
       </div>

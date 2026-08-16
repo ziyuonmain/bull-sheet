@@ -23,12 +23,22 @@ export class EliminationGame {
     this.winner = null;
   }
 
+  getNextPlayer() {
+    const nextIdx = (this.activePlayerIdx + 1) % this.players.length;
+    return this.players[nextIdx];
+  }
+
   getActivePlayer() {
     return this.players[this.activePlayerIdx];
   }
 
   recordDart(dart) {
     if (this.isMatchOver) return null;
+
+    if (this.turnDarts.length >= 3) {
+      const fin = this.finishTurn();
+      if (fin && fin.type === 'match_win') return fin;
+    }
 
     const player = this.getActivePlayer();
     const dartScore = Number(dart.score) || (Number(dart.number) * (Number(dart.mult) || 1));
@@ -85,14 +95,13 @@ export class EliminationGame {
       }
 
       const res = {
-        type: 'turn_end',
+        type: 'visit_complete',
         player,
         turnScore: turnTotal,
         lostLife,
         livesRemaining: player.lives
       };
 
-      this.finishTurn();
       return res;
     }
 

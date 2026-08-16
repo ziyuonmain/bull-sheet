@@ -18,12 +18,22 @@ export class AroundClockGame {
     this.winner = null;
   }
 
+  getNextPlayer() {
+    const nextIdx = (this.activePlayerIdx + 1) % this.players.length;
+    return this.players[nextIdx];
+  }
+
   getActivePlayer() {
     return this.players[this.activePlayerIdx];
   }
 
   recordDart(dart) {
     if (this.isMatchOver) return null;
+
+    if (this.turnDarts.length >= 3) {
+      const fin = this.finishTurn();
+      if (fin && fin.type === 'match_win') return fin;
+    }
 
     const player = this.getActivePlayer();
     const target = player.currentTarget;
@@ -77,11 +87,10 @@ export class AroundClockGame {
 
     if (this.turnDarts.length === 3) {
       const res = {
-        type: 'turn_end',
+        type: 'visit_complete',
         player,
         currentTarget: player.currentTarget
       };
-      this.finishTurn();
       return res;
     }
 

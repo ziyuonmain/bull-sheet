@@ -1,17 +1,40 @@
-// Interactive SVG Dartboard Component for BullSheet with Dedicated Miss Button & Precision Highlighting
+// Interactive SVG Dartboard Component for BullSheet with Right-Half Unified Action Controls
 export class Dartboard {
-  constructor(containerEl, onHitCallback) {
+  constructor(containerEl, onHitCallback, onUndoCallback, onNextPlayerCallback) {
     this.container = containerEl;
     this.onHit = onHitCallback;
+    this.onUndo = onUndoCallback;
+    this.onNextPlayer = onNextPlayerCallback;
     this.order = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
     this.svg = null;
     this.hits = [];
+    this.isVisitComplete = false;
+    this.nextPlayerName = '';
     this.init();
   }
 
   init() {
     this.render();
     this.attachEvents();
+  }
+
+  updateState(game) {
+    if (!game) return;
+    this.isVisitComplete = game.turnDarts && game.turnDarts.length >= 3 && !game.isMatchOver;
+    const nextP = game.getNextPlayer ? game.getNextPlayer() : null;
+    this.nextPlayerName = nextP ? nextP.name : '';
+
+    const nextBtn = this.container.querySelector('#btn-dartboard-next');
+    if (nextBtn) {
+      if (this.isVisitComplete) {
+        nextBtn.classList.remove('hidden-action');
+        nextBtn.classList.add('active-pulse');
+        nextBtn.innerHTML = `<span>➔ NEXT PLAYER (${this.nextPlayerName})</span>`;
+      } else {
+        nextBtn.classList.add('hidden-action');
+        nextBtn.classList.remove('active-pulse');
+      }
+    }
   }
 
   render() {
@@ -26,11 +49,16 @@ export class Dartboard {
     const rOuterBoard = 205;
 
     let html = `
-      <!-- Top Dartboard Controls Bar with Dedicated MISS Button -->
-      <div class="dartboard-top-controls">
-        <button id="btn-dartboard-miss" class="btn-dartboard-miss-prominent" type="button">
-          <span class="miss-icon">❌</span>
-          <span class="miss-text">MISS (0 PTS)</span>
+      <!-- Right-Half Primary Action Bar (UNDO • MISS • NEXT PLAYER) -->
+      <div class="right-actions-top-bar" style="margin-bottom: 8px;">
+        <button class="btn-panel-action btn-action-undo" type="button" id="btn-dartboard-undo" title="Undo Last Dart">
+          <span>↶ UNDO</span>
+        </button>
+        <button class="btn-panel-action btn-action-miss" type="button" id="btn-dartboard-miss" title="Record Miss (0 pts)">
+          <span>❌ MISS (0)</span>
+        </button>
+        <button class="btn-panel-action btn-action-next hidden-action" type="button" id="btn-dartboard-next" title="Advance Turn">
+          <span>➔ NEXT PLAYER</span>
         </button>
       </div>
 
@@ -125,11 +153,19 @@ export class Dartboard {
   }
 
   attachEvents() {
-    // Dedicated Top Miss Button
+    // Top Right Action Buttons: Undo, Miss & Next Player
+    this.container.querySelector('#btn-dartboard-undo')?.addEventListener('click', () => {
+      if (this.onUndo) this.onUndo();
+    });
+
     this.container.querySelector('#btn-dartboard-miss')?.addEventListener('click', () => {
       if (this.onHit) {
         this.onHit({ score: 0, number: 0, mult: 0, label: 'Miss' });
       }
+    });
+
+    this.container.querySelector('#btn-dartboard-next')?.addEventListener('click', () => {
+      if (this.onNextPlayer) this.onNextPlayer();
     });
 
     if (!this.svg) return;
@@ -143,7 +179,7 @@ export class Dartboard {
       const mult = parseInt(target.dataset.mult, 10) || 0;
       const label = target.dataset.label || 'Miss';
 
-      // Visual ripple / hit marker at click point
+      // Visual ripple
       const rect = this.svg.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -154,7 +190,6 @@ export class Dartboard {
         this.addHitMarker(svgX, svgY, label);
       }
 
-      // Flash segment
       target.classList.add('segment-hit-active');
       setTimeout(() => target.classList.remove('segment-hit-active'), 250);
 
@@ -180,14 +215,12 @@ export class Dartboard {
     markersGroup.appendChild(marker);
     this.hits.push(marker);
 
-    // Keep max 3 hit markers on board
     if (this.hits.length > 3) {
       const old = this.hits.shift();
       if (old && old.parentNode) old.parentNode.removeChild(old);
     }
   }
 
-  // --- Precision Target Highlighting ---
   highlightTarget(targetInfo) {
     if (!this.svg) return;
     this.clearHighlights();
@@ -218,7 +251,6 @@ export class Dartboard {
     }
   }
 
-  // Highlight full checkout route on the board
   highlightCheckout(route, activeStepIdx = 0) {
     if (!this.svg) return;
     this.clearHighlights();

@@ -1,5 +1,18 @@
 // Ultra High-Visibility & Intuitive Scoreboard Renderer for BullSheet
 export class Scoreboard {
+  renderNextPlayerBanner(game) {
+    if (!game || game.turnDarts.length < 3 || game.isMatchOver) return '';
+    const nextP = game.getNextPlayer ? game.getNextPlayer() : null;
+    return `
+      <div class="next-player-banner">
+        <button id="btn-scoreboard-next-player" class="btn-advance-turn-prominent" type="button">
+          <span class="btn-next-main-text">➔ NEXT PLAYER ${nextP ? `(${nextP.name})` : ''}</span>
+          <span class="btn-next-sub-hint">Tap to pass oche • or enter next dart</span>
+        </button>
+      </div>
+    `;
+  }
+
   constructor(containerEl) {
     this.container = containerEl;
   }
@@ -61,6 +74,8 @@ export class Scoreboard {
               <span class="checkout-route">${checkout ? checkout.join(' ➔ ') : (active.score <= 170 ? 'Bogey number — Set up a finish' : 'Setup target: Treble 20 (60 pts)')}</span>
             </div>
           </div>
+
+          
 
           <!-- Live Player Statistics Bar -->
           <div class="hero-stats-bar">
@@ -198,6 +213,7 @@ export class Scoreboard {
               </div>
             </div>
           </div>
+          
         </div>
 
         <div class="multiplayer-strip-container" style="margin-top:14px;">
@@ -246,6 +262,7 @@ export class Scoreboard {
             <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong></div>
             <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
           </div>
+          
         </div>
 
         <div class="multiplayer-strip-container" style="margin-top:14px;">
@@ -378,6 +395,7 @@ export class Scoreboard {
               `;
             }).join('')}
           </div>
+          
         </div>
 
         <!-- Standings -->
@@ -425,6 +443,7 @@ export class Scoreboard {
             <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong></div>
             <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
           </div>
+          
         </div>
 
         <div class="multiplayer-strip-container" style="margin-top:14px;">
@@ -474,6 +493,7 @@ export class Scoreboard {
               <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
             </div>
           </div>
+          
         </div>
 
         <div class="elim-players-grid" style="margin-top:16px;">
@@ -525,6 +545,7 @@ export class Scoreboard {
             <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong></div>
             <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
           </div>
+          
         </div>
 
         <div class="multiplayer-strip-container" style="margin-top:14px;">

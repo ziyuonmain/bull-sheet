@@ -1,4 +1,4 @@
-// Pro Speed Dart Keypad Component for BullSheet with High-Visibility MISS Button
+// Pro Speed Dart Keypad Component for BullSheet with Right-Half Unified Action Controls
 export class DartKeypad {
   constructor(containerEl, onDartSubmitCallback, onUndoCallback, onNextPlayerCallback) {
     this.container = containerEl;
@@ -6,12 +6,33 @@ export class DartKeypad {
     this.onUndo = onUndoCallback;
     this.onNextPlayer = onNextPlayerCallback;
     this.currentMultiplier = 1; // 1 = Single, 2 = Double, 3 = Treble
+    this.isVisitComplete = false;
+    this.nextPlayerName = '';
     this.init();
   }
 
   init() {
     this.render();
     this.attachEvents();
+  }
+
+  updateState(game) {
+    if (!game) return;
+    this.isVisitComplete = game.turnDarts && game.turnDarts.length >= 3 && !game.isMatchOver;
+    const nextP = game.getNextPlayer ? game.getNextPlayer() : null;
+    this.nextPlayerName = nextP ? nextP.name : '';
+
+    const nextBtn = this.container.querySelector('#btn-keypad-next');
+    if (nextBtn) {
+      if (this.isVisitComplete) {
+        nextBtn.classList.remove('hidden-action');
+        nextBtn.classList.add('active-pulse');
+        nextBtn.innerHTML = `<span>➔ NEXT PLAYER (${this.nextPlayerName})</span>`;
+      } else {
+        nextBtn.classList.add('hidden-action');
+        nextBtn.classList.remove('active-pulse');
+      }
+    }
   }
 
   render() {
@@ -43,13 +64,22 @@ export class DartKeypad {
     let html = `
       <div class="pro-dart-keypad">
         
-        <!-- 1. Top 1-Tap Speed Bar with High-Visibility MISS Button -->
+        <!-- 1. Right-Half Primary Action Bar (UNDO • MISS • NEXT PLAYER) -->
+        <div class="right-actions-top-bar">
+          <button class="btn-panel-action btn-action-undo" type="button" id="btn-keypad-undo" title="Undo Last Dart">
+            <span>↶ UNDO</span>
+          </button>
+          <button class="btn-panel-action btn-action-miss" type="button" data-num="0" data-mult="0" data-score="0" data-label="Miss" title="Record Miss (0 pts)">
+            <span>❌ MISS (0)</span>
+          </button>
+          <button class="btn-panel-action btn-action-next hidden-action" type="button" id="btn-keypad-next" title="Advance Turn">
+            <span>➔ NEXT PLAYER</span>
+          </button>
+        </div>
+
+        <!-- 2. 1-Tap Speed Bar -->
         <div class="speed-bar-header">
           <span class="speed-bar-label">⚡ 1-TAP INSTANT SCORING</span>
-          <button class="btn-prominent-miss" type="button" data-num="0" data-mult="0" data-score="0" data-label="Miss">
-            <span class="prominent-miss-icon">❌</span>
-            <span class="prominent-miss-text">MISS (0)</span>
-          </button>
         </div>
 
         <div class="speed-darts-grid">
@@ -61,7 +91,7 @@ export class DartKeypad {
           `).join('')}
         </div>
 
-        <!-- 2. Fast Checkout Doubles Row -->
+        <!-- 3. Fast Checkout Doubles Row -->
         <div class="quick-doubles-row">
           <span class="quick-doubles-label">DOUBLES:</span>
           <div class="quick-doubles-chips">
@@ -73,25 +103,20 @@ export class DartKeypad {
           </div>
         </div>
 
-        <!-- 3. Multiplier Modifier Bar -->
+        <!-- 4. Multiplier Modifier Bar -->
         <div class="dart-multiplier-bar">
           <button class="mult-btn ${this.currentMultiplier === 1 ? 'active' : ''}" type="button" data-mult="1">Single (1x)</button>
           <button class="mult-btn ${this.currentMultiplier === 2 ? 'active' : ''}" type="button" data-mult="2">Double (2x)</button>
           <button class="mult-btn ${this.currentMultiplier === 3 ? 'active' : ''}" type="button" data-mult="3">Treble (3x)</button>
         </div>
 
-        <!-- 4. Main Number Grid (1 to 20) -->
+        <!-- 5. Main Number Grid (1 to 20) -->
         <div class="dart-numbers-grid">
           ${numbers.map(n => `
             <button class="dart-num-btn" type="button" data-num="${n}">
               ${n}
             </button>
           `).join('')}
-        </div>
-
-        <!-- 5. Bottom Controls (Undo & Optional Finish Turn) -->
-        <div class="dart-keypad-bottom">
-          <button class="btn-keypad-undo" type="button" id="btn-dart-keypad-undo">↶ Undo Dart</button>
         </div>
 
       </div>
@@ -101,8 +126,17 @@ export class DartKeypad {
   }
 
   attachEvents() {
-    // Direct 1-Tap Speed Darts & Prominent Miss Button
-    this.container.querySelectorAll('.speed-dart-btn, .quick-double-btn, .btn-prominent-miss').forEach(btn => {
+    // Top Right Action Buttons: Undo & Next Player
+    this.container.querySelector('#btn-keypad-undo')?.addEventListener('click', () => {
+      if (this.onUndo) this.onUndo();
+    });
+
+    this.container.querySelector('#btn-keypad-next')?.addEventListener('click', () => {
+      if (this.onNextPlayer) this.onNextPlayer();
+    });
+
+    // 1-Tap Speed Darts & Miss Button
+    this.container.querySelectorAll('.speed-dart-btn, .quick-double-btn, .btn-action-miss').forEach(btn => {
       btn.addEventListener('click', () => {
         const num = Number(btn.dataset.num);
         const mult = Number(btn.dataset.mult);
@@ -137,17 +171,12 @@ export class DartKeypad {
           this.onDartSubmit({ number: num, mult, score, label });
         }
 
-        // Auto-reset multiplier back to Single (1x) after throwing
+        // Auto-reset multiplier back to Single (1x)
         this.currentMultiplier = 1;
         this.container.querySelectorAll('.mult-btn').forEach(b => {
           b.classList.toggle('active', Number(b.dataset.mult) === 1);
         });
       });
-    });
-
-    // Undo button
-    this.container.querySelector('#btn-dart-keypad-undo')?.addEventListener('click', () => {
-      if (this.onUndo) this.onUndo();
     });
   }
 }

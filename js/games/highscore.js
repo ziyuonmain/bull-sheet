@@ -1,4 +1,4 @@
-// Highscore Game Engine with Clean Match-Win Propagation, Clamped Round End, and Full Undo
+// Highscore Game Engine with Explicit Visit Completion & Clean Round End
 export class HighscoreGame {
   constructor(config = {}) {
     this.maxRounds = config.rounds || 7;
@@ -30,8 +30,26 @@ export class HighscoreGame {
     return this.players[this.activePlayerIdx];
   }
 
+  getNextPlayer() {
+    const nextIdx = (this.activePlayerIdx + 1) % this.players.length;
+    return this.players[nextIdx];
+  }
+
   recordDart(dart) {
     if (this.isMatchOver) return null;
+
+    if (this.turnDarts.length >= 3) {
+      const fin = this.finishTurn();
+      if (fin && fin.type === 'match_win') return fin;
+    }
+
+    // If 3 darts were already thrown and user enters a new dart, auto-finish turn first
+    if (this.turnDarts.length >= 3) {
+      const finishRes = this.finishTurn();
+      if (finishRes && finishRes.type === 'match_win') {
+        return finishRes;
+      }
+    }
 
     const player = this.getActivePlayer();
     const scoreVal = Number(dart.score) || (Number(dart.number) * (Number(dart.mult) || 1));
@@ -59,16 +77,15 @@ export class HighscoreGame {
       else if (turnScore >= 140) player.count140++;
       else if (turnScore >= 100) player.count100++;
 
-      const finishRes = this.finishTurn();
-      if (finishRes && finishRes.type === 'match_win') {
-        return finishRes;
-      }
+      const isLastRound = this.currentRound >= this.maxRounds && this.activePlayerIdx === this.players.length - 1;
 
       return {
-        type: 'turn_end',
+        type: 'visit_complete',
         player,
         turnScore,
-        score: player.score
+        score: player.score,
+        isLastRound,
+        nextPlayer: this.getNextPlayer()
       };
     }
 
@@ -81,43 +98,9 @@ export class HighscoreGame {
     };
   }
 
-  recordTurnScore(turnScore) {
-    if (this.isMatchOver) return null;
-    const player = this.getActivePlayer();
-
-    this.history.push({
-      playerIdx: this.activePlayerIdx,
-      round: this.currentRound,
-      turnScore,
-      prevScore: player.score,
-      isFullTurn: true,
-      turnDartsSnapshot: [...this.turnDarts],
-      playersSnapshot: this.players.map(p => ({ score: p.score, roundScores: [...p.roundScores], totalDarts: p.totalDarts }))
-    });
-
-    player.score += turnScore;
-    player.totalDarts += 3;
-    player.roundScores.push(turnScore);
-    player.turns.push(turnScore);
-    if (turnScore > player.highTurn) player.highTurn = turnScore;
-    if (turnScore === 180) player.count180++;
-    else if (turnScore >= 140) player.count140++;
-    else if (turnScore >= 100) player.count100++;
-
-    const finishRes = this.finishTurn();
-    if (finishRes && finishRes.type === 'match_win') {
-      return finishRes;
-    }
-
-    return {
-      type: 'turn_end',
-      player,
-      turnScore,
-      score: player.score
-    };
-  }
-
   finishTurn() {
+    if (this.turnDarts.length === 0 && !this.isMatchOver) return null;
+
     this.turnDarts = [];
     this.activePlayerIdx++;
     if (this.activePlayerIdx >= this.players.length) {
@@ -126,7 +109,7 @@ export class HighscoreGame {
 
       if (this.currentRound > this.maxRounds) {
         this.isMatchOver = true;
-        this.currentRound = this.maxRounds; // Clamp to max rounds
+        this.currentRound = this.maxRounds;
         let highest = -Infinity;
         let winP = this.players[0];
         this.players.forEach(p => {
@@ -143,6 +126,12 @@ export class HighscoreGame {
         };
       }
     }
+
+    return {
+      type: 'turn_advanced',
+      activePlayer: this.getActivePlayer(),
+      currentRound: this.currentRound
+    };
   }
 
   getPlayerAvg(player) {

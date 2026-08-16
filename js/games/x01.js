@@ -38,12 +38,22 @@ export class X01Game {
     this.winner = null;
   }
 
+  getNextPlayer() {
+    const nextIdx = (this.activePlayerIdx + 1) % this.players.length;
+    return this.players[nextIdx];
+  }
+
   getActivePlayer() {
     return this.players[this.activePlayerIdx];
   }
 
   recordDart(dart) {
     if (this.isMatchOver) return null;
+
+    if (this.turnDarts.length >= 3) {
+      const fin = this.finishTurn();
+      if (fin && fin.type === 'match_win') return fin;
+    }
 
     const player = this.getActivePlayer();
     const prevScore = player.score;
@@ -126,7 +136,6 @@ export class X01Game {
         turnDarts: [...this.turnDarts],
         remaining: player.score
       };
-      this.finishTurn();
       return result;
     }
 
@@ -143,14 +152,13 @@ export class X01Game {
     if (this.turnDarts.length === 3) {
       const turnScore = this.turnDarts.reduce((acc, d) => acc + (d.score || 0), 0);
       this.updateTurnStats(player, turnScore);
-      const result = {
-        type: 'turn_end',
+      return {
+        type: 'visit_complete',
         player,
         turnScore,
-        remaining: player.score
+        remaining: player.score,
+        nextPlayer: this.getNextPlayer()
       };
-      this.finishTurn();
-      return result;
     }
 
     return {
@@ -212,7 +220,6 @@ export class X01Game {
         turnScore,
         remaining: player.score
       };
-      this.finishTurn();
       return result;
     }
 
@@ -228,7 +235,7 @@ export class X01Game {
     this.updateTurnStats(player, turnScore);
 
     const result = {
-      type: 'turn_end',
+      type: 'visit_complete',
       player,
       turnScore,
       remaining: player.score
