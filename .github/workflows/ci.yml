@@ -7,27 +7,95 @@ on:
     branches: [ main ]
 
 jobs:
-  check:
-    name: Lint & Automated Tests
+  filter:
+    name: Detect File Changes
     runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.changes.outputs.code }}
+      unit: ${{ steps.changes.outputs.unit }}
+      e2e: ${{ steps.changes.outputs.e2e }}
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Check paths modified
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters:
+            # Code/Config files that need linting
+            code:
+              - 'js/**'
+              - 'tests/**'
+              - '*.js'
+              - '*.json'
+            # Changes that affect logic, changelog format, or static asset/cache integrity
+            unit:
+              - 'js/**'
+              - 'audio/**'
+              - 'icons/**'
+              - 'sw.js'
+              - 'manifest.json'
+              - 'CHANGELOG.md'
+              - 'tests/unit/**'
+              - 'package.json'
+            # Changes that affect browser UI/DOM/Styles
+            e2e:
+              - 'js/**'
+              - 'css/**'
+              - 'index.html'
+              - 'tests/e2e/**'
+              - 'playwright.config.js'
+              - 'package.json'
+
+  lint:
+    name: Code Quality & Lint
+    needs: filter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - if: needs.filter.outputs.code == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
+      - if: needs.filter.outputs.code == 'true'
+        run: |
+          npm ci
+          npm run lint
+      - if: needs.filter.outputs.code != 'true'
+        run: echo "No code changes detected. Skipping lint."
 
-      - name: Install dependencies
-        run: npm ci
+  unit-tests:
+    name: Unit & Integrity Tests
+    needs: filter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - if: needs.filter.outputs.unit == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - if: needs.filter.outputs.unit == 'true'
+        run: npm run test:unit
+      - if: needs.filter.outputs.unit != 'true'
+        run: echo "No logic/asset changes detected. Skipping unit tests."
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-
-      - name: Run Linter
-        run: npm run lint
-
-      - name: Run Test Suite (Unit & E2E)
-        run: npm test
+  e2e-tests:
+    name: E2E Browser Tests
+    needs: filter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - if: needs.filter.outputs.e2e == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - if: needs.filter.outputs.e2e == 'true'
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+      - if: needs.filter.outputs.e2e != 'true'
+        run: echo "No UI/browser changes detected. Skipping E2E tests."

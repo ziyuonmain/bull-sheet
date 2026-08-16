@@ -72,7 +72,8 @@ tests/
 │   ├── bot_engine.test.js     # 5 bot difficulty profiles, accuracy scaling, dart simulation
 │   ├── checkout.test.js       # Complete 170-to-2 checkout paths & bogey number detection
 │   ├── stats_store.test.js    # LocalStorage persistence, lifetime stats, JSON import/export
-│   └── changelog.test.js      # CHANGELOG.md markdown structure & parser verification
+│   ├── changelog.test.js      # CHANGELOG.md markdown structure & parser verification
+│   └── integrity.test.js      # Static assets (audio/icons) & Service Worker cache validation
 └── e2e/
     └── e2e.test.js            # Playwright headless browser E2E flow tests
 ```
