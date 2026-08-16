@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Monthly npm devDependencies maintenance
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      dev-dependencies:
+        patterns:
+          - "*"
+
+  # Monthly GitHub Actions workflow maintenance
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
