@@ -30,13 +30,13 @@
         <button class="brand-logo" id="brand-logo-btn" type="button" aria-label="BullSheet Home" onclick="window.app && window.app.handleBrandClick()">
           <span class="brand-bull-icon">🎯🐂</span>
           <div class="brand-text-wrap">
-            <span class="brand-title">BullSheet</span>
+            <div class="brand-title-row">
+              <span class="brand-title">BullSheet</span>
+              <span class="brand-version-badge" id="btn-header-version" title="Version 1.4.0 • Click to view Changelog">v1.4.0</span>
+            </div>
             <span class="brand-tagline">Because pub math is total bull-sheet.</span>
             <span class="brand-subbadge">No Ads • 100% Offline PWA</span>
           </div>
-        </button>
-        <button class="brand-version-badge" id="btn-header-version" type="button" aria-label="View Version 1.4.0 Changelog" title="Version 1.4.0 • Click to view Changelog" onclick="event.stopPropagation(); window.app && window.app.navigateTo('view-changelog')">
-          v1.4.0
         </button>
       </div>
 
@@ -46,10 +46,13 @@
             <span class="tab-icon">🎯</span><span class="tab-label">Play</span>
           </button>
           <button class="nav-tab-btn" data-target="view-stats" title="Match History & Stats">
-            <span class="tab-icon">📜</span><span class="tab-label">History</span>
+            <span class="tab-icon">📊</span><span class="tab-label">History</span>
           </button>
           <button class="nav-tab-btn" data-target="view-settings" title="Audio & Settings">
             <span class="tab-icon">⚙️</span><span class="tab-label">Settings</span>
+          </button>
+          <button class="nav-tab-btn" data-target="view-changelog" title="Release Changelog">
+            <span class="tab-icon">📜</span><span class="tab-label">Changelog</span>
           </button>
         </nav>
         <a href="https://github.com/zyu-wok/bull-sheet" target="_blank" rel="noopener noreferrer" class="btn-github-link" title="View Source on GitHub">
@@ -468,23 +471,19 @@
     <main id="view-changelog" class="app-view">
       <div class="setup-container" style="max-width: 760px;">
         
-        <!-- Header with Back Button & Version Pill -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <button id="btn-changelog-back" class="ctrl-btn" type="button" style="padding: 8px 14px; font-size: 0.85rem;">
+        <!-- Header with Back Button -->
+        <div style="display: flex; align-items: center; margin-bottom: 14px;">
+          <button id="btn-changelog-back" class="ctrl-btn" type="button" style="padding: 7px 14px; font-size: 0.85rem;">
             ← Back to Play
           </button>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 0.85rem; color: var(--text-muted);">Current Version</span>
-            <span class="version-pill-badge">v1.4.0</span>
-          </div>
         </div>
 
-        <div class="history-dashboard-header" style="margin-bottom: 20px;">
+        <div class="history-dashboard-header" style="margin-bottom: 16px;">
           <div class="history-title-wrap">
-            <h1 class="history-main-title" style="display: flex; align-items: center; gap: 10px;">
-              <span>📜 Release Notes & Changelog</span>
+            <h1 class="history-main-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.3rem;">
+              <span>📜 Release Changelog</span>
             </h1>
-            <p class="history-subtitle">All notable updates, feature additions, and refinements to BullSheet.</p>
+            <p class="history-subtitle">All notable updates and feature refinements in BullSheet.</p>
           </div>
         </div>
 
@@ -699,7 +698,7 @@
         </div>
       </button>
       <button class="drawer-nav-item" data-target="view-stats" type="button">
-        <span class="dnav-icon">📜</span>
+        <span class="dnav-icon">📊</span>
         <div class="dnav-text">
           <span class="dnav-title">History & Lifetime Stats</span>
           <span class="dnav-desc">Player drilldown, Heatmaps, Share cards</span>

@@ -3952,3 +3952,35 @@ button.brand-version-badge:hover {
 button.brand-version-badge:active {
   transform: scale(0.95);
 }
+
+
+.brand-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+}
+
+.brand-version-badge {
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: var(--accent-gold);
+  font-size: 0.7rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  padding: 2px 7px;
+  border-radius: 10px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+
+.brand-version-badge:hover {
+  background: rgba(245, 158, 11, 0.35);
+  border-color: var(--accent-gold);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
