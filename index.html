@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>BullSheet - Zero-BS Darts Scoreboard</title>
+  <title>BullSheet - Darts Scoreboard (No Ads • Offline PWA)</title>
   
   <!-- PWA & iOS Home Screen Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -26,27 +26,42 @@
   <div id="app-root">
     <!-- Top Navigation Header -->
     <header class="app-header">
-      <div class="brand-logo">
+      <button class="brand-logo" id="brand-logo-btn" type="button" aria-label="BullSheet Home" onclick="window.app && window.app.handleBrandClick()">
         <span class="brand-bull-icon">🎯🐂</span>
-        <div>
-          <span>BullSheet</span>
-          <div class="brand-tagline">No Ads • Zero BS Darts</div>
+        <div class="brand-text-wrap">
+          <span class="brand-title">BullSheet</span>
+          <span class="brand-tagline">Because pub math is total bull-sheet.</span>
+          <span class="brand-subbadge">No Ads • 100% Offline PWA</span>
         </div>
+      </button>
+
+      <div class="header-right-group">
+        <nav class="nav-tabs">
+          <button class="nav-tab-btn active" data-target="view-setup">Play</button>
+          <button class="nav-tab-btn" data-target="view-stats">History</button>
+          <button class="nav-tab-btn" data-target="view-settings">Settings</button>
+        </nav>
+        <a href="https://github.com/zyu-wok/bull-sheet" target="_blank" rel="noopener noreferrer" class="btn-github-link" title="View Source on GitHub">
+          <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          <span class="github-text">GitHub</span>
+        </a>
       </div>
-      <nav class="nav-tabs">
-        <button class="nav-tab-btn active" data-target="view-setup">Play</button>
-        <button class="nav-tab-btn" data-target="view-stats">History</button>
-        <button class="nav-tab-btn" data-target="view-settings">Settings</button>
-      </nav>
     </header>
 
     <!-- 1. SETUP / NEW GAME VIEW -->
     <main id="view-setup" class="app-view active-view">
       <div class="setup-container">
         
+        <!-- Live Match In-Progress Recovery Banner -->
+        <div id="resume-banner-container"></div>
+
         <!-- Game Mode Selection Grid -->
         <div>
-          <h2 class="setup-section-title">Select Game Mode</h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2 class="setup-section-title" style="margin:0;">Select Game Mode</h2>
+            <button id="btn-rules-setup" class="ctrl-btn btn-rules-pill" type="button">ℹ️ How to Play</button>
+          </div>
+          
           <div class="game-modes-grid">
             <div class="game-mode-card selected" data-mode="x01">
               <span class="mode-icon">🎯</span>
@@ -58,6 +73,21 @@
               <span class="mode-title">Cricket</span>
               <span class="mode-desc">Standard & Cutthroat</span>
             </div>
+            <div class="game-mode-card" data-mode="split_score">
+              <span class="mode-icon">⚡</span>
+              <span class="mode-title">Split Score</span>
+              <span class="mode-desc">Halve-It on miss</span>
+            </div>
+            <div class="game-mode-card" data-mode="highscore">
+              <span class="mode-icon">🏆</span>
+              <span class="mode-title">Highscore</span>
+              <span class="mode-desc">Max points in N rounds</span>
+            </div>
+            <div class="game-mode-card" data-mode="shooter">
+              <span class="mode-icon">🎯</span>
+              <span class="mode-title">Shooter</span>
+              <span class="mode-desc">Quick-draw target drill</span>
+            </div>
             <div class="game-mode-card" data-mode="killer">
               <span class="mode-icon">🔪</span>
               <span class="mode-title">Killer</span>
@@ -67,11 +97,6 @@
               <span class="mode-icon">💥</span>
               <span class="mode-title">Elimination</span>
               <span class="mode-desc">Beat the leader or bust</span>
-            </div>
-            <div class="game-mode-card" data-mode="split_score">
-              <span class="mode-icon">⚡</span>
-              <span class="mode-title">Split Score</span>
-              <span class="mode-desc">Halve-It on miss</span>
             </div>
             <div class="game-mode-card" data-mode="shanghai">
               <span class="mode-icon">🏮</span>
@@ -127,6 +152,31 @@
             </div>
           </div>
 
+          <!-- Split Score (Halve-It) Options -->
+          <div id="setup-split-options" class="options-row" style="display: none;">
+            <div class="option-group">
+              <label for="opt-split-order">Round Order Mode</label>
+              <select id="opt-split-order">
+                <option value="random" selected>🎲 Random Shuffle (Default - Fresh Board Targets)</option>
+                <option value="classic">📜 Classic Sequence (15, 16, D, 17, 18, T, 19, 20, Bull)</option>
+                <option value="custom">✏️ Custom Sequence (Type your targets below)</option>
+              </select>
+            </div>
+            <div class="option-group">
+              <label for="opt-split-start-score">Starting Score</label>
+              <select id="opt-split-start-score">
+                <option value="40" selected>40 points (Standard)</option>
+                <option value="50">50 points</option>
+                <option value="100">100 points</option>
+                <option value="0">0 points</option>
+              </select>
+            </div>
+            <div class="option-group" id="opt-split-custom-group" style="display: none; width: 100%;">
+              <label for="opt-split-custom-input">Custom Targets (comma separated, e.g. 14, 18, D, 11, T, Bull)</label>
+              <input type="text" id="opt-split-custom-input" placeholder="e.g. 14, 18, D, 11, T, 20, Bull" value="14, 18, D, 11, T, 20, Bull" />
+            </div>
+          </div>
+
           <!-- Cricket Options -->
           <div id="setup-cricket-options" class="options-row" style="display: none;">
             <div class="option-group">
@@ -134,6 +184,18 @@
               <select id="opt-cricket-mode">
                 <option value="standard" selected>Standard Cricket (Points to scorer)</option>
                 <option value="cutthroat">Cutthroat Cricket (Penalty points to friends)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Highscore / Shooter Options -->
+          <div id="setup-highscore-options" class="options-row" style="display: none;">
+            <div class="option-group">
+              <label for="opt-highscore-rounds">Total Rounds</label>
+              <select id="opt-highscore-rounds">
+                <option value="5">5 Rounds (Speed)</option>
+                <option value="7" selected>7 Rounds (Standard)</option>
+                <option value="10">10 Rounds (Pro)</option>
               </select>
             </div>
           </div>
@@ -158,22 +220,30 @@
           </div>
         </div>
 
-        <!-- Player Roster & Friends Management -->
+        <!-- Saved Player Profiles & Match Lineup -->
         <div class="setup-options-panel">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 class="setup-section-title" style="margin:0;">Players & Friends (1 to 8)</h2>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">Pass-and-play or AI Bots</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 class="setup-section-title" style="margin:0;">Match Lineup (1 to 8 Players)</h2>
+            <button id="btn-open-roster-manager" class="ctrl-btn btn-rules-pill" type="button">👥 Manage Saved Roster</button>
           </div>
 
-          <div id="setup-player-list" class="roster-list">
+          <!-- Quick-Add Saved Friends Pills -->
+          <div class="saved-roster-quick-bar">
+            <span class="quick-roster-label">QUICK ADD:</span>
+            <div id="saved-roster-chips" class="roster-chips-container">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+
+          <div id="setup-player-list" class="roster-list" style="margin-top: 12px;">
             <!-- Populated via JS -->
           </div>
 
-          <button id="btn-add-player" class="btn-add-player">+ Add Friend / Player</button>
+          <button id="btn-add-player" class="btn-add-player" type="button">+ Add New Player Field</button>
         </div>
 
         <!-- Start Game Button -->
-        <button id="btn-start-match" class="btn-primary-start">START MATCH 🎯</button>
+        <button id="btn-start-match" class="btn-primary-start" type="button">START MATCH 🎯</button>
       </div>
     </main>
 
@@ -181,13 +251,15 @@
     <main id="view-game" class="app-view">
       <div class="game-controls-bar">
         <div class="game-controls-left">
-          <button id="btn-toggle-input-mode" class="ctrl-btn">🎯 Switch to Dartboard</button>
-          <button id="btn-excuse-generator" class="ctrl-btn btn-excuse">🐂 Excuse Generator</button>
+          <button id="btn-game-undo" class="ctrl-btn btn-undo-main" type="button" title="Undo Last Dart / Turn">↶ UNDO</button>
+          <button id="btn-rules-game" class="ctrl-btn btn-rules-pill" type="button">ℹ️ Rules</button>
+          <button id="btn-toggle-input-mode" class="ctrl-btn" type="button">🎨 Dartboard View</button>
+          <button id="btn-excuse-generator" class="ctrl-btn btn-excuse" type="button">🐂 Excuse</button>
         </div>
         <div class="game-controls-right">
-          <button id="btn-quick-sound" class="ctrl-btn">🔊 Sound: ON</button>
-          <button id="btn-quick-voice" class="ctrl-btn">🗣️ Caller: ON</button>
-          <button id="btn-end-game" class="ctrl-btn btn-end">End Game</button>
+          <button id="btn-quick-sound" class="ctrl-btn" type="button">🔊 Sound: ON</button>
+          <button id="btn-quick-voice" class="ctrl-btn" type="button">🗣️ Caller: ON</button>
+          <button id="btn-end-game" class="ctrl-btn btn-end" type="button">End Game</button>
         </div>
       </div>
 
@@ -197,12 +269,12 @@
           <!-- Populated dynamically via JS -->
         </div>
 
-        <!-- Input Area: Keypad or Interactive Dartboard (Right / Bottom) -->
+        <!-- Input Area: Dart Keypad / Interactive Dartboard -->
         <div class="input-area">
-          <div id="keypad-container">
-            <!-- Keypad injected via JS -->
+          <div id="dart-keypad-container">
+            <!-- Pro Speed Dart Keypad injected via JS -->
           </div>
-          <div id="dartboard-container">
+          <div id="dartboard-container" style="display: none;">
             <!-- SVG Dartboard injected via JS -->
           </div>
         </div>
@@ -235,8 +307,8 @@
         </div>
 
         <div style="display: flex; gap: 12px; margin-top: 20px;">
-          <button id="btn-rematch" class="btn-primary-start" style="flex: 1;">REMATCH 🔄</button>
-          <button id="btn-new-match" class="btn-primary-start" style="flex: 1; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">New Game</button>
+          <button id="btn-rematch" class="btn-primary-start" type="button" style="flex: 1;">REMATCH 🔄</button>
+          <button id="btn-new-match" class="btn-primary-start" type="button" style="flex: 1; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">New Game</button>
         </div>
       </div>
     </main>
@@ -268,28 +340,106 @@
         </div>
 
         <div class="setup-options-panel">
-          <h2 class="setup-section-title">About BullSheet</h2>
+          <h2 class="setup-section-title">Open Source & About</h2>
           <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;">
-            <strong>BullSheet</strong> is a 100% free, open-source darts scoreboard licensed under <strong>GNU GPL v3.0</strong>.
-            Designed specifically for iPad and mobile touchscreens with zero ads, zero trackers, and complete offline PWA capability.
+            <strong>BullSheet</strong> is a 100% free, zero-ad, offline Progressive Web App (PWA) licensed under the <strong>GNU General Public License v3.0 (GPL-3.0)</strong>.
           </p>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">
-            To install on iPad: Open Safari &rarr; Tap Share (square with arrow) &rarr; Tap <strong>"Add to Home Screen"</strong>.
+          <div style="margin: 16px 0;">
+            <a href="https://github.com/zyu-wok/bull-sheet" target="_blank" rel="noopener noreferrer" class="btn-primary-start" style="display:inline-flex; align-items:center; gap:8px; text-decoration:none; width:auto; padding:10px 20px; font-size:0.95rem;">
+              <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+              View Source Code on GitHub
+            </a>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top:8px;">
+            To install on iPad/iPhone: Open in Safari &rarr; Tap Share (square with arrow) &rarr; Tap <strong>"Add to Home Screen"</strong>. Works 100% offline.
           </p>
         </div>
       </div>
     </main>
   </div>
 
+  <!-- Exit Match Confirmation Dialog Modal -->
+  <div id="modal-confirm-exit" class="modal-window">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content" style="max-width: 440px;">
+      <button class="modal-top-close-btn modal-close" type="button" aria-label="Close">✕</button>
+      <div class="modal-title" style="color:#ef4444;">⚠️ Match in Progress</div>
+      <p style="color: var(--text-secondary); font-size: 1.05rem; line-height: 1.5;">
+        A game is currently being played. Leaving now will forfeit the match and discard in-game progress.
+      </p>
+      <div class="modal-actions" style="margin-top: 12px;">
+        <button id="btn-confirm-stay" class="modal-btn btn-modal-next" type="button">Resume Game 🎯</button>
+        <button id="btn-confirm-leave" class="modal-btn" type="button" style="background: rgba(239, 68, 68, 0.2); color:#ef4444; border: 1px solid #ef4444;">Exit & Forfeit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saved Roster Manager Modal -->
+  <div id="modal-roster-manager" class="modal-window">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content" style="max-width: 520px; text-align: left;">
+      <button class="modal-top-close-btn modal-close" type="button" aria-label="Close">✕</button>
+      <div class="modal-title">👥 Saved Friends & Profiles</div>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">
+        Save your regular dart buddies so you never have to re-type their names.
+      </p>
+      
+      <!-- Add New Friend Form -->
+      <div style="display: flex; gap: 8px; margin: 10px 0;">
+        <input type="text" id="inp-new-roster-name" placeholder="Enter friend's name..." style="flex:1; padding: 10px 14px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: #fff; border-radius: var(--border-radius-sm);" />
+        <button id="btn-save-new-profile" class="ctrl-btn" type="button" style="background: var(--accent-gold); color:#12151b; font-weight:800;">+ Save</button>
+      </div>
+
+      <!-- Saved Roster List -->
+      <div id="roster-manager-list" class="roster-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 12px;">
+        <!-- Populated via JS -->
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn btn-modal-close modal-close" type="button" style="width: 100%;">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Rules Explanation Modal -->
+  <div id="modal-rules" class="modal-window">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content rules-modal-content">
+      <!-- Visible Top-Right Close Button -->
+      <button class="modal-top-close-btn modal-close" type="button" aria-label="Close rules">✕</button>
+      
+      <div class="rules-modal-header">
+        <h2 class="modal-title" id="rules-modal-title">🎯 Game Rules</h2>
+      </div>
+      
+      <div class="rules-objective-box">
+        <strong>🎯 Objective:</strong>
+        <span id="rules-modal-objective"></span>
+      </div>
+
+      <div class="rules-body">
+        <strong>📋 Rules & Scoring:</strong>
+        <ul id="rules-modal-list" class="rules-list-items"></ul>
+      </div>
+
+      <div class="rules-protip-box" id="rules-modal-protip"></div>
+
+      <div class="modal-actions" style="margin-top: 12px;">
+        <button class="modal-btn btn-modal-next modal-close" type="button" style="width:100%;">Got it, Let's Play! 🎯</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Excuse Generator Modal -->
   <div id="modal-excuse" class="modal-window">
     <div class="modal-backdrop"></div>
     <div class="modal-content">
+      <button class="modal-top-close-btn modal-close" type="button" aria-label="Close">✕</button>
       <div class="modal-title">🐂 BullSheet Official Excuse</div>
       <div class="excuse-quote" id="excuse-text">"The board is hung 2.5 millimeters too high."</div>
       <div class="modal-actions">
-        <button id="btn-next-excuse" class="modal-btn btn-modal-next">Another Excuse 🎲</button>
-        <button class="modal-btn btn-modal-close modal-close">Back to Throw</button>
+        <button id="btn-next-excuse" class="modal-btn btn-modal-next" type="button">Another Excuse 🎲</button>
+        <button class="modal-btn btn-modal-close modal-close" type="button">Back to Throw</button>
       </div>
     </div>
   </div>

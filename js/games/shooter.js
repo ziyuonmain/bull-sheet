@@ -1,8 +1,9 @@
-// Shanghai Game Engine with Clean Match-Win Propagation and Instant Win Support
-export class ShanghaiGame {
+// Shooter Game Engine with Clean Match-Win Propagation and Robust Undo
+export class ShooterGame {
   constructor(config = {}) {
-    this.maxRounds = config.rounds || 7;
+    this.maxRounds = config.rounds || 8;
     this.currentRound = 1;
+    this.targets = this.generateTargets(this.maxRounds);
 
     this.players = (config.players || [{ name: 'Player 1' }]).map((p, idx) => ({
       id: p.id || `p_${idx}`,
@@ -10,6 +11,7 @@ export class ShanghaiGame {
       isBot: !!p.isBot,
       botProfile: p.botProfile || 'pub_regular',
       score: 0,
+      totalHits: 0,
       roundScores: [],
       totalDarts: 0
     }));
@@ -21,6 +23,18 @@ export class ShanghaiGame {
     this.winner = null;
   }
 
+  generateTargets(rounds) {
+    const nums = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+    const shuffled = [...nums].sort(() => 0.5 - Math.random());
+    const list = shuffled.slice(0, Math.max(0, rounds - 1));
+    list.push(25); // Last round Bullseye
+    return list;
+  }
+
+  getCurrentTarget() {
+    return this.targets[this.currentRound - 1] || 20;
+  }
+
   getActivePlayer() {
     return this.players[this.activePlayerIdx];
   }
@@ -29,50 +43,33 @@ export class ShanghaiGame {
     if (this.isMatchOver) return null;
 
     const player = this.getActivePlayer();
-    const target = this.currentRound;
+    const target = this.getCurrentTarget();
     const dartNum = Number(dart.number);
     const dartMult = Number(dart.mult) || 1;
 
-    let points = 0;
+    let hitsScored = 0;
     if (dartNum === target) {
-      points = dartNum * dartMult;
+      hitsScored = dartMult;
     }
 
     this.history.push({
       playerIdx: this.activePlayerIdx,
       round: this.currentRound,
       dart,
-      points,
+      hitsScored,
       prevScore: player.score,
       turnDartsSnapshot: [...this.turnDarts],
-      playersSnapshot: this.players.map(p => ({ score: p.score, roundScores: [...p.roundScores], totalDarts: p.totalDarts }))
+      playersSnapshot: this.players.map(p => ({ score: p.score, totalHits: p.totalHits, totalDarts: p.totalDarts, roundScores: [...p.roundScores] }))
     });
 
-    player.score += points;
+    player.score += hitsScored;
+    player.totalHits += hitsScored;
     player.totalDarts++;
-    this.turnDarts.push({ ...dart, pointsScored: points });
-
-    // Shanghai Instant Win Check: Single, Double, Treble of the target in the same visit
-    const targetDarts = this.turnDarts.filter(d => Number(d.number) === target);
-    const hasSingle = targetDarts.some(d => Number(d.mult) === 1);
-    const hasDouble = targetDarts.some(d => Number(d.mult) === 2);
-    const hasTreble = targetDarts.some(d => Number(d.mult) === 3);
-
-    if (hasSingle && hasDouble && hasTreble) {
-      this.isMatchOver = true;
-        this.currentRound = this.maxRounds;
-      this.winner = player;
-      return {
-        type: 'match_win',
-        winner: player,
-        shanghaiWin: true,
-        players: this.players
-      };
-    }
+    this.turnDarts.push({ ...dart, hitsScored });
 
     if (this.turnDarts.length === 3) {
-      const turnScore = this.turnDarts.reduce((a, d) => a + (d.pointsScored || 0), 0);
-      player.roundScores.push(turnScore);
+      const turnHits = this.turnDarts.reduce((a, d) => a + (d.hitsScored || 0), 0);
+      player.roundScores.push(turnHits);
 
       const finishRes = this.finishTurn();
       if (finishRes && finishRes.type === 'match_win') {
@@ -82,7 +79,7 @@ export class ShanghaiGame {
       return {
         type: 'turn_end',
         player,
-        turnScore,
+        turnScore: turnHits,
         score: player.score
       };
     }
@@ -91,7 +88,7 @@ export class ShanghaiGame {
       type: 'dart_recorded',
       player,
       dart,
-      points,
+      hitsScored,
       score: player.score,
       dartsLeft: 3 - this.turnDarts.length
     };
@@ -137,8 +134,9 @@ export class ShanghaiGame {
         const snap = last.playersSnapshot[idx];
         if (snap) {
           p.score = snap.score;
-          p.roundScores = [...snap.roundScores];
+          p.totalHits = snap.totalHits;
           p.totalDarts = snap.totalDarts;
+          p.roundScores = [...snap.roundScores];
         }
       });
     }

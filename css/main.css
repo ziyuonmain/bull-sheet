@@ -753,7 +753,7 @@ body {
   background: #047857;
 }
 
-/* ---------------- DARTBOARD SVG CONTAINER ---------------- */
+/* ---------------- DARTBOARD SVG CONTAINER & ENHANCED SIZING ---------------- */
 #dartboard-container {
   display: none;
   flex-direction: column;
@@ -762,14 +762,19 @@ body {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  padding: 16px;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dartboard-svg {
   width: 100%;
-  max-width: 420px;
+  max-width: 580px;
   height: auto;
+  max-height: 76vh;
+  aspect-ratio: 1 / 1;
   touch-action: none;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.5));
 }
 
 .board-catch-ring {
@@ -967,4 +972,1077 @@ body {
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
+}
+
+/* ---------------- DART-BY-DART KEYPAD ---------------- */
+.dart-keypad-wrapper {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dart-mult-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.mult-btn {
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 14px 4px;
+  border-radius: var(--border-radius-sm);
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  min-height: var(--touch-min-height);
+  transition: all 0.15s ease;
+}
+
+.mult-btn.active {
+  background: var(--accent-gold);
+  color: #12151b;
+  border-color: var(--accent-gold);
+}
+
+.mult-btn.btn-double.active {
+  background: #dc2626;
+  color: #fff;
+  border-color: #ef4444;
+}
+
+.mult-btn.btn-treble.active {
+  background: #16a34a;
+  color: #fff;
+  border-color: #22c55e;
+}
+
+.dart-numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.dart-num-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 12px 0;
+  border-radius: var(--border-radius-sm);
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  min-height: 52px;
+  transition: transform 0.05s ease, background 0.1s ease;
+}
+
+.dart-num-btn:active {
+  transform: scale(0.94);
+  background: var(--accent-gold);
+  color: #12151b;
+}
+
+.btn-bull {
+  grid-column: span 2;
+  background: rgba(22, 163, 74, 0.2);
+  color: var(--accent-green);
+  border-color: rgba(22, 163, 74, 0.4);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.btn-miss {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--accent-red);
+  border-color: rgba(239, 68, 68, 0.3);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.btn-dart-undo {
+  grid-column: span 2;
+  font-size: 0.95rem;
+  font-weight: 800;
+  background: var(--bg-tertiary);
+}
+
+/* ---------------- HIGHSCORE & SHOOTER SCOREBOARDS ---------------- */
+.high-round-banner, .shooter-banner {
+  background: var(--bg-secondary);
+  border: 2px solid var(--accent-gold);
+  border-radius: var(--border-radius-lg);
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.shooter-target-big {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  font-family: var(--font-mono);
+  margin-top: 6px;
+}
+
+.high-turn-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+/* ---------------- RULES MODAL & PILLS ---------------- */
+.btn-rules-pill {
+  background: rgba(59, 130, 246, 0.18);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-rules-pill:hover {
+  background: rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+}
+
+.rules-modal-content {
+  max-width: 580px;
+  max-height: 85vh;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.rules-objective-box {
+  background: rgba(245, 158, 11, 0.1);
+  border-left: 4px solid var(--accent-gold);
+  padding: 12px 14px;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.rules-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rules-list-items {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.rules-protip-box {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--border-radius-sm);
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  color: #34d399;
+  line-height: 1.4;
+}
+
+/* ---------------- ENHANCED HIGH-VISIBILITY SCOREBOARD ---------------- */
+.active-pulse-badge {
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-amber));
+  color: #12151b;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.8px;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+.score-display-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.score-sub-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.highlight-legs {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-gold);
+  font-weight: 800;
+}
+
+.highlight-180 {
+  color: #ef4444 !important;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.turn-breakdown-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.turn-box-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.turn-sum-val {
+  color: var(--accent-gold);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+}
+
+.dart-slot {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-mono);
+}
+
+.dart-slot-num {
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.dart-slot-val {
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.dart-slot.filled {
+  border-color: var(--accent-gold);
+  background: rgba(245, 158, 11, 0.15);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+}
+
+.checkout-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--border-radius-md);
+  margin-top: 12px;
+}
+
+.checkout-banner.has-checkout {
+  background: rgba(16, 185, 129, 0.15);
+  border: 2px solid #10b981;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.2);
+}
+
+.checkout-icon {
+  font-size: 1.8rem;
+}
+
+.checkout-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkout-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #34d399;
+  letter-spacing: 0.5px;
+}
+
+.checkout-route {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #ffffff;
+  font-family: var(--font-mono);
+}
+
+.multiplayer-strip-container {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.strip-header-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.mini-avg-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+/* ---------------- SPLIT SCORE ULTRA-HIGHLIGHT & TIMELINE ---------------- */
+.split-target-box-hero {
+  background: rgba(245, 158, 11, 0.12);
+  border: 3px solid var(--accent-gold);
+  border-radius: var(--border-radius-md);
+  padding: 18px;
+  text-align: center;
+  margin-top: 10px;
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.25);
+  animation: pulse-border 2.5s infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.25); }
+  50% { border-color: #fbbf24; box-shadow: 0 0 32px rgba(251, 191, 36, 0.45); }
+}
+
+.split-target-sublabel {
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.split-target-giant-title {
+  font-size: 3.8rem;
+  font-weight: 900;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  line-height: 1.1;
+  text-shadow: 0 0 16px rgba(245, 158, 11, 0.5);
+}
+
+.split-target-desc-badge {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 12px;
+  margin: 6px 0;
+}
+
+.split-danger-status {
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 8px 12px;
+  border-radius: var(--border-radius-sm);
+  margin-top: 6px;
+}
+
+.split-danger-status.status-danger {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.split-danger-status.status-safe {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.split-rounds-timeline {
+  display: flex;
+  overflow-x: auto;
+  gap: 6px;
+  padding: 10px 0 4px;
+  justify-content: center;
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--bg-tertiary);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.timeline-step.is-active-step {
+  border-color: var(--accent-gold);
+  background: rgba(245, 158, 11, 0.2);
+  color: #ffffff;
+  font-weight: 900;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.timeline-step.is-past-step {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.dart-slot.filled-hit {
+  border-color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #34d399 !important;
+}
+
+.dart-slot.filled-miss {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #fca5a5 !important;
+}
+
+/* ---------------- SVG DARTBOARD TARGET HIGHLIGHT ---------------- */
+.target-highlight-active {
+  stroke: #f59e0b !important;
+  stroke-width: 3.5px !important;
+  filter: drop-shadow(0px 0px 6px #f59e0b) !important;
+  animation: svg-pulse 1.5s infinite alternate !important;
+}
+
+@keyframes svg-pulse {
+  from { filter: drop-shadow(0px 0px 4px #f59e0b) brightness(1.2); }
+  to { filter: drop-shadow(0px 0px 10px #fbbf24) brightness(1.7); }
+}
+
+/* ---------------- PROMINENT TOOLBAR UNDO BUTTON ---------------- */
+.btn-undo-main {
+  background: rgba(245, 158, 11, 0.25) !important;
+  color: var(--accent-gold) !important;
+  border: 1.5px solid var(--accent-gold) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.btn-undo-main:active {
+  transform: scale(0.94);
+  background: var(--accent-gold) !important;
+  color: #12151b !important;
+}
+
+/* ---------------- SAVED PLAYERS QUICK BAR & CHIPS ---------------- */
+.saved-roster-quick-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-tertiary);
+  padding: 8px 12px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  margin-bottom: 8px;
+  overflow-x: auto;
+}
+
+.quick-roster-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+}
+
+.roster-chips-container {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.roster-chip-btn {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.roster-chip-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.roster-chip-btn.in-lineup {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #34d399;
+}
+
+.btn-save-to-roster {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: var(--accent-gold);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-save-to-roster:hover {
+  background: var(--accent-gold);
+  color: #12151b;
+}
+
+/* ---------------- LOGO / BRAND CLICKABLE STYLING ---------------- */
+.brand-logo {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.brand-logo:hover {
+  opacity: 0.9;
+}
+
+.brand-logo:active {
+  transform: scale(0.97);
+  opacity: 0.75;
+}
+
+/* ---------------- CRICKET HORIZONTAL DARTS & BAR ---------------- */
+.cricket-active-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-secondary);
+  border: 2px solid var(--accent-gold);
+  border-radius: var(--border-radius-md);
+  padding: 12px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
+}
+
+.cricket-active-bar .active-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cricket-active-bar .active-info h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--text-primary);
+}
+
+.cricket-turn-darts {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.cricket-turn-darts .dart-slot {
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-mono);
+}
+
+.cricket-turn-darts .dart-slot.filled {
+  border-color: var(--accent-gold);
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-gold);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+/* ---------------- BRAND LOGO BUTTON STYLING ---------------- */
+button.brand-logo {
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+button.brand-logo .brand-text-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+button.brand-logo .brand-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+
+button.brand-logo .brand-tagline {
+  font-size: 0.72rem;
+  color: var(--accent-gold);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* ---------------- RESUME MATCH BANNER ---------------- */
+.resume-match-banner {
+  background: rgba(16, 185, 129, 0.18);
+  border: 2px solid #10b981;
+  border-radius: var(--border-radius-md);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+  animation: slide-down 0.3s ease;
+}
+
+.resume-match-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.resume-match-title {
+  font-weight: 900;
+  color: #34d399;
+  font-size: 1.05rem;
+}
+
+.resume-match-sub {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.resume-match-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-resume-now {
+  background: #10b981;
+  color: #12151b;
+  font-weight: 800;
+  border: none;
+  padding: 8px 14px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+}
+
+.btn-discard-match {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+}
+
+/* ---------------- PRO SPEED DART KEYPAD (OPTION B) ---------------- */
+.pro-dart-keypad {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.speed-bar-label {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  letter-spacing: 1px;
+}
+
+.speed-darts-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.speed-dart-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 2px;
+  background: var(--bg-tertiary);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.speed-dart-btn .speed-lbl {
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.speed-dart-btn .speed-pts {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.speed-dart-btn.btn-quick-t20 {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+.speed-dart-btn.btn-quick-t19 {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #6ee7b7;
+}
+
+.speed-dart-btn.btn-quick-treble {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+  color: #93c5fd;
+}
+
+.speed-dart-btn.btn-quick-bull {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.speed-dart-btn.btn-quick-outer {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.speed-dart-btn.btn-quick-miss {
+  background: rgba(100, 116, 139, 0.2);
+  border-color: #64748b;
+  color: #94a3b8;
+}
+
+.speed-dart-btn:active {
+  transform: scale(0.92);
+}
+
+/* Quick Doubles Row */
+.quick-doubles-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-primary);
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.quick-doubles-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.quick-doubles-chips {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.quick-double-btn {
+  flex: 1;
+  background: var(--bg-tertiary);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: var(--accent-gold);
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 6px 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-double-btn:active {
+  background: var(--accent-gold);
+  color: #12151b;
+}
+
+/* Multiplier Selector */
+.dart-multiplier-bar {
+  display: flex;
+  gap: 6px;
+  margin: 2px 0;
+}
+
+.mult-btn {
+  flex: 1;
+  padding: 10px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mult-btn.active {
+  background: var(--accent-gold);
+  border-color: var(--accent-gold);
+  color: #12151b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+/* Number Grid */
+.dart-numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.dart-num-btn {
+  height: 52px;
+  background: var(--bg-tertiary);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.dart-num-btn:hover {
+  border-color: var(--accent-gold);
+}
+
+.dart-num-btn:active {
+  transform: scale(0.93);
+  background: var(--accent-gold);
+  color: #12151b;
+}
+
+.dart-keypad-bottom {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.btn-keypad-undo {
+  width: 100%;
+  padding: 12px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1.5px solid var(--accent-gold);
+  border-radius: var(--border-radius-sm);
+  color: var(--accent-gold);
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-keypad-undo:active {
+  transform: scale(0.96);
+  background: var(--accent-gold);
+  color: #12151b;
+}
+
+/* ---------------- GITHUB LINK & BRAND SUBBADGE ---------------- */
+.brand-subbadge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #34d399;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.header-right-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-github-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: var(--border-radius-sm);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-github-link:hover {
+  border-color: var(--accent-gold);
+  color: var(--text-primary);
+  background: var(--bg-primary);
+}
+
+@media (max-width: 600px) {
+  .btn-github-link .github-text {
+    display: none;
+  }
+  .btn-github-link {
+    padding: 6px 8px;
+  }
+}
+
+/* ---------------- VISIBLE MODAL TOP-RIGHT CLOSE BUTTON ---------------- */
+.modal-content {
+  position: relative;
+}
+
+.modal-top-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 50%;
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.modal-top-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fca5a5;
+  transform: scale(1.08);
+}
+
+.modal-top-close-btn:active {
+  transform: scale(0.92);
+}
+
+/* ---------------- PRECISION CHECKOUT ROUTE HIGHLIGHTING ---------------- */
+.target-highlight-secondary {
+  stroke: #38bdf8 !important;
+  stroke-width: 2.5px !important;
+  stroke-dasharray: 4, 3 !important;
+  filter: drop-shadow(0px 0px 4px rgba(56, 189, 248, 0.6)) !important;
+  opacity: 0.85 !important;
+}
+
+/* ---------------- HIGH-VISIBILITY MISS BUTTONS ---------------- */
+.dartboard-top-controls {
+  width: 100%;
+  max-width: 580px;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+
+.btn-dartboard-miss-prominent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(239, 68, 68, 0.25);
+  border: 2px solid #ef4444;
+  border-radius: var(--border-radius-sm);
+  color: #fca5a5;
+  font-size: 0.95rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+  transition: all 0.15s ease;
+}
+
+.btn-dartboard-miss-prominent:hover {
+  background: #ef4444;
+  color: #ffffff;
+  transform: scale(1.04);
+}
+
+.btn-dartboard-miss-prominent:active {
+  transform: scale(0.95);
+}
+
+.speed-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.btn-prominent-miss {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.3);
+  border: 2px solid #ef4444;
+  border-radius: var(--border-radius-sm);
+  color: #fecaca;
+  font-size: 0.88rem;
+  font-weight: 900;
+  padding: 6px 14px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
+  transition: all 0.15s ease;
+}
+
+.btn-prominent-miss:hover {
+  background: #ef4444;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.btn-prominent-miss:active {
+  transform: scale(0.94);
 }

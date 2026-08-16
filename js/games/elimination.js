@@ -1,4 +1,4 @@
-// Elimination (Knockout) Game Engine (2-8 Players, Beat the Leader Score or Lose a Life)
+// Elimination (Knockout) Game Engine with Deep Multi-Player Undo
 export class EliminationGame {
   constructor(config = {}) {
     this.startingLives = config.startingLives || 3;
@@ -12,9 +12,8 @@ export class EliminationGame {
       botProfile: p.botProfile || 'pub_regular',
       lives: this.startingLives,
       isEliminated: false,
-      totalDarts: 0,
       roundsSurvived: 0,
-      turns: []
+      totalDarts: 0
     }));
 
     this.activePlayerIdx = 0;
@@ -28,82 +27,68 @@ export class EliminationGame {
     return this.players[this.activePlayerIdx];
   }
 
-  getAlivePlayers() {
-    return this.players.filter(p => !p.isEliminated);
-  }
-
   recordDart(dart) {
     if (this.isMatchOver) return null;
 
     const player = this.getActivePlayer();
-    if (player.isEliminated) {
-      this.finishTurn();
-      return null;
-    }
+    const dartScore = Number(dart.score) || (Number(dart.number) * (Number(dart.mult) || 1));
 
-    const snapshot = {
+    this.history.push({
       playerIdx: this.activePlayerIdx,
       dart,
       targetScoreToBeat: this.targetScoreToBeat,
       targetSetByPlayer: this.targetSetByPlayer,
-      players: this.players.map(p => ({
+      turnDartsSnapshot: [...this.turnDarts],
+      playersSnapshot: this.players.map(p => ({
         lives: p.lives,
         isEliminated: p.isEliminated,
-        roundsSurvived: p.roundsSurvived
+        roundsSurvived: p.roundsSurvived,
+        totalDarts: p.totalDarts
       }))
-    };
-    this.history.push(snapshot);
+    });
 
     player.totalDarts++;
-    this.turnDarts.push(dart);
+    this.turnDarts.push({ ...dart, score: dartScore });
 
     if (this.turnDarts.length === 3) {
-      const turnScore = this.turnDarts.reduce((acc, d) => acc + (d.score || 0), 0);
-      player.turns.push(turnScore);
+      const turnTotal = this.turnDarts.reduce((a, d) => a + (d.score || 0), 0);
+      let lostLife = false;
 
-      let survived = true;
-      let isFirstRound = this.targetScoreToBeat === 0 && !this.targetSetByPlayer;
-
-      if (!isFirstRound) {
-        if (turnScore < this.targetScoreToBeat) {
-          survived = false;
-          player.lives -= 1;
+      if (this.targetScoreToBeat > 0) {
+        if (turnTotal <= this.targetScoreToBeat) {
+          player.lives--;
+          lostLife = true;
           if (player.lives <= 0) {
-            player.lives = 0;
             player.isEliminated = true;
           }
         } else {
           player.roundsSurvived++;
-          this.targetScoreToBeat = turnScore;
+          this.targetScoreToBeat = turnTotal;
           this.targetSetByPlayer = player.name;
         }
       } else {
-        // First player sets initial bar
-        this.targetScoreToBeat = turnScore;
+        // First player sets target
+        this.targetScoreToBeat = turnTotal;
         this.targetSetByPlayer = player.name;
-        player.roundsSurvived++;
       }
 
-      // Check win condition
-      const alive = this.getAlivePlayers();
-      if (alive.length === 1) {
+      // Check remaining survivor
+      const survivors = this.players.filter(p => !p.isEliminated);
+      if (survivors.length === 1) {
         this.isMatchOver = true;
-        this.winner = alive[0];
+        this.winner = survivors[0];
         return {
           type: 'match_win',
-          winner: alive[0],
-          players: this.players,
-          turnScore,
-          survived
+          winner: survivors[0],
+          players: this.players
         };
       }
 
       const res = {
         type: 'turn_end',
         player,
-        turnScore,
-        survived,
-        newTarget: this.targetScoreToBeat,
+        turnScore: turnTotal,
+        lostLife,
         livesRemaining: player.lives
       };
 
@@ -115,94 +100,15 @@ export class EliminationGame {
       type: 'dart_recorded',
       player,
       dart,
-      dartsLeft: 3 - this.turnDarts.length,
-      currentTurnTotal: this.turnDarts.reduce((acc, d) => acc + (d.score || 0), 0),
-      targetScoreToBeat: this.targetScoreToBeat
+      dartsLeft: 3 - this.turnDarts.length
     };
-  }
-
-  // Support direct turn score entry from keypad
-  recordTurnScore(turnScore) {
-    if (this.isMatchOver) return null;
-    const player = this.getActivePlayer();
-    if (player.isEliminated) {
-      this.finishTurn();
-      return null;
-    }
-
-    const snapshot = {
-      playerIdx: this.activePlayerIdx,
-      turnScore,
-      targetScoreToBeat: this.targetScoreToBeat,
-      targetSetByPlayer: this.targetSetByPlayer,
-      players: this.players.map(p => ({
-        lives: p.lives,
-        isEliminated: p.isEliminated,
-        roundsSurvived: p.roundsSurvived
-      }))
-    };
-    this.history.push(snapshot);
-
-    player.totalDarts += 3;
-    player.turns.push(turnScore);
-
-    let survived = true;
-    let isFirstRound = this.targetScoreToBeat === 0 && !this.targetSetByPlayer;
-
-    if (!isFirstRound) {
-      if (turnScore < this.targetScoreToBeat) {
-        survived = false;
-        player.lives -= 1;
-        if (player.lives <= 0) {
-          player.lives = 0;
-          player.isEliminated = true;
-        }
-      } else {
-        player.roundsSurvived++;
-        this.targetScoreToBeat = turnScore;
-        this.targetSetByPlayer = player.name;
-      }
-    } else {
-      this.targetScoreToBeat = turnScore;
-      this.targetSetByPlayer = player.name;
-      player.roundsSurvived++;
-    }
-
-    const alive = this.getAlivePlayers();
-    if (alive.length === 1) {
-      this.isMatchOver = true;
-      this.winner = alive[0];
-      return {
-        type: 'match_win',
-        winner: alive[0],
-        players: this.players,
-        turnScore,
-        survived
-      };
-    }
-
-    const res = {
-      type: 'turn_end',
-      player,
-      turnScore,
-      survived,
-      newTarget: this.targetScoreToBeat,
-      livesRemaining: player.lives
-    };
-
-    this.finishTurn();
-    return res;
   }
 
   finishTurn() {
     this.turnDarts = [];
-    if (this.isMatchOver) return;
-
-    let count = 0;
     do {
       this.activePlayerIdx = (this.activePlayerIdx + 1) % this.players.length;
-      count++;
-    } while (this.players[this.activePlayerIdx].isEliminated && count < this.players.length);
+    } while (this.players[this.activePlayerIdx].isEliminated && !this.isMatchOver);
   }
 
   undo() {
@@ -213,28 +119,25 @@ export class EliminationGame {
     this.targetScoreToBeat = last.targetScoreToBeat;
     this.targetSetByPlayer = last.targetSetByPlayer;
 
-    this.players.forEach((p, idx) => {
-      p.lives = last.players[idx].lives;
-      p.isEliminated = last.players[idx].isEliminated;
-      p.roundsSurvived = last.players[idx].roundsSurvived;
-    });
-
-    const active = this.getActivePlayer();
-    if (last.turnScore !== undefined) {
-      active.totalDarts -= 3;
-      active.turns.pop();
-    } else {
-      active.totalDarts--;
-      this.turnDarts.pop();
+    if (last.playersSnapshot) {
+      this.players.forEach((p, idx) => {
+        const snap = last.playersSnapshot[idx];
+        if (snap) {
+          p.lives = snap.lives;
+          p.isEliminated = snap.isEliminated;
+          p.roundsSurvived = snap.roundsSurvived;
+          p.totalDarts = snap.totalDarts;
+        }
+      });
     }
 
+    this.turnDarts = last.turnDartsSnapshot || [];
     this.isMatchOver = false;
     this.winner = null;
 
     return {
-      player: active,
-      targetScoreToBeat: this.targetScoreToBeat,
-      livesRemaining: active.lives
+      player: this.getActivePlayer(),
+      dartsLeft: 3 - this.turnDarts.length
     };
   }
 }

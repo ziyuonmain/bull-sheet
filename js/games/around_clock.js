@@ -1,17 +1,14 @@
-// Around the Clock Game Engine (1-8 Players, Standard & Doubles/Trebles Multiplier Advance)
+// Around the Clock Game Engine with Deep Multi-Player Undo
 export class AroundClockGame {
   constructor(config = {}) {
-    this.allowMultipliers = config.allowMultipliers !== undefined ? config.allowMultipliers : true;
-
     this.players = (config.players || [{ name: 'Player 1' }]).map((p, idx) => ({
       id: p.id || `p_${idx}`,
       name: p.name,
       isBot: !!p.isBot,
       botProfile: p.botProfile || 'pub_regular',
-      currentTarget: 1, // 1 to 20, 25 for Bull
-      hits: 0,
+      currentTarget: 1, // 1 through 20, then 25 (Bull)
       totalDarts: 0,
-      isFinished: false
+      history: []
     }));
 
     this.activePlayerIdx = 0;
@@ -30,44 +27,51 @@ export class AroundClockGame {
 
     const player = this.getActivePlayer();
     const target = player.currentTarget;
-    let hit = false;
-    let advancedBy = 0;
+    const dartNum = Number(dart.number);
+    const dartMult = Number(dart.mult) || 1;
 
-    const snapshot = {
+    let hit = false;
+    let leap = 0;
+
+    if (target === 25) {
+      if (dartNum === 25) {
+        hit = true;
+        leap = 1;
+      }
+    } else {
+      if (dartNum === target) {
+        hit = true;
+        leap = dartMult; // Double leap 2, Treble leap 3
+      }
+    }
+
+    this.history.push({
       playerIdx: this.activePlayerIdx,
       dart,
+      hit,
       prevTarget: player.currentTarget,
-      prevHits: player.hits
-    };
-    this.history.push(snapshot);
+      turnDartsSnapshot: [...this.turnDarts],
+      playersSnapshot: this.players.map(p => ({ currentTarget: p.currentTarget, totalDarts: p.totalDarts }))
+    });
 
     player.totalDarts++;
-    this.turnDarts.push(dart);
+    this.turnDarts.push({ ...dart, hit });
 
-    if (target <= 20) {
-      if (dart.number === target) {
-        hit = true;
-        player.hits++;
-        advancedBy = this.allowMultipliers ? Math.max(1, dart.mult || 1) : 1;
-        player.currentTarget += advancedBy;
-        if (player.currentTarget > 20) {
-          player.currentTarget = 25; // Advance to Bull
-        }
-      }
-    } else if (target === 25) {
-      // Bullseye to win
-      if (dart.number === 25) {
-        hit = true;
-        player.hits++;
-        player.isFinished = true;
+    if (hit) {
+      const nextTarget = player.currentTarget + leap;
+      if (nextTarget > 20 && player.currentTarget <= 20) {
+        player.currentTarget = 25; // Bullseye
+      } else if (player.currentTarget === 25) {
+        // Match Won!
         this.isMatchOver = true;
         this.winner = player;
-
         return {
           type: 'match_win',
           winner: player,
           players: this.players
         };
+      } else {
+        player.currentTarget = nextTarget;
       }
     }
 
@@ -75,7 +79,7 @@ export class AroundClockGame {
       const res = {
         type: 'turn_end',
         player,
-        nextTarget: player.currentTarget
+        currentTarget: player.currentTarget
       };
       this.finishTurn();
       return res;
@@ -86,7 +90,7 @@ export class AroundClockGame {
       player,
       dart,
       hit,
-      nextTarget: player.currentTarget,
+      currentTarget: player.currentTarget,
       dartsLeft: 3 - this.turnDarts.length
     };
   }
@@ -101,19 +105,23 @@ export class AroundClockGame {
     const last = this.history.pop();
 
     this.activePlayerIdx = last.playerIdx;
-    const player = this.getActivePlayer();
+    if (last.playersSnapshot) {
+      this.players.forEach((p, idx) => {
+        const snap = last.playersSnapshot[idx];
+        if (snap) {
+          p.currentTarget = snap.currentTarget;
+          p.totalDarts = snap.totalDarts;
+        }
+      });
+    }
 
-    player.currentTarget = last.prevTarget;
-    player.hits = last.prevHits;
-    player.totalDarts--;
-    this.turnDarts.pop();
-
+    this.turnDarts = last.turnDartsSnapshot || [];
     this.isMatchOver = false;
     this.winner = null;
 
     return {
-      player,
-      target: player.currentTarget,
+      player: this.getActivePlayer(),
+      currentTarget: this.getActivePlayer().currentTarget,
       dartsLeft: 3 - this.turnDarts.length
     };
   }

@@ -1,8 +1,8 @@
-// Cricket & Cutthroat Cricket Game Engine (1-8 Players, Live Marks & MPR)
+// Cricket & Cutthroat Cricket Game Engine with Deep Multi-Player Undo
 export class CricketGame {
   constructor(config = {}) {
-    this.mode = config.mode || 'standard'; // 'standard' or 'cutthroat'
-    this.targets = [20, 19, 18, 17, 16, 15, 25]; // 25 = Bull
+    this.mode = config.mode || 'standard';
+    this.targets = [20, 19, 18, 17, 16, 15, 25];
     
     this.players = (config.players || [{ name: 'Player 1' }, { name: 'Player 2' }]).map((p, idx) => ({
       id: p.id || `p_${idx}`,
@@ -36,51 +36,51 @@ export class CricketGame {
     if (this.isMatchOver) return null;
 
     const player = this.getActivePlayer();
-    const target = dart.number === 25 ? 25 : dart.number;
-    const isCricketTarget = this.targets.includes(target);
-    const hitMult = dart.mult || 1;
+    const targetNum = Number(dart.number) === 25 ? 25 : Number(dart.number);
+    const isCricketTarget = this.targets.includes(targetNum);
+    const hitMult = Number(dart.mult) || 1;
 
     let marksScored = 0;
     let pointsScored = 0;
 
     // Deep clone state for undo
-    const stateSnapshot = {
+    this.history.push({
       playerIdx: this.activePlayerIdx,
-      dart,
+      dart: { ...dart },
       scores: this.players.map(p => p.score),
-      marks: this.players.map(p => ({ ...p.marks }))
-    };
-    this.history.push(stateSnapshot);
+      marks: this.players.map(p => ({ ...p.marks })),
+      totalMarks: this.players.map(p => p.totalMarks),
+      totalDarts: this.players.map(p => p.totalDarts),
+      turnDartsSnapshot: [...this.turnDarts]
+    });
 
     player.totalDarts++;
     this.turnDarts.push(dart);
 
     if (isCricketTarget) {
-      const currentMarks = player.marks[target];
+      const currentMarks = player.marks[targetNum];
       const neededToClose = Math.max(0, 3 - currentMarks);
 
       if (hitMult <= neededToClose) {
-        player.marks[target] += hitMult;
+        player.marks[targetNum] += hitMult;
         marksScored = hitMult;
       } else {
-        // Closed + Over-hitting for points
-        player.marks[target] = 3;
+        player.marks[targetNum] = 3;
         marksScored = neededToClose;
         const extraHits = hitMult - neededToClose;
 
-        const valPerHit = target === 25 ? 25 : target;
+        const valPerHit = targetNum === 25 ? 25 : targetNum;
         const addedScore = extraHits * valPerHit;
 
         if (this.mode === 'standard') {
-          // Add points to current player if any opponent hasn't closed
-          if (!this.isTargetClosedForAll(target)) {
+          if (!this.isTargetClosedForAll(targetNum)) {
             player.score += addedScore;
             pointsScored = addedScore;
           }
         } else {
-          // Cutthroat: Add points to all opponents who have not closed it
+          // Cutthroat
           this.players.forEach((opp, i) => {
-            if (i !== this.activePlayerIdx && opp.marks[target] < 3) {
+            if (i !== this.activePlayerIdx && opp.marks[targetNum] < 3) {
               opp.score += addedScore;
             }
           });
@@ -98,7 +98,6 @@ export class CricketGame {
         const hasHighestScore = this.players.every(p => player.score >= p.score);
         if (hasHighestScore) won = true;
       } else {
-        // Cutthroat: Lowest score wins
         const hasLowestScore = this.players.every(p => player.score <= p.score);
         if (hasLowestScore) won = true;
       }
@@ -114,7 +113,6 @@ export class CricketGame {
       };
     }
 
-    // Turn complete after 3 darts
     if (this.turnDarts.length === 3) {
       player.roundsPlayed++;
       const result = {
@@ -154,17 +152,17 @@ export class CricketGame {
     this.players.forEach((p, i) => {
       p.score = last.scores[i];
       p.marks = { ...last.marks[i] };
+      p.totalMarks = last.totalMarks[i];
+      p.totalDarts = last.totalDarts[i];
     });
 
-    const active = this.getActivePlayer();
-    active.totalDarts--;
-    this.turnDarts.pop();
+    this.turnDarts = last.turnDartsSnapshot || [];
 
     this.isMatchOver = false;
     this.winner = null;
 
     return {
-      player: active,
+      player: this.getActivePlayer(),
       dartsLeft: 3 - this.turnDarts.length
     };
   }

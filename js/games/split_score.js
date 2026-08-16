@@ -1,19 +1,28 @@
-// Split Score (Halve-It) Game Engine (1-8 Players)
+// Split Score (Halve-It) Game Engine with Clean Match-Win Propagation, Robust Target Matching, and Deep Undo
 export class SplitScoreGame {
   constructor(config = {}) {
-    this.rounds = [
-      { id: '15', label: '15', targetType: 'num', value: 15 },
-      { id: '16', label: '16', targetType: 'num', value: 16 },
-      { id: 'doubles', label: 'Any Double', targetType: 'double' },
-      { id: '17', label: '17', targetType: 'num', value: 17 },
-      { id: '18', label: '18', targetType: 'num', value: 18 },
-      { id: 'trebles', label: 'Any Treble', targetType: 'treble' },
-      { id: '19', label: '19', targetType: 'num', value: 19 },
-      { id: '20', label: '20', targetType: 'num', value: 20 },
-      { id: 'bull', label: 'Bullseye', targetType: 'bull' }
-    ];
-
     this.startScore = config.startScore || 40;
+    
+    // Generate or use custom rounds list
+    if (config.roundsList && config.roundsList.length > 0) {
+      this.rounds = config.roundsList;
+    } else if (config.orderType === 'classic') {
+      this.rounds = [
+        { id: '15', label: '15', targetType: 'num', value: 15 },
+        { id: '16', label: '16', targetType: 'num', value: 16 },
+        { id: 'doubles', label: 'ANY DOUBLE', targetType: 'double' },
+        { id: '17', label: '17', targetType: 'num', value: 17 },
+        { id: '18', label: '18', targetType: 'num', value: 18 },
+        { id: 'trebles', label: 'ANY TREBLE', targetType: 'treble' },
+        { id: '19', label: '19', targetType: 'num', value: 19 },
+        { id: '20', label: '20', targetType: 'num', value: 20 },
+        { id: 'bull', label: 'BULLSEYE', targetType: 'bull', value: 25 }
+      ];
+    } else {
+      // Default: RANDOMIZED Dynamic Order (8 to 9 fun randomized rounds with numbers, doubles, trebles, bull)
+      this.rounds = this.generateRandomRounds(config.roundCount || 8);
+    }
+
     this.currentRoundIdx = 0;
 
     this.players = (config.players || [{ name: 'Player 1' }, { name: 'Player 2' }]).map((p, idx) => ({
@@ -28,18 +37,60 @@ export class SplitScoreGame {
     }));
 
     this.activePlayerIdx = 0;
-    this.turnDarts = [];
-    this.history = [];
+    this.turnDarts = []; // [ { dart, isHit, pointsScored } ]
+    this.history = [];   // Full undo stack
     this.isMatchOver = false;
     this.winner = null;
   }
 
+  generateRandomRounds(count = 8) {
+    const nums = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+    const shuffledNums = [...nums].sort(() => 0.5 - Math.random());
+    const generated = [];
+
+    const numPicks = Math.max(4, count - 3);
+    for (let i = 0; i < numPicks; i++) {
+      const n = shuffledNums[i];
+      generated.push({ id: `num_${n}`, label: `${n}`, targetType: 'num', value: n });
+    }
+
+    // Insert Any Double, Any Treble, and Bullseye
+    generated.splice(Math.floor(generated.length / 2), 0, { id: 'doubles', label: 'ANY DOUBLE', targetType: 'double' });
+    generated.splice(generated.length - 1, 0, { id: 'trebles', label: 'ANY TREBLE', targetType: 'treble' });
+    generated.push({ id: 'bull', label: 'BULLSEYE', targetType: 'bull', value: 25 });
+
+    return generated;
+  }
+
   getCurrentRound() {
-    return this.rounds[this.currentRoundIdx];
+    return this.rounds[this.currentRoundIdx] || this.rounds[this.rounds.length - 1];
   }
 
   getActivePlayer() {
     return this.players[this.activePlayerIdx];
+  }
+
+  // Robust Target Matching (Handles numbers, strings, doubles, trebles, bullseye)
+  isDartTargetHit(dart, round) {
+    if (!dart || !round) return false;
+
+    const dartNum = Number(dart.number);
+    const dartMult = Number(dart.mult) || 1;
+    const roundVal = Number(round.value);
+
+    if (round.targetType === 'num') {
+      return dartNum === roundVal && dartNum > 0;
+    }
+    if (round.targetType === 'double') {
+      return dartMult === 2 || (dartNum === 25 && dartMult === 2);
+    }
+    if (round.targetType === 'treble') {
+      return dartMult === 3;
+    }
+    if (round.targetType === 'bull') {
+      return dartNum === 25;
+    }
+    return false;
   }
 
   recordDart(dart) {
@@ -47,72 +98,68 @@ export class SplitScoreGame {
 
     const player = this.getActivePlayer();
     const round = this.getCurrentRound();
-    let hit = false;
-    let points = 0;
+    const hit = this.isDartTargetHit(dart, round);
+    const points = hit ? (Number(dart.score) || (Number(dart.number) * (Number(dart.mult) || 1))) : 0;
 
-    if (round.targetType === 'num') {
-      if (dart.number === round.value) {
-        hit = true;
-        points = dart.score;
-      }
-    } else if (round.targetType === 'double') {
-      if (dart.mult === 2 || (dart.number === 25 && dart.mult === 2)) {
-        hit = true;
-        points = dart.score;
-      }
-    } else if (round.targetType === 'treble') {
-      if (dart.mult === 3) {
-        hit = true;
-        points = dart.score;
-      }
-    } else if (round.targetType === 'bull') {
-      if (dart.number === 25) {
-        hit = true;
-        points = dart.score;
-      }
-    }
-
+    // Snapshot for undo
     this.history.push({
       playerIdx: this.activePlayerIdx,
       roundIdx: this.currentRoundIdx,
-      dart,
+      dart: { ...dart },
+      isHit: hit,
+      pointsScored: points,
       prevScore: player.score,
-      prevHits: player.hitsThisRound
+      prevHits: player.hitsThisRound,
+      turnDartsSnapshot: [...this.turnDarts],
+      playersSnapshot: this.players.map(p => ({ score: p.score, hitsThisRound: p.hitsThisRound, totalDarts: p.totalDarts, roundScores: [...p.roundScores] }))
     });
 
     player.totalDarts++;
-    this.turnDarts.push(dart);
+    this.turnDarts.push({ ...dart, isHit: hit, pointsScored: points });
 
     if (hit) {
       player.hitsThisRound++;
       player.score += points;
     }
 
+    // After 3 darts in visit:
     if (this.turnDarts.length === 3) {
       let halved = false;
+      const turnScore = this.turnDarts.reduce((sum, d) => sum + (d.pointsScored || 0), 0);
+
+      // Halve ONLY if ZERO hits occurred across all 3 darts
       if (player.hitsThisRound === 0) {
         player.score = Math.floor(player.score / 2);
         halved = true;
       }
 
-      player.roundScores.push(player.score);
-      const res = {
+      player.roundScores[this.currentRoundIdx] = player.score;
+
+      const finishRes = this.finishTurn();
+      if (finishRes && finishRes.type === 'match_win') {
+        return finishRes;
+      }
+
+      return {
         type: 'turn_end',
         player,
         halved,
-        score: player.score
+        turnScore,
+        roundHits: player.hitsThisRound,
+        score: player.score,
+        completedRound: round
       };
-
-      this.finishTurn();
-      return res;
     }
 
     return {
       type: 'dart_recorded',
       player,
       dart,
+      hit,
+      points,
       dartsLeft: 3 - this.turnDarts.length,
-      hit
+      currentHitsThisRound: player.hitsThisRound,
+      currentScore: player.score
     };
   }
 
@@ -121,15 +168,14 @@ export class SplitScoreGame {
     player.hitsThisRound = 0;
     this.turnDarts = [];
 
-    // Next player or next round
     this.activePlayerIdx++;
     if (this.activePlayerIdx >= this.players.length) {
       this.activePlayerIdx = 0;
       this.currentRoundIdx++;
 
       if (this.currentRoundIdx >= this.rounds.length) {
-        // Game complete, find highest score
         this.isMatchOver = true;
+        this.currentRoundIdx = this.rounds.length - 1;
         let highest = -Infinity;
         let winP = this.players[0];
         this.players.forEach(p => {
@@ -154,20 +200,32 @@ export class SplitScoreGame {
 
     this.activePlayerIdx = last.playerIdx;
     this.currentRoundIdx = last.roundIdx;
-    const player = this.getActivePlayer();
 
-    player.score = last.prevScore;
-    player.hitsThisRound = last.prevHits;
-    player.totalDarts--;
-    this.turnDarts.pop();
+    if (last.playersSnapshot) {
+      this.players.forEach((p, idx) => {
+        const snap = last.playersSnapshot[idx];
+        if (snap) {
+          p.score = snap.score;
+          p.hitsThisRound = snap.hitsThisRound;
+          p.totalDarts = snap.totalDarts;
+          p.roundScores = [...snap.roundScores];
+        }
+      });
+    } else {
+      const player = this.getActivePlayer();
+      player.score = last.prevScore;
+      player.hitsThisRound = last.prevHits;
+    }
 
+    this.turnDarts = last.turnDartsSnapshot || [];
     this.isMatchOver = false;
     this.winner = null;
 
     return {
-      player,
-      score: player.score,
-      dartsLeft: 3 - this.turnDarts.length
+      player: this.getActivePlayer(),
+      score: this.getActivePlayer().score,
+      dartsLeft: 3 - this.turnDarts.length,
+      currentRound: this.getCurrentRound()
     };
   }
 }

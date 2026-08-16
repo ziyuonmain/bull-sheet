@@ -1,12 +1,13 @@
 // LocalStorage state & stats store for BullSheet
 const STORAGE_KEY_STATS = 'bullsheet_stats_v1';
 const STORAGE_KEY_SETTINGS = 'bullsheet_settings_v1';
-const STORAGE_KEY_PLAYERS = 'bullsheet_players_v1';
+const STORAGE_KEY_PLAYERS = 'bullsheet_saved_roster_v2';
+const STORAGE_KEY_ACTIVE_MATCH = 'bullsheet_active_match_v1';
 
 class StatsStore {
   constructor() {
     this.settings = this.loadSettings();
-    this.players = this.loadPlayers();
+    this.savedPlayers = this.loadSavedPlayers();
     this.history = this.loadHistory();
   }
 
@@ -19,7 +20,7 @@ class StatsStore {
         voice: true,
         sarcasm: true,
         volume: 0.8,
-        inputMode: 'keypad', // 'keypad' or 'dartboard'
+        inputMode: 'keypad',
         vibration: true
       };
     } catch (e) {
@@ -44,41 +45,53 @@ class StatsStore {
     }
   }
 
-  loadPlayers() {
+  loadSavedPlayers() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_PLAYERS);
       return saved ? JSON.parse(saved) : [
-        { id: 'p1', name: 'Player 1', default: true },
-        { id: 'p2', name: 'Player 2', default: true }
+        { id: 'p_default_1', name: 'Player 1', avatar: '🎯', color: '#f59e0b' },
+        { id: 'p_default_2', name: 'Player 2', avatar: '🍺', color: '#3b82f6' }
       ];
     } catch (e) {
       return [
-        { id: 'p1', name: 'Player 1', default: true },
-        { id: 'p2', name: 'Player 2', default: true }
+        { id: 'p_default_1', name: 'Player 1', avatar: '🎯', color: '#f59e0b' },
+        { id: 'p_default_2', name: 'Player 2', avatar: '🍺', color: '#3b82f6' }
       ];
     }
   }
 
-  savePlayers(players) {
-    this.players = players;
+  saveRoster(players) {
+    this.savedPlayers = players;
     try {
-      localStorage.setItem(STORAGE_KEY_PLAYERS, JSON.stringify(this.players));
+      localStorage.setItem(STORAGE_KEY_PLAYERS, JSON.stringify(this.savedPlayers));
     } catch (e) {
-      console.warn('Could not save players:', e);
+      console.warn('Could not save players roster:', e);
     }
   }
 
-  addPlayer(name) {
-    const trimmed = name.trim();
+  addSavedPlayer(name, avatar = '🎯', color = '#f59e0b') {
+    const trimmed = (name || '').trim();
     if (!trimmed) return null;
-    const player = {
+
+    // Avoid duplicates
+    const exists = this.savedPlayers.find(p => p.name.toLowerCase() === trimmed.toLowerCase());
+    if (exists) return exists;
+
+    const newP = {
       id: 'p_' + Date.now(),
       name: trimmed,
+      avatar,
+      color,
       created: Date.now()
     };
-    this.players.push(player);
-    this.savePlayers(this.players);
-    return player;
+    this.savedPlayers.push(newP);
+    this.saveRoster(this.savedPlayers);
+    return newP;
+  }
+
+  deleteSavedPlayer(playerId) {
+    this.savedPlayers = this.savedPlayers.filter(p => p.id !== playerId);
+    this.saveRoster(this.savedPlayers);
   }
 
   loadHistory() {
@@ -109,6 +122,7 @@ class StatsStore {
       this.history.unshift(record);
       if (this.history.length > 100) this.history.pop();
       localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(this.history));
+      this.clearActiveMatch();
       return record;
     } catch (e) {
       console.warn('Could not save match record:', e);
@@ -116,52 +130,25 @@ class StatsStore {
     }
   }
 
-  clearHistory() {
-    this.history = [];
+  saveActiveMatchState(state) {
     try {
-      localStorage.removeItem(STORAGE_KEY_STATS);
+      localStorage.setItem(STORAGE_KEY_ACTIVE_MATCH, JSON.stringify(state));
     } catch (e) {}
   }
 
-  getPlayerStats(playerName) {
-    let matches = 0;
-    let wins = 0;
-    let totalDarts = 0;
-    let totalScore = 0;
-    let highTurn = 0;
-    let count180 = 0;
-    let count140 = 0;
-    let count100 = 0;
+  loadActiveMatchState() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_ACTIVE_MATCH);
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  }
 
-    this.history.forEach(m => {
-      const p = m.players.find(x => x.name.toLowerCase() === playerName.toLowerCase());
-      if (p) {
-        matches++;
-        if (p.won) wins++;
-        if (p.stats) {
-          totalDarts += p.stats.totalDarts || 0;
-          totalScore += p.stats.totalScore || 0;
-          if ((p.stats.highTurn || 0) > highTurn) highTurn = p.stats.highTurn;
-          count180 += p.stats.count180 || 0;
-          count140 += p.stats.count140 || 0;
-          count100 += p.stats.count100 || 0;
-        }
-      }
-    });
-
-    const avg = totalDarts > 0 ? ((totalScore / totalDarts) * 3).toFixed(2) : '0.00';
-    const winRate = matches > 0 ? ((wins / matches) * 100).toFixed(1) + '%' : '0%';
-
-    return {
-      matches,
-      wins,
-      winRate,
-      avg,
-      highTurn,
-      count180,
-      count140,
-      count100
-    };
+  clearActiveMatch() {
+    try {
+      localStorage.removeItem(STORAGE_KEY_ACTIVE_MATCH);
+    } catch (e) {}
   }
 }
 

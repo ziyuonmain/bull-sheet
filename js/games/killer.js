@@ -1,22 +1,20 @@
-// Killer Game Engine (2-8 Players, Target Assignments, Killer Status, Elimination)
+// Killer Game Engine with Full Multi-Player Life & Status Undo
 export class KillerGame {
   constructor(config = {}) {
     this.startingLives = config.startingLives || 5;
-    
-    // Assign targets or auto-distribute
-    const defaultTargets = [20, 19, 18, 17, 16, 15, 14, 13];
+    const assignedTargets = this.assignRandomTargets(config.players?.length || 2);
 
     this.players = (config.players || [{ name: 'Player 1' }, { name: 'Player 2' }]).map((p, idx) => ({
       id: p.id || `p_${idx}`,
       name: p.name,
       isBot: !!p.isBot,
       botProfile: p.botProfile || 'pub_regular',
-      targetNumber: p.targetNumber || defaultTargets[idx % defaultTargets.length],
-      lives: this.startingLives,
+      targetNumber: assignedTargets[idx] || (idx + 1),
       isKiller: false,
+      lives: this.startingLives,
+      kills: 0,
       isEliminated: false,
-      totalDarts: 0,
-      kills: 0
+      totalDarts: 0
     }));
 
     this.activePlayerIdx = 0;
@@ -26,88 +24,71 @@ export class KillerGame {
     this.winner = null;
   }
 
-  getActivePlayer() {
-    return this.players[this.activePlayerIdx];
+  assignRandomTargets(playerCount) {
+    const nums = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+    return [...nums].sort(() => 0.5 - Math.random()).slice(0, playerCount);
   }
 
-  getAlivePlayers() {
-    return this.players.filter(p => !p.isEliminated);
+  getActivePlayer() {
+    return this.players[this.activePlayerIdx];
   }
 
   recordDart(dart) {
     if (this.isMatchOver) return null;
 
     const player = this.getActivePlayer();
-    if (player.isEliminated) {
-      this.finishTurn();
-      return null;
-    }
-
-    const hitNumber = dart.number;
-    const hitMult = dart.mult || 1;
+    const dartNum = Number(dart.number);
+    const dartMult = Number(dart.mult) || 1;
 
     // Snapshot for undo
-    const snapshot = {
+    this.history.push({
       playerIdx: this.activePlayerIdx,
       dart,
-      players: this.players.map(p => ({
+      turnDartsSnapshot: [...this.turnDarts],
+      playersSnapshot: this.players.map(p => ({
         lives: p.lives,
         isKiller: p.isKiller,
+        kills: p.kills,
         isEliminated: p.isEliminated,
-        kills: p.kills
+        totalDarts: p.totalDarts
       }))
-    };
-    this.history.push(snapshot);
+    });
 
     player.totalDarts++;
     this.turnDarts.push(dart);
 
-    let eventType = 'dart_recorded';
-    let targetPlayer = null;
-
-    // 1. If not killer yet: must hit own double to become Killer
+    // 1. If not yet Killer, hitting own Double qualifies as Killer
     if (!player.isKiller) {
-      if (hitNumber === player.targetNumber && hitMult >= 2) {
+      if (dartNum === player.targetNumber && dartMult >= 2) {
         player.isKiller = true;
-        eventType = 'became_killer';
       }
     } else {
-      // 2. If already a Killer:
-      // Check if hitting another active player's number
-      const hitOpponent = this.players.find(p => !p.isEliminated && p.id !== player.id && p.targetNumber === hitNumber);
-      
-      if (hitOpponent) {
-        hitOpponent.lives -= hitMult;
-        targetPlayer = hitOpponent;
-        eventType = 'life_lost';
+      // 2. If Killer, hitting opponents' numbers removes lives
+      this.players.forEach(opp => {
+        if (!opp.isEliminated && opp.id !== player.id && dartNum === opp.targetNumber) {
+          opp.lives = Math.max(0, opp.lives - dartMult);
+          if (opp.lives === 0) {
+            opp.isEliminated = true;
+            player.kills++;
+          }
+        }
+      });
 
-        if (hitOpponent.lives <= 0) {
-          hitOpponent.lives = 0;
-          hitOpponent.isEliminated = true;
-          player.kills++;
-          eventType = 'eliminated';
-        }
-      } else if (hitNumber === player.targetNumber) {
-        // Penalty for hitting own number: lose 1 life!
-        player.lives -= 1;
-        targetPlayer = player;
-        eventType = 'suicide_hit';
-        if (player.lives <= 0) {
-          player.lives = 0;
-          player.isEliminated = true;
-          eventType = 'eliminated';
-        }
+      // Self hit penalty
+      if (dartNum === player.targetNumber) {
+        player.lives = Math.max(0, player.lives - dartMult);
+        if (player.lives === 0) player.isEliminated = true;
       }
     }
 
-    // Check Win Condition: Only 1 alive player remaining
-    const alive = this.getAlivePlayers();
-    if (alive.length === 1) {
+    // Win condition: Only 1 survivor left
+    const survivors = this.players.filter(p => !p.isEliminated);
+    if (survivors.length === 1) {
       this.isMatchOver = true;
-      this.winner = alive[0];
+      this.winner = survivors[0];
       return {
         type: 'match_win',
-        winner: alive[0],
+        winner: survivors[0],
         players: this.players
       };
     }
@@ -115,33 +96,25 @@ export class KillerGame {
     if (this.turnDarts.length === 3) {
       const res = {
         type: 'turn_end',
-        player,
-        eventType,
-        targetPlayer
+        player
       };
       this.finishTurn();
       return res;
     }
 
     return {
-      type: eventType,
+      type: 'dart_recorded',
       player,
       dart,
-      targetPlayer,
       dartsLeft: 3 - this.turnDarts.length
     };
   }
 
   finishTurn() {
     this.turnDarts = [];
-    if (this.isMatchOver) return;
-
-    // Advance to next non-eliminated player
-    let count = 0;
     do {
       this.activePlayerIdx = (this.activePlayerIdx + 1) % this.players.length;
-      count++;
-    } while (this.players[this.activePlayerIdx].isEliminated && count < this.players.length);
+    } while (this.players[this.activePlayerIdx].isEliminated && !this.isMatchOver);
   }
 
   undo() {
@@ -149,22 +122,25 @@ export class KillerGame {
     const last = this.history.pop();
 
     this.activePlayerIdx = last.playerIdx;
-    this.players.forEach((p, idx) => {
-      p.lives = last.players[idx].lives;
-      p.isKiller = last.players[idx].isKiller;
-      p.isEliminated = last.players[idx].isEliminated;
-      p.kills = last.players[idx].kills;
-    });
+    if (last.playersSnapshot) {
+      this.players.forEach((p, idx) => {
+        const snap = last.playersSnapshot[idx];
+        if (snap) {
+          p.lives = snap.lives;
+          p.isKiller = snap.isKiller;
+          p.kills = snap.kills;
+          p.isEliminated = snap.isEliminated;
+          p.totalDarts = snap.totalDarts;
+        }
+      });
+    }
 
-    const active = this.getActivePlayer();
-    active.totalDarts--;
-    this.turnDarts.pop();
-
+    this.turnDarts = last.turnDartsSnapshot || [];
     this.isMatchOver = false;
     this.winner = null;
 
     return {
-      player: active,
+      player: this.getActivePlayer(),
       dartsLeft: 3 - this.turnDarts.length
     };
   }

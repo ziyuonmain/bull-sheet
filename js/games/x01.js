@@ -1,16 +1,15 @@
-// X01 Game Engine (Supports 1-8 players & Bots, Legs & Sets, In/Out Modes, Real-time Stats)
+// X01 Game Engine (Supports 1-8 players & Bots, Legs & Sets, In/Out Modes, Real-time Stats, and Robust Undo)
 import { getCheckoutSuggestion } from '../components/checkout.js';
 
 export class X01Game {
   constructor(config = {}) {
     this.startScore = config.startScore || 501;
-    this.inMode = config.inMode || 'straight';   // 'straight' or 'double'
-    this.outMode = config.outMode || 'double';   // 'double', 'single', 'master'
+    this.inMode = config.inMode || 'straight';
+    this.outMode = config.outMode || 'double';
     this.legsToWin = config.legsToWin || 3;
     this.setsToWin = config.setsToWin || 1;
     this.legsPerSet = config.legsPerSet || 3;
 
-    // Initialize players (1 to 8 players)
     this.players = (config.players || [{ name: 'Player 1' }]).map((p, idx) => ({
       id: p.id || `p_${idx}`,
       name: p.name,
@@ -24,19 +23,17 @@ export class X01Game {
       totalScoreScored: 0,
       highTurn: 0,
       turns: [],
-      dartsThisTurn: [],
       count180: 0,
       count140: 0,
       count100: 0,
       count60: 0,
       countBusts: 0,
-      dartsAtDouble: 0,
       doublesHit: 0
     }));
 
     this.activePlayerIdx = 0;
     this.turnDarts = []; // [ { number, mult, score, label } ]
-    this.history = [];   // Undo stack
+    this.history = [];   // Full undo stack
     this.isMatchOver = false;
     this.winner = null;
   }
@@ -45,24 +42,23 @@ export class X01Game {
     return this.players[this.activePlayerIdx];
   }
 
-  // Register single dart throw
   recordDart(dart) {
     if (this.isMatchOver) return null;
 
     const player = this.getActivePlayer();
     const prevScore = player.score;
     const prevDoubledIn = player.hasDoubledIn;
+    const dartNum = Number(dart.number);
+    const dartMult = Number(dart.mult) || 1;
+    const dartScore = Number(dart.score) || (dartNum * dartMult);
 
-    // Check Double In condition
-    let scoredVal = dart.score;
-    let validDart = true;
+    let scoredVal = dartScore;
 
     if (!player.hasDoubledIn) {
-      if (dart.mult === 2 || (dart.number === 25 && dart.mult === 2)) {
+      if (dartMult === 2 || (dartNum === 25 && dartMult === 2)) {
         player.hasDoubledIn = true;
       } else {
         scoredVal = 0;
-        validDart = false;
       }
     }
 
@@ -74,7 +70,7 @@ export class X01Game {
       if (remaining < 0 || remaining === 1) {
         isBust = true;
       } else if (remaining === 0) {
-        if (dart.mult === 2 || (dart.number === 25 && dart.mult === 2)) {
+        if (dartMult === 2 || (dartNum === 25 && dartMult === 2)) {
           isLegWin = true;
         } else {
           isBust = true;
@@ -84,7 +80,7 @@ export class X01Game {
       if (remaining < 0 || remaining === 1) {
         isBust = true;
       } else if (remaining === 0) {
-        if (dart.mult >= 2) {
+        if (dartMult >= 2) {
           isLegWin = true;
         } else {
           isBust = true;
@@ -105,7 +101,16 @@ export class X01Game {
       prevScore,
       prevDoubledIn,
       isBust,
-      isLegWin
+      isLegWin,
+      turnDartsSnapshot: [...this.turnDarts],
+      allPlayersSnapshot: this.players.map(p => ({
+        score: p.score,
+        legsWon: p.legsWon,
+        setsWon: p.setsWon,
+        totalScoreScored: p.totalScoreScored,
+        totalDarts: p.totalDarts,
+        turns: [...p.turns]
+      }))
     });
 
     this.turnDarts.push(dart);
@@ -128,15 +133,13 @@ export class X01Game {
     if (isLegWin) {
       player.score = 0;
       player.doublesHit++;
-      player.totalScoreScored += (prevScore);
-      const result = this.handleLegWin(player);
-      return result;
+      player.totalScoreScored += prevScore;
+      return this.handleLegWin(player);
     }
 
     player.score = remaining;
     player.totalScoreScored += scoredVal;
 
-    // Track 3rd dart completion
     if (this.turnDarts.length === 3) {
       const turnScore = this.turnDarts.reduce((acc, d) => acc + (d.score || 0), 0);
       this.updateTurnStats(player, turnScore);
@@ -160,7 +163,6 @@ export class X01Game {
     };
   }
 
-  // Register turn total score directly via numeric keypad
   recordTurnScore(turnScore) {
     if (this.isMatchOver) return null;
     const player = this.getActivePlayer();
@@ -188,7 +190,16 @@ export class X01Game {
       prevDoubledIn: player.hasDoubledIn,
       isBust,
       isLegWin,
-      isFullTurn: true
+      isFullTurn: true,
+      turnDartsSnapshot: [...this.turnDarts],
+      allPlayersSnapshot: this.players.map(p => ({
+        score: p.score,
+        legsWon: p.legsWon,
+        setsWon: p.setsWon,
+        totalScoreScored: p.totalScoreScored,
+        totalDarts: p.totalDarts,
+        turns: [...p.turns]
+      }))
     });
 
     player.totalDarts += 3;
@@ -303,21 +314,28 @@ export class X01Game {
   undo() {
     if (this.history.length === 0) return null;
     const last = this.history.pop();
-    const player = this.players[last.playerIdx];
 
     this.activePlayerIdx = last.playerIdx;
+    
+    // Restore all players state if leg/set had changed
+    if (last.allPlayersSnapshot) {
+      this.players.forEach((p, idx) => {
+        const snap = last.allPlayersSnapshot[idx];
+        if (snap) {
+          p.score = snap.score;
+          p.legsWon = snap.legsWon;
+          p.setsWon = snap.setsWon;
+          p.totalScoreScored = snap.totalScoreScored;
+          p.totalDarts = snap.totalDarts;
+          p.turns = [...snap.turns];
+        }
+      });
+    }
+
+    const player = this.getActivePlayer();
     player.score = last.prevScore;
     player.hasDoubledIn = last.prevDoubledIn;
-
-    if (last.isFullTurn) {
-      player.totalDarts -= 3;
-      player.totalScoreScored -= (last.turnScore || 0);
-      player.turns.pop();
-    } else {
-      player.totalDarts -= 1;
-      player.totalScoreScored -= (last.dart ? last.dart.effectiveScore : 0);
-      this.turnDarts.pop();
-    }
+    this.turnDarts = last.turnDartsSnapshot || [];
 
     this.isMatchOver = false;
     this.winner = null;

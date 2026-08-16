@@ -1,5 +1,5 @@
-// Shanghai Game Engine with Clean Match-Win Propagation and Instant Win Support
-export class ShanghaiGame {
+// Highscore Game Engine with Clean Match-Win Propagation, Clamped Round End, and Full Undo
+export class HighscoreGame {
   constructor(config = {}) {
     this.maxRounds = config.rounds || 7;
     this.currentRound = 1;
@@ -11,6 +11,11 @@ export class ShanghaiGame {
       botProfile: p.botProfile || 'pub_regular',
       score: 0,
       roundScores: [],
+      turns: [],
+      highTurn: 0,
+      count180: 0,
+      count140: 0,
+      count100: 0,
       totalDarts: 0
     }));
 
@@ -29,50 +34,30 @@ export class ShanghaiGame {
     if (this.isMatchOver) return null;
 
     const player = this.getActivePlayer();
-    const target = this.currentRound;
-    const dartNum = Number(dart.number);
-    const dartMult = Number(dart.mult) || 1;
-
-    let points = 0;
-    if (dartNum === target) {
-      points = dartNum * dartMult;
-    }
+    const scoreVal = Number(dart.score) || (Number(dart.number) * (Number(dart.mult) || 1));
 
     this.history.push({
       playerIdx: this.activePlayerIdx,
       round: this.currentRound,
       dart,
-      points,
+      scoreVal,
       prevScore: player.score,
       turnDartsSnapshot: [...this.turnDarts],
       playersSnapshot: this.players.map(p => ({ score: p.score, roundScores: [...p.roundScores], totalDarts: p.totalDarts }))
     });
 
-    player.score += points;
+    player.score += scoreVal;
     player.totalDarts++;
-    this.turnDarts.push({ ...dart, pointsScored: points });
-
-    // Shanghai Instant Win Check: Single, Double, Treble of the target in the same visit
-    const targetDarts = this.turnDarts.filter(d => Number(d.number) === target);
-    const hasSingle = targetDarts.some(d => Number(d.mult) === 1);
-    const hasDouble = targetDarts.some(d => Number(d.mult) === 2);
-    const hasTreble = targetDarts.some(d => Number(d.mult) === 3);
-
-    if (hasSingle && hasDouble && hasTreble) {
-      this.isMatchOver = true;
-        this.currentRound = this.maxRounds;
-      this.winner = player;
-      return {
-        type: 'match_win',
-        winner: player,
-        shanghaiWin: true,
-        players: this.players
-      };
-    }
+    this.turnDarts.push(dart);
 
     if (this.turnDarts.length === 3) {
-      const turnScore = this.turnDarts.reduce((a, d) => a + (d.pointsScored || 0), 0);
+      const turnScore = this.turnDarts.reduce((a, d) => a + (d.score || 0), 0);
       player.roundScores.push(turnScore);
+      player.turns.push(turnScore);
+      if (turnScore > player.highTurn) player.highTurn = turnScore;
+      if (turnScore === 180) player.count180++;
+      else if (turnScore >= 140) player.count140++;
+      else if (turnScore >= 100) player.count100++;
 
       const finishRes = this.finishTurn();
       if (finishRes && finishRes.type === 'match_win') {
@@ -91,9 +76,44 @@ export class ShanghaiGame {
       type: 'dart_recorded',
       player,
       dart,
-      points,
       score: player.score,
       dartsLeft: 3 - this.turnDarts.length
+    };
+  }
+
+  recordTurnScore(turnScore) {
+    if (this.isMatchOver) return null;
+    const player = this.getActivePlayer();
+
+    this.history.push({
+      playerIdx: this.activePlayerIdx,
+      round: this.currentRound,
+      turnScore,
+      prevScore: player.score,
+      isFullTurn: true,
+      turnDartsSnapshot: [...this.turnDarts],
+      playersSnapshot: this.players.map(p => ({ score: p.score, roundScores: [...p.roundScores], totalDarts: p.totalDarts }))
+    });
+
+    player.score += turnScore;
+    player.totalDarts += 3;
+    player.roundScores.push(turnScore);
+    player.turns.push(turnScore);
+    if (turnScore > player.highTurn) player.highTurn = turnScore;
+    if (turnScore === 180) player.count180++;
+    else if (turnScore >= 140) player.count140++;
+    else if (turnScore >= 100) player.count100++;
+
+    const finishRes = this.finishTurn();
+    if (finishRes && finishRes.type === 'match_win') {
+      return finishRes;
+    }
+
+    return {
+      type: 'turn_end',
+      player,
+      turnScore,
+      score: player.score
     };
   }
 
@@ -106,7 +126,7 @@ export class ShanghaiGame {
 
       if (this.currentRound > this.maxRounds) {
         this.isMatchOver = true;
-        this.currentRound = this.maxRounds;
+        this.currentRound = this.maxRounds; // Clamp to max rounds
         let highest = -Infinity;
         let winP = this.players[0];
         this.players.forEach(p => {
@@ -123,6 +143,11 @@ export class ShanghaiGame {
         };
       }
     }
+  }
+
+  getPlayerAvg(player) {
+    if (!player || player.totalDarts === 0) return '0.00';
+    return ((player.score / player.totalDarts) * 3).toFixed(2);
   }
 
   undo() {
