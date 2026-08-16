@@ -8,7 +8,9 @@
     "dev": "node dev_server.js",
     "test": "node --test tests/unit/**/*.test.js && playwright test",
     "test:unit": "node --test tests/unit/**/*.test.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [
     "darts",
@@ -22,6 +24,9 @@
   "author": "",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@playwright/test": "^1.62.1"
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.62.1",
+    "eslint": "^10.8.1",
+    "globals": "^17.11.0"
   }
 }

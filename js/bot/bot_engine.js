@@ -100,13 +100,6 @@ export class BotEngine {
     }
   }
 
-  // 9. Bob's 27 Mode
-  throwDartBobs27(game, player) {
-    const prof = this.profile;
-    const target = game.getCurrentTarget ? game.getCurrentTarget() : { number: 1, mult: 2, label: 'D1' };
-    const aimTarget = target.label === 'Bull' ? 'Bull' : `D${target.number}`;
-    return this.simulateAimAt(aimTarget, prof.doubleHitChance);
-  }
 
   // 1. X01 Mode (501 / 301)
   throwDartX01(currentScore, dartsLeftInTurn = 3, outMode = 'double', hasDoubledIn = true) {
@@ -350,8 +343,8 @@ export class BotEngine {
   simulateAimAt(targetStr, hitProbability) {
     const rand = Math.random();
 
-    let mult = 1;
-    let num = 20;
+    let mult;
+    let num;
 
     if (targetStr.startsWith('T')) {
       mult = 3;

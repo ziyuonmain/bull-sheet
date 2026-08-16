@@ -133,15 +133,8 @@ export class Bobs27Game {
 
     // 3rd Dart thrown -> Evaluate Bob's 27 round penalty / reward
     if (this.turnDarts.length === 3) {
-      let delta = 0;
-      if (player.hitsThisRound > 0) {
-        delta = player.roundPoints;
-        player.score += delta;
-      } else {
-        delta = -target.value;
-        player.score += delta;
-      }
-
+      const delta = player.hitsThisRound > 0 ? player.roundPoints : -target.value;
+      player.score += delta;
       player.turns.push(delta);
 
       // Check for knockout / elimination (score drops <= 0)
@@ -193,12 +186,10 @@ export class Bobs27Game {
 
     // Advance to next active player
     let nextIdx = this.activePlayerIndex + 1;
-    let roundAdvanced = false;
 
     if (nextIdx >= this.players.length) {
       nextIdx = 0;
       this.currentRound++;
-      roundAdvanced = true;
     }
 
     // If multiplayer, skip already eliminated players
@@ -210,7 +201,6 @@ export class Bobs27Game {
         if (nextIdx >= this.players.length) {
           nextIdx = 0;
           this.currentRound++;
-          roundAdvanced = true;
         }
         attempts++;
       }

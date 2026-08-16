@@ -27,7 +27,7 @@ const server = http.createServer((req, res) => {
   let reqPath = req.url.split('?')[0];
   if (reqPath === '/') reqPath = '/index.html';
 
-  const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '');
+  const safePath = path.normalize(reqPath).replace(/^(\.\.[/\\])+/, '');
   const filePath = path.join(__dirname, safePath);
 
   fs.stat(filePath, (err, stats) => {

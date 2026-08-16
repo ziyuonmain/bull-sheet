@@ -56,6 +56,9 @@ npm run test:unit
 # Run only headless browser E2E tests
 npm run test:e2e
 # or: npx playwright test
+
+# Run code style & static analysis linter
+npm run lint
 ```
 
 ### 3. Test Suite Organization (`tests/`)
