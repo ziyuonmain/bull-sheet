@@ -16,26 +16,23 @@ Thumbs.db
 *.sublime-project
 *.sublime-workspace
 
-# Python cache & artifacts
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
 .coverage
 htmlcov/
+.venv/
+venv/
 
 # Logs & Temporary files
 *.log
 scratch/
-.system_generated/
-/tmp/
 *.tmp
 *.bak
 
-# Antigravity IDE local data
+# Antigravity IDE / Agents
 .agents/
 .gemini/
-.venv/
-venv/
-__pycache__/
-*.pyc
+.system_generated/
