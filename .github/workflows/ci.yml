@@ -14,6 +14,7 @@ jobs:
       code: ${{ steps.changes.outputs.code }}
       unit: ${{ steps.changes.outputs.unit }}
       e2e: ${{ steps.changes.outputs.e2e }}
+      app: ${{ steps.changes.outputs.app }}
     steps:
       - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
@@ -47,6 +48,16 @@ jobs:
               - 'playwright.config.js'
               - '.github/workflows/**'
               - 'package.json'
+            # Web app assets deployed to live site (GitHub Pages)
+            app:
+              - 'index.html'
+              - 'js/**'
+              - 'css/**'
+              - 'audio/**'
+              - 'icons/**'
+              - 'sw.js'
+              - 'manifest.json'
+              - 'CHANGELOG.md'
 
   lint:
     name: Code Quality & Lint
@@ -114,8 +125,8 @@ jobs:
 
   deploy:
     name: Deploy to GitHub Pages
-    needs: ci-status
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [filter, ci-status]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.filter.outputs.app == 'true'
     permissions:
       pages: write
       id-token: write
