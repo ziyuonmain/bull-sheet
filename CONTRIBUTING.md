@@ -36,7 +36,7 @@ bull-sheet/
 │   ├── app.js                  # Main controller and route switcher
 │   ├── audio/                  # Audio caller and procedural sound synthesizer
 │   ├── bot/                    # Tactical AI engine and skill profiles
-│   ├── components/             # Dartboard, Keypad, Scoreboard, Heatmap, Match Card
+│   ├── components/             # Dartboard, Keypad, Scoreboard, Match Card
 │   ├── games/                  # Modular game engines (10 modes)
 │   └── storage/                # LocalStorage management and import/export
 └── tests/

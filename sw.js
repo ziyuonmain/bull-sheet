@@ -29,7 +29,6 @@ const ASSETS_TO_CACHE = [
   './js/games/elimination.js',
   './js/games/around_clock.js',
   './js/games/bobs27.js',
-  './js/components/heatmap.js',
   './js/components/match_card.js',
   './icons/icon.svg',
   './icons/icon-192.png',

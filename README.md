@@ -22,9 +22,9 @@ Designed to run on a phone or tablet at the oche. Or honestly, a laptop on the k
 | :---: | :---: |
 | <img src="assets/screenshots/landscape/x01_keypad.png" alt="BullSheet Pro Speed Keypad" width="100%" /> | <img src="assets/screenshots/landscape/x01_dartsboard.png" alt="Interactive SVG Dartboard" width="100%" /> |
 
-| Radial Heatmap | Match History |
+| History Stats | Various Themes |
 | :---: | :---: |
-| <img src="assets/screenshots/landscape/history_top.png" alt="Lifetime Stats & Heatmap" width="100%" /> | <img src="assets/screenshots/landscape/home.png" alt="Match Setup and Game Modes" width="100%" /> |
+| <img src="assets/screenshots/landscape/history_top.png" alt="Lifetime Stats & Match Log" width="100%" /> | <img src="assets/screenshots/portrait/settings_excel.png" alt="Match Setup and Game Modes" width="50%" /> |
 
 ---
 
@@ -62,19 +62,17 @@ Volume control and mute toggle in settings.
 ### AI Opponents
 Five bot difficulty profiles for solo practice:
 
-| Bot | Skill | Vibe |
-| :--- | :--- | :--- |
-| 🤡 Beginner | Shaky aim, lots of misses | Your mate who's "never played before" |
-| 🍺 Casual | Solid singles, occasional trebles | Pub league regular |
-| 📊 Tactician | Calculated, low miss rate | Plays the percentages |
-| 🎯 Semi-Pro | Heavy treble scoring | County-level |
-| 👑 Master | Near-flawless | Not fun to play against |
-
+| Bot | Skill |
+| :--- | :--- |
+| 🤡 Beginner | Your mate who's "never played before" |
+| 🍺 Casual | Pub league regular |
+| 📊 Tactician | Plays the percentages |
+| 🎯 Semi-Pro | County-level |
+| 👑 Master | Not fun to play against |
 ### Other Stuff
 
 - **Save your mates** — Add regulars, tap to add them to the lineup
 - **Match history** — Local match log with 3-dart averages, 180 counts, and high turns
-- **Throw heatmap** — Radial visualization of where your darts actually landed
 - **Match card export** — Generates a shareable PNG summary of the match
 - **History import/export** — Backup and restore match data as JSON
 - **Rules reference** — Built-in rules popup for each game mode
