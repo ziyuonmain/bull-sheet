@@ -97,7 +97,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check for job failures
-        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        if: |
+          needs.filter.result == 'failure' ||
+          needs.filter.result == 'cancelled' ||
+          needs.lint.result == 'failure' ||
+          needs.lint.result == 'cancelled' ||
+          needs.unit-tests.result == 'failure' ||
+          needs.unit-tests.result == 'cancelled' ||
+          needs.e2e-tests.result == 'failure' ||
+          needs.e2e-tests.result == 'cancelled'
         run: |
           echo "❌ One or more required CI checks failed or were cancelled."
           exit 1
