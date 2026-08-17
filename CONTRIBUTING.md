@@ -15,67 +15,6 @@ BullSheet is a lightweight, zero-dependency, client-side darts scoreboard and pa
 
 ---
 
-## 🚀 Getting Started
-
-### Clone & Serve
-Because there is no build step, you can serve the directory with any static HTTP server:
-
-```bash
-git clone https://github.com/zyu-wok/bull-sheet.git
-cd bull-sheet
-
-# Start dev server
-npm start
-```
-Open `http://localhost:8080/` in your browser.
-
----
-
-## 🧪 Testing & Development Environment
-
-BullSheet uses Node.js built-in **`node:test`** runner for zero-dependency unit tests and **Playwright** for automated E2E browser testing.
-
-### Run Linter
-```bash
-npm run lint
-
-# Or run with auto-fix
-npm run lint:fix
-```
-
-### 2. Run Tests
-```bash
-# Run only unit tests (zero external dependencies, runs instantly)
-npm run test:unit
-
-# Run only headless browser E2E tests
-npm run test:e2e
-
-# Run all tests
-npm test
-```
-
-### 4. Test Suite Organization (`tests/`)
-
-```
-tests/
-├── unit/
-│   ├── x01.test.js            # X01 scoring, Double In/Out, Sets & Legs, busts, and undo
-│   ├── cricket.test.js        # Standard & Cutthroat Cricket, 3-mark closures, MPR
-│   ├── party_games.test.js    # Killer, Elimination, Shanghai, Around the Clock, Bob's 27
-│   ├── bot_engine.test.js     # 5 bot difficulty profiles, accuracy scaling, dart simulation
-│   ├── checkout.test.js       # Complete 170-to-2 checkout paths & bogey number detection
-│   ├── stats_store.test.js    # LocalStorage persistence, lifetime stats, JSON import/export
-│   ├── changelog.test.js      # CHANGELOG.md markdown structure & parser verification
-│   └── integrity.test.js      # Static assets (audio/icons) & Service Worker cache validation
-└── e2e/
-    └── e2e.test.js            # Playwright headless browser E2E flow tests
-```
-
-When adding new game modes or components, please add corresponding unit tests in `tests/`.
-
----
-
 ## 📂 Project Architecture
 
 ```
@@ -107,9 +46,71 @@ bull-sheet/
 
 ---
 
+## 🚀 Getting Started
+
+### Clone & Serve
+Because there is no build step, you can serve the directory with any static HTTP server:
+
+```bash
+git clone https://github.com/zyu-wok/bull-sheet.git
+cd bull-sheet
+
+# Start dev server
+npm start
+```
+Open `http://localhost:8080/` in your browser.
+
+---
+
+## 🧪 Testing & Development Environment
+
+BullSheet uses Node.js built-in **`node:test`** runner for unit tests and **Playwright** for E2E browser testing.
+
+### Run Linter
+```bash
+npm run lint
+
+# Or run with auto-fix
+npm run lint:fix
+```
+
+### Run Tests
+```bash
+# Run only unit tests
+npm run test:unit
+
+# Run only headless browser E2E tests
+npm run test:e2e
+
+# Run all tests
+npm test
+```
+
+### Test Suite Organization
+
+```
+tests/
+├── unit/
+│   ├── x01.test.js            # X01 scoring, Double In/Out, Sets & Legs, busts, and undo
+│   ├── cricket.test.js        # Standard & Cutthroat Cricket, 3-mark closures, MPR
+│   ├── party_games.test.js    # Killer, Elimination, Shanghai, Around the Clock, Bob's 27
+│   ├── bot_engine.test.js     # 5 bot difficulty profiles, accuracy scaling, dart simulation
+│   ├── checkout.test.js       # Complete 170-to-2 checkout paths & bogey number detection
+│   ├── stats_store.test.js    # LocalStorage persistence, lifetime stats, JSON import/export
+│   ├── changelog.test.js      # CHANGELOG.md markdown structure & parser verification
+│   └── integrity.test.js      # Static assets (audio/icons) & Service Worker cache validation
+└── e2e/
+    └── e2e.test.js            # Playwright headless browser E2E flow tests
+```
+
+When adding new game modes or components, please add corresponding unit tests in `tests/`.
+
+---
+
 ## ➕ Adding a New Game Engine
 
-All game engines are modular ES6 classes in `js/games/` implementing a standard interface:
+All game engines are modular ES6 classes in `js/games/`.
+Standard boilerplate for a new game engine:
 
 ```javascript
 export class CustomGame {

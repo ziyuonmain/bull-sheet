@@ -10,7 +10,7 @@ A darts scoreboard web app that runs in your browser. No ads, no accounts, no in
 
 Designed to run on a phone or tablet at the oche. Or honestly, a laptop on the kitchen table.
 
-Vibe-coded in an evening, because every other darts app insists on showing you endless 30-second ads with an "x" button harder to find than Waldo — all before you can subtract 60 (or in my case, 26) from 501. */rant*
+`<rant>` Mostly vibe-coded in an evening, because every other darts app insists on showing you endless 30-second ads with an "x" button harder to find than Waldo — all before you can subtract 180 (or in my case, 26) from 501. `</rant>`
 
 ---
 
@@ -116,13 +116,11 @@ Built with pure web standards — zero frameworks, zero runtime dependencies, ze
 
 ## 🛠️ Development & Contributing
 
-BullSheet is built with vanilla ES6+ JavaScript, HTML5, and CSS3 — zero runtime frameworks, zero runtime dependencies.
-
 ```bash
 # Start local dev server (http://localhost:8080)
 npm start
 
-# Run full test suite (Node.js unit tests + Playwright E2E)
+# Run full test suite
 npm test
 ```
 
