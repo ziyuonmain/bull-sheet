@@ -252,28 +252,46 @@ class BullSheetApp {
       caller.toggle(false);
       store.saveSettings({ sound: true, voice: false });
     } else {
+      // ref_voice or a specific voice pack ID
+      const voiceId = (mode === 'ref_voice') ? (caller.style || 'russ_bray') : mode;
       sound.toggle(true);
       caller.toggle(true);
-      caller.setStyle(mode);
+      caller.setStyle(voiceId);
       store.saveSettings({ sound: true, voice: true });
     }
 
     const gameSel = document.getElementById('game-voice-select');
-    if (gameSel) gameSel.value = mode;
+    if (gameSel) gameSel.value = (mode === 'ref_voice') ? (caller.style || 'russ_bray') : mode;
 
-    const settingSel = document.getElementById('setting-voice-style');
-    if (settingSel) settingSel.value = mode;
+    this.updateSettingsAudioVisibility();
   }
 
   getAudioMode() {
     if (!store.settings.sound && !store.settings.voice) return 'muted';
     if (store.settings.sound && !store.settings.voice) return 'sound_only';
-    return caller.style || 'russ_bray';
+    return 'ref_voice';
+  }
+
+  updateSettingsAudioVisibility() {
+    const mode = this.getAudioMode();
+    const audioModeSel = document.getElementById('setting-audio-mode');
+    const volumeGroup = document.getElementById('settings-volume-group');
+    const refVoiceGroup = document.getElementById('settings-ref-voice-group');
+
+    if (audioModeSel) audioModeSel.value = mode;
+
+    if (volumeGroup) volumeGroup.style.display = (mode === 'muted') ? 'none' : '';
+    if (refVoiceGroup) refVoiceGroup.style.display = (mode === 'ref_voice') ? '' : 'none';
+
+    const voiceStyleSel = document.getElementById('setting-voice-style');
+    if (voiceStyleSel && mode === 'ref_voice') {
+      voiceStyleSel.value = caller.style || 'russ_bray';
+    }
   }
 
   vibrate(ms = 15) {
     if (store.settings.vibration && navigator.vibrate) {
-      try { navigator.vibrate(ms); } catch (e) {}
+      try { navigator.vibrate(ms); } catch {}
     }
   }
 
@@ -300,6 +318,7 @@ class BullSheetApp {
   // Brand Logo Click
   handleBrandClick() {
     sound.playClick();
+    this.closeBurgerDrawer();
     if (this.isMatchInProgress()) {
       this.pendingNavTarget = 'view-setup';
       document.getElementById('modal-confirm-exit')?.classList.add('active');
@@ -314,6 +333,9 @@ class BullSheetApp {
 
   // Route Switcher with Tab Sync and Progress Loss Guard
   showView(viewId, force = false) {
+    // Always dismiss the mobile sandwich drawer on navigation attempt
+    this.closeBurgerDrawer();
+
     if (!force && this.isMatchInProgress() && viewId !== 'view-game' && viewId !== 'view-summary') {
       this.pendingNavTarget = viewId;
       const confirmModal = document.getElementById('modal-confirm-exit');
@@ -331,9 +353,6 @@ class BullSheetApp {
     document.querySelectorAll('.nav-tab-btn, .drawer-nav-item').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.target === viewId);
     });
-
-    // Auto-close sandwich drawer on route change
-    this.closeBurgerDrawer();
 
     if (viewId === 'view-changelog') {
       loadAndRenderChangelog(document.getElementById('changelog-page-list'));
@@ -633,7 +652,7 @@ class BullSheetApp {
     });
 
     rosterEl.querySelectorAll('.btn-toggle-bot').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         sound.playClick();
         const idx = parseInt(btn.dataset.idx, 10);
         this.matchPlayers[idx].isBot = !this.matchPlayers[idx].isBot;
@@ -652,7 +671,7 @@ class BullSheetApp {
     });
 
     rosterEl.querySelectorAll('.btn-remove-player').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         sound.playClick();
         const idx = parseInt(btn.dataset.idx, 10);
         this.matchPlayers.splice(idx, 1);
@@ -1254,21 +1273,10 @@ class BullSheetApp {
       this.closeBurgerDrawer();
     });
 
-    document.getElementById('btn-drawer-rules')?.addEventListener('click', () => {
-      this.closeBurgerDrawer();
-      this.showRulesModal(this.selectedGameType);
-    });
-
     document.getElementById('btn-header-version')?.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       sound.playClick();
-      this.showView('view-changelog');
-    });
-
-    document.getElementById('btn-drawer-changelog')?.addEventListener('click', () => {
-      sound.playClick();
-      this.closeBurgerDrawer();
       this.showView('view-changelog');
     });
 
@@ -1289,14 +1297,28 @@ class BullSheetApp {
       });
     }
 
-    // Unified Audio & Voice selector in Settings
-    const voiceStyleSel = document.getElementById('setting-voice-style');
-    if (voiceStyleSel) {
-      voiceStyleSel.value = this.getAudioMode();
-      voiceStyleSel.addEventListener('change', (e) => {
+    // Audio Mode selector in Settings (Mute / SFX Only / Ref Voice)
+    const audioModeSel = document.getElementById('setting-audio-mode');
+    if (audioModeSel) {
+      audioModeSel.value = this.getAudioMode();
+      audioModeSel.addEventListener('change', (e) => {
         this.setAudioMode(e.target.value);
       });
     }
+
+    // Referee Voice picker in Settings
+    const voiceStyleSel = document.getElementById('setting-voice-style');
+    if (voiceStyleSel) {
+      voiceStyleSel.value = caller.style || 'russ_bray';
+      voiceStyleSel.addEventListener('change', (e) => {
+        caller.setStyle(e.target.value);
+        const gameSel = document.getElementById('game-voice-select');
+        if (gameSel) gameSel.value = e.target.value;
+      });
+    }
+
+    // Set initial visibility of audio sub-controls
+    this.updateSettingsAudioVisibility();
 
     const announceTotalCheck = document.getElementById('setting-announce-total');
     if (announceTotalCheck) {

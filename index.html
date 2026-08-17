@@ -144,10 +144,11 @@
             <div class="option-group">
               <label for="opt-x01-score">Starting Score</label>
               <select id="opt-x01-score">
-                <option value="501" selected>501</option>
-                <option value="301">301</option>
-                <option value="701">701</option>
                 <option value="101">101</option>
+                <option value="301">301</option>
+                <option value="501" selected>501</option>
+                <option value="701">701</option>
+                <option value="901">901</option>
               </select>
             </div>
             <div class="option-group">
@@ -189,10 +190,10 @@
             <div class="option-group">
               <label for="opt-split-start-score">Starting Score</label>
               <select id="opt-split-start-score">
+                <option value="0">0</option>
                 <option value="40" selected>40</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
-                <option value="0">0</option>
               </select>
             </div>
             <div class="option-group" id="opt-split-custom-group" style="display: none; width: 100%;">
@@ -249,7 +250,7 @@
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <div class="lineup-title-group">
               <h2 class="setup-section-title" style="margin:0; display:flex; align-items:center; gap:6px;">
-                Match Lineup <span class="lineup-count-pill">1–8</span>
+                Match Lineup <span class="lineup-count-pill">1–8 Players</span>
               </h2>
             </div>
             <button id="btn-open-roster-manager" class="ctrl-btn btn-roster-compact" type="button" title="Manage Saved Roster">
@@ -291,7 +292,7 @@
             <option value="sound_only">🔊 Sound</option>
             <option value="russ_bray" selected>🎙️ Russ Bray</option>
             <option value="george_noble">🎯 G. Noble</option>
-            <option value="british_ref">🍺 Brit Ref</option>
+            <option value="british_ref">🎩 Brit Ref</option>
           </select>
           <button id="btn-end-game" class="ctrl-btn btn-end" type="button" title="End Current Match">✕<span class="ctrl-text"> End</span></button>
         </div>
@@ -423,31 +424,39 @@
         </div>
 
         <div class="setup-options-panel">
-          <h2 class="setup-section-title">Audio & Referee Voice</h2>
+          <h2 class="setup-section-title">Audio</h2>
           <div class="option-group">
-            <label for="setting-voice-style">Audio Mode</label>
-            <select id="setting-voice-style">
-              <option value="muted">🔇 Sound Off</option>
-              <option value="sound_only">🔊 Sound Only</option>
-              <option value="russ_bray" selected>🎙️ Russ Bray</option>
-              <option value="george_noble">🎯 George Noble</option>
-              <option value="british_ref">🍺 British Referee</option>
+            <label for="setting-audio-mode">Audio Mode</label>
+            <select id="setting-audio-mode">
+              <option value="muted">🔇 Mute</option>
+              <option value="sound_only">🔊 SFX Only</option>
+              <option value="ref_voice" selected>🗣️ Ref Voice</option>
             </select>
           </div>
-          <div class="checkbox-option-row">
-            <input type="checkbox" id="setting-announce-total" />
-            <label for="setting-announce-total">Announce Turn Total (on 3rd Dart)</label>
-          </div>
-          <div class="option-group" style="margin-top: 14px;">
+          <div id="settings-volume-group" class="option-group" style="margin-top: 14px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
               <label for="setting-volume" style="margin: 0; font-size: 0.95rem; font-weight: 500;">Master Volume</label>
               <span id="setting-volume-label" style="font-size: 0.85rem; color: var(--accent-gold); font-weight: 600;">80%</span>
             </div>
             <input type="range" id="setting-volume" min="0" max="100" value="80" style="width: 100%; cursor: pointer; accent-color: var(--accent-gold);" />
           </div>
-          <div style="margin-top: 14px; display: flex; gap: 10px;">
-            <button id="btn-test-voice" class="ctrl-btn" type="button">🗣️ Test 180</button>
-            <button id="btn-test-26" class="ctrl-btn" type="button">Test "26!"</button>
+          <div id="settings-ref-voice-group">
+            <div class="option-group" style="margin-top: 14px;">
+              <label for="setting-voice-style">Referee Voice</label>
+              <select id="setting-voice-style">
+                <option value="russ_bray" selected>🎙️ Russ Bray</option>
+                <option value="george_noble">🎯 George Noble</option>
+                <option value="british_ref">🎩 British Referee</option>
+              </select>
+            </div>
+            <div class="checkbox-option-row" style="margin-top: 10px;">
+              <input type="checkbox" id="setting-announce-total" />
+              <label for="setting-announce-total">Call 3-Dart Total Score (e.g. "180!")</label>
+            </div>
+            <div style="margin-top: 14px; display: flex; gap: 10px;">
+              <button id="btn-test-voice" class="ctrl-btn" type="button">🗣️ Test "180"</button>
+              <button id="btn-test-26" class="ctrl-btn" type="button">🗣️ Test "26"</button>
+            </div>
           </div>
         </div>
 
@@ -641,24 +650,16 @@
         <span class="dnav-icon">📜</span>
         <div class="dnav-text">
           <span class="dnav-title">Changelog & Updates</span>
-          <span class="dnav-desc">What's new in v1.4.1</span>
+          <span class="dnav-desc">Release notes & improvements</span>
         </div>
-        <span class="version-pill-badge" style="margin-left: auto;">v1.4.1</span>
       </button>
     </nav>
 
     <div class="drawer-footer">
-      <button id="btn-drawer-changelog" class="drawer-secondary-btn" type="button">
-        <span>📜 What's New (v1.4.1)</span>
-      </button>
-      <button id="btn-drawer-rules" class="drawer-secondary-btn" type="button">
-        <span>ℹ️ Game Rules & Objectives</span>
-      </button>
       <a href="https://github.com/zyu-wok/bull-sheet" target="_blank" rel="noopener noreferrer" class="drawer-github-link">
         <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         <span>Open Source on GitHub</span>
       </a>
-      <div class="drawer-tagline">v1.4.1</div>
     </div>
   </aside>
 

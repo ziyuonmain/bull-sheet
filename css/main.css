@@ -3035,9 +3035,11 @@ button.brand-logo .brand-tagline {
 
   .option-group select,
   .option-group input {
-    padding: 8px 6px;
-    font-size: 0.82rem;
-    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .saved-roster-quick-bar {

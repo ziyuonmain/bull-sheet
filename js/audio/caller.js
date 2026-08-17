@@ -16,7 +16,7 @@ const CALLER_PACKS = {
   },
   british_ref: {
     id: 'british_ref',
-    name: '🍺 British Studio Referee (Clean Announcer)',
+    name: '🎩 British Studio Referee (Clean Announcer)',
     localPath: './audio/british_ref/',
     remoteUrl: 'https://autodarts.x10.mx/1_male_eng/'
   }
@@ -69,7 +69,7 @@ export class DartsCaller {
   setVolume(val) {
     this.volume = Math.max(0, Math.min(1, val));
     if (this.currentAudio) {
-      try { this.currentAudio.volume = this.volume; } catch (e) {}
+      try { this.currentAudio.volume = this.volume; } catch {}
     }
   }
 
@@ -84,12 +84,12 @@ export class DartsCaller {
     return this.enabled;
   }
 
-  toggleSarcasm(enabled) {
+  toggleSarcasm(_enabled) {
     // Retained for interface compatibility
     return true;
   }
 
-  speak(text) {
+  speak(_text) {
     // Retained for interface compatibility
   }
 
@@ -105,7 +105,7 @@ export class DartsCaller {
         this.currentAudio.onended = null;
         this.currentAudio.pause();
         this.currentAudio.currentTime = 0;
-      } catch (e) {}
+      } catch {}
     }
 
     const pack = CALLER_PACKS[this.style] || CALLER_PACKS.russ_bray;
@@ -118,7 +118,7 @@ export class DartsCaller {
     }
 
     audio.currentTime = 0;
-    try { audio.volume = this.volume; } catch (e) {}
+    try { audio.volume = this.volume; } catch {}
     this.currentAudio = audio;
 
     if (onEnded) {
@@ -131,10 +131,10 @@ export class DartsCaller {
     const playPromise = audio.play();
 
     if (playPromise !== undefined) {
-      playPromise.catch((err) => {
+      playPromise.catch((_err) => {
         // Stream from remote voice pack if local asset not bundled
         const remoteAudio = new Audio(`${pack.remoteUrl}${key}.mp3`);
-        try { remoteAudio.volume = this.volume; } catch (e) {}
+        try { remoteAudio.volume = this.volume; } catch {}
         this.currentAudio = remoteAudio;
         if (onEnded) {
           remoteAudio.onended = () => {
@@ -142,8 +142,8 @@ export class DartsCaller {
             onEnded();
           };
         }
-        remoteAudio.play().catch(e => {
-          console.warn('Audio call error for key:', key, e);
+        remoteAudio.play().catch(_e => {
+          console.warn('Audio call error for key:', key, _e);
           if (onEnded) onEnded();
         });
       });
@@ -178,7 +178,7 @@ export class DartsCaller {
 
   // --- Public Announcer Calls ---
 
-  callScore(score, playerName = '') {
+  callScore(score, _playerName = '') {
     if (!this.enabled) return;
 
     if (score === 180) {
@@ -210,17 +210,17 @@ export class DartsCaller {
     this.playHumanAudio(`${score}`);
   }
 
-  callBust(playerName = '') {
+  callBust(_playerName = '') {
     if (!this.enabled) return;
     this.playHumanAudio('0');
   }
 
-  callGameShot(playerName = '', isMatch = false) {
+  callGameShot(_playerName = '', _isMatch = false) {
     if (!this.enabled) return;
     this.playHumanAudio('gameshot');
   }
 
-  callTurn(playerName) {
+  callTurn(_playerName) {
     // Pure human audio mode - no robotic speech between turns
   }
 }
