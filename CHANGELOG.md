@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.2] - 2026-08-17
+### 🎯 In-Game Mode Badge, Touch Target Scaling & Streamlined Post-Match Stats
+#### Added
+- **🏷️ In-Game Mode Display Badge**: Top control bar now features an active game mode badge with responsive labels (`🎯 X01 (501 DO)`, `🦗 Cricket`, `🎯 Shanghai (7R)`, `🎯 Bob's 27`) in landscape and compact abbreviations in portrait.
+- **✨ Enhanced Target Hero Banners**:
+  - *Shanghai*: Added prominent glowing target banner with real-time Single / Double / Treble combo hit tracker chips.
+  - *Shooter*: Added target number highlight banner with live point multiplier scoring breakdown.
+- **📱 Responsive Audio Dropdown Labels**: Dynamically toggles between compact referee labels in mobile portrait and full caller names in landscape.
+
+#### Changed
+- **🎯 20px Dartboard Touch Targets**: Expanded the interactive SVG dartboard's Double and Treble ring widths to 20px for easier, more accurate finger tapping on touch screens.
+- **🎨 Refined Button States**: Removed persistent gold fill on the Excuse button in favor of clean neutral resting state with active hover/press styling.
+
+#### Removed
+- **📊 Radial Hit Heatmaps**: Removed radial board distribution heatmaps from Post-Match Summary and Lifetime Match History in favor of clean, game-focused stat cards and metric tiles.
+
+---
+
 ## [1.4.1] - 2026-08-16
 ### 🧹 UI Cleanup, Navigation Polish & Dynamic Changelog
 #### Added
