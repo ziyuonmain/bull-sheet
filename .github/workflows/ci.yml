@@ -15,21 +15,18 @@ jobs:
       unit: ${{ steps.changes.outputs.unit }}
       e2e: ${{ steps.changes.outputs.e2e }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check paths modified
-        uses: dorny/paths-filter@v3
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
         id: changes
         with:
           filters:
-            # Code/Config files that need linting
+            # Code & tooling configs that need linting
             code:
               - 'js/**'
               - 'tests/**'
               - '*.js'
               - '*.json'
-            # Changes that affect logic, changelog format, or static asset/cache integrity
+            # Changes that affect logic, changelog format, or asset/cache integrity
             unit:
               - 'js/**'
               - 'audio/**'
@@ -39,7 +36,7 @@ jobs:
               - 'CHANGELOG.md'
               - 'tests/unit/**'
               - 'package.json'
-            # Changes that affect browser UI/DOM/Styles
+            # Changes that affect browser UI, styles, or DOM elements
             e2e:
               - 'js/**'
               - 'css/**'
@@ -51,51 +48,61 @@ jobs:
   lint:
     name: Code Quality & Lint
     needs: filter
+    if: needs.filter.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - if: needs.filter.outputs.code == 'true'
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
-      - if: needs.filter.outputs.code == 'true'
-        run: |
-          npm ci
-          npm run lint
-      - if: needs.filter.outputs.code != 'true'
-        run: echo "No code changes detected. Skipping lint."
+      - run: npm ci
+      - run: npm run lint
 
   unit-tests:
     name: Unit & Integrity Tests
     needs: filter
+    if: needs.filter.outputs.unit == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - if: needs.filter.outputs.unit == 'true'
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - if: needs.filter.outputs.unit == 'true'
-        run: npm run test:unit
-      - if: needs.filter.outputs.unit != 'true'
-        run: echo "No logic/asset changes detected. Skipping unit tests."
+      - run: npm run test:unit
 
   e2e-tests:
     name: E2E Browser Tests
     needs: filter
+    if: needs.filter.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - if: needs.filter.outputs.e2e == 'true'
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
-      - if: needs.filter.outputs.e2e == 'true'
-        run: |
+      - run: |
           npm ci
           npx playwright install --with-deps chromium
           npm run test:e2e
-      - if: needs.filter.outputs.e2e != 'true'
-        run: echo "No UI/browser changes detected. Skipping E2E tests."
+
+  ci-status:
+    name: CI Status
+    needs: [filter, lint, unit-tests, e2e-tests]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all required checks succeeded or were cleanly skipped
+        run: |
+          echo "Filter result: ${{ needs.filter.result }}"
+          echo "Lint result: ${{ needs.lint.result }}"
+          echo "Unit tests result: ${{ needs.unit-tests.result }}"
+          echo "E2E tests result: ${{ needs.e2e-tests.result }}"
+
+          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "❌ One or more required CI checks failed or were cancelled."
+            exit 1
+          fi
+
+          echo "✅ All required CI checks passed successfully!"
