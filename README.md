@@ -4,10 +4,27 @@
 
 A darts scoreboard web app that runs in your browser. No ads, no accounts, no install required. Works offline once loaded.
 
+<p align="center">
+  <strong>🎯 <a href="https://zyu-wok.github.io/bull-sheet/">Play BullSheet</a> 🎯</strong>
+</p>
+
 Designed to run on a phone or tablet at the oche. Or honestly, a laptop on the kitchen table.
 
 Vibe-coded in an evening, because every other darts app insists on showing you endless 30-second ads with an "x" button harder to find than Waldo — all before you can subtract 60 (or in my case, 26) from 501. */rant*
 
+---
+
+## 📸 Screenshots
+
+> For more examples, check out `assets/screenshots/`, or just start playing!
+
+| Keypad Buttons | Interactive Dartsboard |
+| :---: | :---: |
+| <img src="assets/screenshots/landscape/x01_keypad.png" alt="BullSheet Pro Speed Keypad" width="100%" /> | <img src="assets/screenshots/landscape/x01_dartsboard.png" alt="Interactive SVG Dartboard" width="100%" /> |
+
+| Radial Heatmap | Match History |
+| :---: | :---: |
+| <img src="assets/screenshots/landscape/history_top.png" alt="Lifetime Stats & Heatmap" width="100%" /> | <img src="assets/screenshots/landscape/home.png" alt="Match Setup and Game Modes" width="100%" /> |
 
 ---
 
@@ -17,7 +34,7 @@ Vibe-coded in an evening, because every other darts app insists on showing you e
 
 | Mode | What It Is |
 | :--- | :--- |
-| **X01** | 501 / 301 / 701 / 101 with configurable In/Out rules (Straight In, Double Out, etc.), Legs & Sets |
+| **X01** | 101 / 301 / 501 (default) / 701 with configurable In/Out rules (Straight In, Double Out, etc.), Legs & Sets |
 | **Cricket** | Standard and Cutthroat, with marks-per-round tracking |
 | **Split Score** | Halve-It — miss your target, lose half your score |
 | **Killer** | Party game: claim a double, gain killer status, hunt opponents' lives |
@@ -36,9 +53,9 @@ Toggle between them mid-game with the 🎯 button.
 
 ### Caller Voice Packs
 Three pre-recorded audio caller packs with score announcements:
-- **Russ Bray** ("The Voice")
-- **George Noble**
-- **British Pub Referee**
+- **🎙️ Russ Bray** ("The Voice")
+- **🎯 George Noble**
+- **🎩 British Referee**
 
 Volume control and mute toggle in settings.
 
@@ -54,101 +71,65 @@ Five bot difficulty profiles for solo practice:
 | 👑 Master | Near-flawless | Not fun to play against |
 
 ### Other Stuff
-- **Saved player roster** — Add regulars, tap to add them to the lineup
+
+- **Save your mates** — Add regulars, tap to add them to the lineup
 - **Match history** — Local match log with 3-dart averages, 180 counts, and high turns
 - **Throw heatmap** — Radial visualization of where your darts actually landed
 - **Match card export** — Generates a shareable PNG summary of the match
 - **History import/export** — Backup and restore match data as JSON
-- **Pub excuse generator** — Random excuses for when you hit single 1 instead of treble 20
 - **Rules reference** — Built-in rules popup for each game mode
-- **Checkout suggestions** — PDC checkout route lookup for X01 finishes (170 down to 2)
+- **Checkout suggestions** — PDC checkout route lookup for X01 finishes
 - **Multi-step undo** — Works across all game modes
 - **4 color themes** — Pub Chalkboard (default), Excel Sheet, PDC Arena (neon), OLED Midnight
+- **Pub excuse generator** — Miss the board? No worries, I got you covered.
 
-### Offline & Privacy
-- Installable as a PWA (Add to Home Screen)
-- Everything stored in `localStorage` — no data leaves the browser
-- Works without internet after first load (Service Worker cache)
+  ![Pub Excuses](assets/screenshots/execuse.png)
+
+### 📱 Mobile at the Oche (PWA)
+- Installable as a Progressive Web App (Add to Home Screen on iOS / Android)
+- High-contrast, large touch targets designed for phone mounts and kitchen tablets
+- Everything stored locally in `localStorage` — 100% offline-first, no accounts or telemetry
+
+<p align="center">
+  <img src="assets/screenshots/portrait/home_top.png" alt="Mobile Game Modes" width="23%" />
+  &nbsp;&nbsp;
+  <img src="assets/screenshots/portrait/home_bottom.png" alt="Mobile Match Setup & Lineup" width="23%" />
+  &nbsp;&nbsp;
+  <img src="assets/screenshots/portrait/x01_keypad.png" alt="Mobile Match Play" width="23%" />
+  &nbsp;&nbsp;
+  <img src="assets/screenshots/portrait/x01_dartsboard.png" alt="Mobile Interactive Dartboard" width="23%" />
+</p>
 
 ---
 
-## Tech Stack
+## ⚡ Tech Stack
 
-Vanilla ES6+ JavaScript, HTML5, CSS3. Zero runtime frameworks, zero runtime dependencies.
+Built with pure web standards — zero frameworks, zero runtime dependencies, zero build steps:
 
-Audio is handled through the Web Audio API and pre-recorded MP3 caller packs. The dartboard is pure SVG with coordinate-based hit detection.
+- **Logic**: Vanilla ES6+ JavaScript (Modular classes)
+- **UI & Themes**: Semantic HTML5 & CSS3 variables (Dark-mode & oche-contrast)
+- **Dartboard**: Pure SVG with coordinate-based ring and segment hit detection
+- **Audio Engine**: Web Audio API with pre-recorded MP3 caller voice packs
+- **Storage & PWA**: Service Worker cache & `localStorage` (100% offline-first)
 
 ---
 
-## Running Locally
+## 🛠️ Development & Contributing
 
-Serve it instantly with the included zero-dependency Node.js server:
+BullSheet is built with vanilla ES6+ JavaScript, HTML5, and CSS3 — zero runtime frameworks, zero runtime dependencies.
 
 ```bash
 # Start local dev server (http://localhost:8080)
 npm start
-# or: node dev_server.js
-```
 
-Then open `http://localhost:8080/`.
-
----
-
-## Testing & Quality
-
-BullSheet uses Node.js native `node:test` runner for unit tests and **Playwright** for automated browser testing:
-
-```bash
-# Run the complete test suite (Unit + E2E)
+# Run full test suite (Node.js unit tests + Playwright E2E)
 npm test
-
-# Run only zero-dependency unit tests (runs in ~0.2s)
-npm run test:unit
-
-# Run headless browser E2E tests
-npm run test:e2e
-
-# Run code style & static analysis linter
-npm run lint
 ```
+
+For project architecture, test suite organization, and contributor guidelines, see [**CONTRIBUTING.md**](CONTRIBUTING.md).
 
 ---
 
-## Project Layout
-
-```
-bull-sheet/
-├── index.html              # Single-page app markup
-├── manifest.json            # PWA manifest
-├── sw.js                    # Service worker (offline cache)
-├── CHANGELOG.md             # Release notes
-├── CONTRIBUTING.md          # Contributor guide & test docs
-├── package.json             # Dev scripts & tooling configuration
-├── eslint.config.js         # ESLint configuration
-├── playwright.config.js     # Playwright E2E browser test configuration
-├── dev_server.js            # Zero-dependency static HTTP dev server
-├── css/
-│   ├── main.css             # Layout and components
-│   ├── themes.css           # Color themes
-│   └── animations.css       # Transitions
-├── js/
-│   ├── app.js               # Main app controller
-│   ├── audio/               # Caller voice system + sound effects
-│   ├── bot/                 # AI opponent engine
-│   ├── components/          # Dartboard, Keypad, Scoreboard, Heatmap, etc.
-│   ├── games/               # 10 game engine modules
-│   └── storage/             # localStorage persistence
-├── audio/                   # Pre-recorded caller MP3 packs
-│   ├── russ_bray/
-│   ├── george_noble/
-│   └── british_ref/
-└── tests/
-    ├── unit/                # Native Node.js unit tests (X01, Cricket, Party games, Bots, Stats, Integrity)
-    └── e2e/                 # Playwright automated browser tests
-```
-
----
-
-## License
+## 📜 License
 
 [GPL-3.0](LICENSE)

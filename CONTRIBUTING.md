@@ -11,25 +11,21 @@ BullSheet is a lightweight, zero-dependency, client-side darts scoreboard and pa
 1. **Zero Runtime Dependencies**: No npm packages, frameworks, bundlers, or build steps. Pure Vanilla ES6 JavaScript, HTML5, and CSS3.
 2. **Offline-First (PWA)**: All game engines, stats, audio calls, and rules must run entirely in the client without external backend servers.
 3. **Privacy First**: All player rosters, statistics, and history remain local in `localStorage`. No telemetry or tracking.
-4. **Mobile-First & Oche-Optimized**: High-contrast UI with large hit targets for phones in portrait mode and wall-mounted tablets in landscape.
+4. **Mobile-First & Oche-Optimized**: High-contrast UI with large hit targets for phones in portrait mode and tablets in landscape.
 
 ---
 
 ## 🚀 Getting Started
 
-### 1. Clone & Serve
+### Clone & Serve
 Because there is no build step, you can serve the directory with any static HTTP server:
 
 ```bash
 git clone https://github.com/zyu-wok/bull-sheet.git
 cd bull-sheet
 
-# Option A: Start dev server
+# Start dev server
 npm start
-# or: node dev_server.js
-
-# Option B: Helper script (runs tests then starts dev server)
-./start_local_dev.sh
 ```
 Open `http://localhost:8080/` in your browser.
 
@@ -39,27 +35,27 @@ Open `http://localhost:8080/` in your browser.
 
 BullSheet uses Node.js built-in **`node:test`** runner for zero-dependency unit tests and **Playwright** for automated E2E browser testing.
 
-### 1. Run All Tests
+### Run Linter
 ```bash
-# Run the complete test suite (Unit + E2E)
-npm test
+npm run lint
+
+# Or run with auto-fix
+npm run lint:fix
 ```
 
-### 2. Run Specific Test Suites
+### 2. Run Tests
 ```bash
 # Run only unit tests (zero external dependencies, runs instantly)
 npm run test:unit
-# or: node --test tests/unit/**/*.test.js
 
 # Run only headless browser E2E tests
 npm run test:e2e
-# or: npx playwright test
 
-# Run code style & static analysis linter
-npm run lint
+# Run all tests
+npm test
 ```
 
-### 3. Test Suite Organization (`tests/`)
+### 4. Test Suite Organization (`tests/`)
 
 ```
 tests/
