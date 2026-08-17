@@ -1,4 +1,4 @@
-name: CI
+name: CI & Deploy
 
 on:
   push:
@@ -16,6 +16,7 @@ on:
 jobs:
   filter:
     name: Detect File Changes
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     outputs:
       code: ${{ steps.changes.outputs.code }}
@@ -111,7 +112,7 @@ jobs:
   ci-status:
     name: CI Status
     needs: [filter, lint, unit-tests, e2e-tests]
-    if: always()
+    if: always() && github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Check for job failures
@@ -134,10 +135,15 @@ jobs:
     name: Deploy to GitHub Pages
     needs: [filter, ci-status]
     if: |
+      always() &&
       github.ref == 'refs/heads/main' &&
       (
         (github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner) ||
-        (github.event_name == 'push' && needs.filter.outputs.app == 'true')
+        (
+          github.event_name == 'push' &&
+          needs.filter.outputs.app == 'true' &&
+          needs.ci-status.result == 'success'
+        )
       )
     permissions:
       pages: write
@@ -147,10 +153,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: '.'
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
