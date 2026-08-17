@@ -23,12 +23,16 @@ jobs:
       unit: ${{ steps.changes.outputs.unit }}
       e2e: ${{ steps.changes.outputs.e2e }}
       app: ${{ steps.changes.outputs.app }}
+      meta: ${{ steps.changes.outputs.meta }}
     steps:
       - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
         id: changes
         with:
           filters: |
+            # Project metadata & version changes
+            meta:
+              - 'package.json'
             # Code & tooling configs that need linting
             code:
               - 'js/**'
@@ -66,6 +70,8 @@ jobs:
               - 'sw.js'
               - 'manifest.json'
               - 'CHANGELOG.md'
+              - 'package.json'
+              - '.github/workflows/**'
 
   lint:
     name: Code Quality & Lint
@@ -130,6 +136,65 @@ jobs:
           exit 1
       - name: CI Passed
         run: echo "✅ All required CI checks passed successfully!"
+
+  release:
+    name: GitHub Release & Auto-Tag
+    needs: [filter, ci-status]
+    if: |
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      needs.filter.outputs.meta == 'true' &&
+      needs.ci-status.result == 'success'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Extract & Compare Version
+        id: version
+        run: |
+          PREV_VER=$(git show HEAD~1:package.json 2>/dev/null | node -e "let data=''; process.stdin.on('data', c => data += c); process.stdin.on('end', () => { try { console.log(JSON.parse(data).version || ''); } catch { console.log(''); } });" 2>/dev/null || echo "")
+          CURR_VER=$(node -p "require('./package.json').version")
+          
+          echo "Previous version: ${PREV_VER:-none}"
+          echo "Current version: ${CURR_VER}"
+          
+          if [ -n "$PREV_VER" ] && [ "$PREV_VER" = "$CURR_VER" ]; then
+            echo "is_bump=false" >> "$GITHUB_OUTPUT"
+            echo "Version has not changed ($CURR_VER). Skipping release."
+          else
+            echo "is_bump=true" >> "$GITHUB_OUTPUT"
+            echo "tag=v${CURR_VER}" >> "$GITHUB_OUTPUT"
+            echo "version=${CURR_VER}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check if tag exists
+        id: check-tag
+        if: steps.version.outputs.is_bump == 'true'
+        run: |
+          if git rev-parse "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag ${{ steps.version.outputs.tag }} already exists."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Tag ${{ steps.version.outputs.tag }} is new."
+          fi
+
+      - name: Create Git Tag and GitHub Release
+        if: steps.version.outputs.is_bump == 'true' && steps.check-tag.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+          gh release create "$TAG" \
+            --title "BullSheet $TAG" \
+            --notes-file CHANGELOG.md \
+            --latest
 
   deploy:
     name: Deploy to GitHub Pages

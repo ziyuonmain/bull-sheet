@@ -133,6 +133,57 @@ export class CustomGame {
 
 ---
 
+## 📦 Versioning & Release Workflow
+
+BullSheet adheres to [Semantic Versioning (SemVer)](https://semver.org/) and [Keep a Changelog](https://keepachangelog.com/).
+
+### Automated Version Bumping
+Instead of manually editing version strings across 5 separate files, use the built-in helper:
+
+```bash
+# Bump patch version (e.g. 1.4.2 -> 1.4.3)
+npm run bump patch
+
+# Bump minor version (e.g. 1.4.2 -> 1.5.0)
+npm run bump minor
+
+# Bump major version (e.g. 1.4.2 -> 2.0.0)
+npm run bump major
+```
+
+**What `npm run bump` does automatically:**
+1. Updates `"version"` in `package.json` and `package-lock.json`.
+2. Synchronizes the in-app version badge in `index.html`.
+3. Updates version integrity checks in `tests/unit/changelog.test.js`.
+4. Creates a release skeleton in `CHANGELOG.md` if not already present.
+5. Runs `npm run lint` and `npm run test:unit` to guarantee everything is green.
+
+### GitHub Actions Auto-Release
+When code is pushed or merged into `main` with an incremented version:
+- GitHub Actions automatically creates and pushes the annotated git tag `vX.Y.Z`.
+- Automatically publishes a GitHub Release using the release notes from `CHANGELOG.md`.
+
+---
+
+## ⚠️ Development Checklist
+
+When contributing to BullSheet, keep the following core principles in mind:
+
+1. **Zero Runtime Dependencies**:
+   - BullSheet has **zero** client runtime dependencies. All logic is pure vanilla ES6 modules and native Web APIs.
+   - Do not install npm runtime packages (keep npm dependencies strictly in `devDependencies` for linting/testing).
+2. **Service Worker (`sw.js`) Cache Integrity**:
+   - When adding a new JS module, audio file, or icon, you **must** register it in `ASSETS_TO_CACHE` in `sw.js`.
+   - The test `tests/unit/integrity.test.js` enforces that all cached files exist on disk.
+3. **Responsive Mobile Ergonomics**:
+   - BullSheet is designed for phones and tablets at the darts oche. Always test changes across both mobile portrait (`< 768px`) and desktop landscape.
+   - Avoid fixed widths or elements that cause horizontal scrolling on mobile.
+4. **CHANGELOG Integrity**:
+   - `CHANGELOG.md` is loaded and rendered dynamically at runtime by the in-app changelog viewer (`js/components/changelog_loader.js`).
+   - Group entries under standard Keep-a-Changelog headings: `#### Added`, `#### Changed`, `#### Fixed`, `#### Removed`.
+
+---
+
 ## 📝 Commit & Pull Request Guidelines
 
 - **Conventional Commits**: Format commit messages using standard prefixes:

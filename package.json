@@ -10,7 +10,8 @@
     "test:unit": "node --test tests/unit/**/*.test.js",
     "test:e2e": "playwright test",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "bump": "node scripts/bump_version.js"
   },
   "keywords": [
     "darts",
