@@ -1,17 +1,8 @@
-# Contributing to BullSheet 🎯
+# Contributing to BullSheet
 
 Thanks for your interest in contributing to **BullSheet**!
 
 BullSheet is a lightweight, zero-dependency, client-side darts scoreboard and party game app built with vanilla web technologies.
-
----
-
-## 🛠️ Philosophy & Design Constraints
-
-1. **Zero Runtime Dependencies**: No npm packages, frameworks, bundlers, or build steps. Pure Vanilla ES6 JavaScript, HTML5, and CSS3.
-2. **Offline-First (PWA)**: All game engines, stats, audio calls, and rules must run entirely in the client without external backend servers.
-3. **Privacy First**: All player rosters, statistics, and history remain local in `localStorage`. No telemetry or tracking.
-4. **Mobile-First & Oche-Optimized**: High-contrast UI with large hit targets for phones in portrait mode and tablets in landscape.
 
 ---
 
@@ -48,7 +39,6 @@ bull-sheet/
 
 ## 🚀 Getting Started
 
-### Clone & Serve
 Because there is no build step, you can serve the directory with any static HTTP server:
 
 ```bash
@@ -58,7 +48,8 @@ cd bull-sheet
 # Start dev server
 npm start
 ```
-Open `http://localhost:8080/` in your browser.
+
+Then open **[http://localhost:8080/](http://localhost:8080/)** in your browser.
 
 ---
 
@@ -165,7 +156,7 @@ When code is pushed or merged into `main` with an incremented version:
 
 ---
 
-## ⚠️ Development Checklist
+## ✅ Development Checklist
 
 When contributing to BullSheet, keep the following core principles in mind:
 
@@ -184,7 +175,7 @@ When contributing to BullSheet, keep the following core principles in mind:
 
 ---
 
-## 📝 Commit & Pull Request Guidelines
+## ✍️ Commit & Pull Request Guidelines
 
 - **Conventional Commits**: Format commit messages using standard prefixes:
   - `feat:` New features or game modes
@@ -197,6 +188,6 @@ When contributing to BullSheet, keep the following core principles in mind:
 
 ---
 
-## 📜 License
+## 📄 License
 
 By contributing, you agree that your contributions will be licensed under the [GNU General Public License v3.0 (GPL-3.0)](LICENSE).

@@ -1,4 +1,4 @@
-# 🐂🎯 BullSheet
+# BullSheet
 
 > *Because pub math is total bull-sheet.*
 
@@ -28,7 +28,7 @@ Designed to run on a phone or tablet at the oche. Or honestly, a laptop on the k
 
 ---
 
-## What It Does
+## ✨ What It Does
 
 ### 10 Game Modes
 
@@ -83,8 +83,8 @@ Five bot difficulty profiles for solo practice:
 
   ![Pub Excuses](assets/screenshots/excuse.png)
 
-### 📱 Mobile at the Oche (PWA)
-- Installable as a Progressive Web App (Add to Home Screen on iOS / Android)
+### Mobile at the Oche (PWA)
+- Installable as a Progressive Web App (Add to Home Screen on mobile browsers)
 - High-contrast, large touch targets designed for phone mounts and kitchen tablets
 - Everything stored locally in `localStorage` — 100% offline-first, no accounts or telemetry
 
@@ -100,7 +100,7 @@ Five bot difficulty profiles for solo practice:
 
 ---
 
-## ⚡ Tech Stack
+## 💻 Tech Stack
 
 Built with pure web standards — zero frameworks, zero runtime dependencies, zero build steps:
 
@@ -126,6 +126,6 @@ For project architecture, test suite organization, and contributor guidelines, s
 
 ---
 
-## 📜 License
+## 📄 License
 
 [GPL-3.0](LICENSE)
