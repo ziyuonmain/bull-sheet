@@ -49,7 +49,14 @@ class BullSheetApp {
       "My darts need to be re-weighted by an expert.",
       "I was practicing my defensive darts strategy.",
       "The gravity in this room is inconsistent.",
-      "Classic pub chalk dust got into my throwing eye."
+      "Classic pub chalk dust got into my throwing eye.",
+      "The wire on that treble was visibly thicker than regulation.",
+      "I was factoring in the Coriolis effect, but forgot our latitude.",
+      "My grip slipped due to aggressive condensation on my glass.",
+      "The jukebox changed tempo right in the middle of my backswing.",
+      "I'm strategically warming up my Shanghai route for next leg.",
+      "My tungsten alloy is reacting poorly to the room's humidity.",
+      "That was a tactical lay-up. You wouldn't understand."
     ];
 
     this.init();
@@ -1214,7 +1221,7 @@ class BullSheetApp {
     if (!modal || !textEl) return;
 
     const randomExcuse = this.excuses[Math.floor(Math.random() * this.excuses.length)];
-    textEl.textContent = `"${randomExcuse}"`;
+    textEl.textContent = randomExcuse;
     modal.classList.add('active');
   }
 
@@ -1231,7 +1238,7 @@ class BullSheetApp {
         sound.playClick();
         const textEl = document.getElementById('excuse-text');
         const randomExcuse = this.excuses[Math.floor(Math.random() * this.excuses.length)];
-        if (textEl) textEl.textContent = `"${randomExcuse}"`;
+        if (textEl) textEl.textContent = randomExcuse;
       });
     }
   }

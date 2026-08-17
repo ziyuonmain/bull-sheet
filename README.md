@@ -81,9 +81,9 @@ Five bot difficulty profiles for solo practice:
 - **Checkout suggestions** — PDC checkout route lookup for X01 finishes
 - **Multi-step undo** — Works across all game modes
 - **4 color themes** — Pub Chalkboard (default), Excel Sheet, PDC Arena (neon), OLED Midnight
-- **Pub excuse generator** — Miss the board? No worries, I got you covered.
+- **Pub excuse generator** — Missed the board? No worries, I got you covered.
 
-  ![Pub Excuses](assets/screenshots/execuse.png)
+  ![Pub Excuses](assets/screenshots/excuse.png)
 
 ### 📱 Mobile at the Oche (PWA)
 - Installable as a Progressive Web App (Add to Home Screen on iOS / Android)
