@@ -24,14 +24,12 @@ Because there is no build step, you can serve the directory with any static HTTP
 git clone https://github.com/zyu-wok/bull-sheet.git
 cd bull-sheet
 
-# Option A: Helper script (runs tests then starts dev server)
+# Option A: Start dev server
+npm start
+# or: node dev_server.js
+
+# Option B: Helper script (runs tests then starts dev server)
 ./start_local_dev.sh
-
-# Option B: Python dev server
-python3 dev_server.py 8080
-
-# Option C: Python built-in server
-python3 -m http.server 8080
 ```
 Open `http://localhost:8080/` in your browser.
 
@@ -90,7 +88,11 @@ bull-sheet/
 ├── manifest.json               # Progressive Web App manifest
 ├── sw.js                       # Service Worker & offline caching
 ├── CHANGELOG.md                # Single source of truth for release notes
-├── pyproject.toml               # Python project & dev dependencies (Selenium)
+├── CONTRIBUTING.md             # Contributor guide & testing docs
+├── package.json                # Project & dev dependencies
+├── eslint.config.js            # ESLint static analysis configuration
+├── playwright.config.js        # Playwright E2E browser test configuration
+├── dev_server.js               # Zero-dependency static HTTP dev server
 ├── css/
 │   ├── main.css                # Layout, components, and responsive styles
 │   ├── themes.css              # Theme CSS variables (Pub Chalkboard, OLED, etc.)
@@ -103,8 +105,8 @@ bull-sheet/
 │   ├── games/                  # Modular game engines (10 modes)
 │   └── storage/                # LocalStorage management and import/export
 └── tests/
-    ├── unit/                   # Unit test suite
-    └── e2e/                    # E2E & browser test suite
+    ├── unit/                   # Native Node.js unit tests (0 dependencies)
+    └── e2e/                    # Playwright automated browser tests
 ```
 
 ---

@@ -74,7 +74,7 @@ Five bot difficulty profiles for solo practice:
 
 ## Tech Stack
 
-Vanilla ES6 JavaScript, HTML5, CSS3. No frameworks, no build step, no npm.
+Vanilla ES6+ JavaScript, HTML5, CSS3. Zero runtime frameworks, zero runtime dependencies.
 
 Audio is handled through the Web Audio API and pre-recorded MP3 caller packs. The dartboard is pure SVG with coordinate-based hit detection.
 
@@ -82,25 +82,35 @@ Audio is handled through the Web Audio API and pre-recorded MP3 caller packs. Th
 
 ## Running Locally
 
-Serve it with any static HTTP server:
+Serve it instantly with the included zero-dependency Node.js server:
 
 ```bash
-# With the included dev server
-python3 dev_server.py
-
-# Or just
-python3 -m http.server 8080
+# Start local dev server (http://localhost:8080)
+npm start
+# or: node dev_server.js
 ```
 
 Then open `http://localhost:8080/`.
 
-### Tests
+---
+
+## Testing & Quality
+
+BullSheet uses Node.js native `node:test` runner for unit tests and **Playwright** for automated browser testing:
 
 ```bash
-pytest
-```
+# Run the complete test suite (Unit + E2E)
+npm test
 
-Covers game mechanics, turn flow, Bob's 27 edge cases, UI structure, and asset integrity.
+# Run only zero-dependency unit tests (runs in ~0.2s)
+npm run test:unit
+
+# Run headless browser E2E tests
+npm run test:e2e
+
+# Run code style & static analysis linter
+npm run lint
+```
 
 ---
 
@@ -112,6 +122,11 @@ bull-sheet/
 ├── manifest.json            # PWA manifest
 ├── sw.js                    # Service worker (offline cache)
 ├── CHANGELOG.md             # Release notes
+├── CONTRIBUTING.md          # Contributor guide & test docs
+├── package.json             # Dev scripts & tooling configuration
+├── eslint.config.js         # ESLint configuration
+├── playwright.config.js     # Playwright E2E browser test configuration
+├── dev_server.js            # Zero-dependency static HTTP dev server
 ├── css/
 │   ├── main.css             # Layout and components
 │   ├── themes.css           # Color themes
@@ -127,10 +142,9 @@ bull-sheet/
 │   ├── russ_bray/
 │   ├── george_noble/
 │   └── british_ref/
-├── pyproject.toml            # Python project & dev dependencies config
 └── tests/
-    ├── unit/                # Unit test suites (X01, Cricket, Party games, Bots, Stats)
-    └── e2e/                 # E2E & browser test suites (Bob's 27, Selenium)
+    ├── unit/                # Native Node.js unit tests (X01, Cricket, Party games, Bots, Stats, Integrity)
+    └── e2e/                 # Playwright automated browser tests
 ```
 
 ---
