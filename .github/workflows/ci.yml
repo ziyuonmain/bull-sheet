@@ -19,7 +19,7 @@ jobs:
       - uses: dorny/paths-filter@v3
         id: changes
         with:
-          filters:
+          filters: |
             # Code & tooling configs that need linting
             code:
               - 'js/**'
