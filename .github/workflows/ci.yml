@@ -24,6 +24,7 @@ jobs:
             code:
               - 'js/**'
               - 'tests/**'
+              - '.github/workflows/**'
               - '*.js'
               - '*.json'
             # Changes that affect logic, changelog format, or asset/cache integrity
@@ -35,6 +36,7 @@ jobs:
               - 'manifest.json'
               - 'CHANGELOG.md'
               - 'tests/unit/**'
+              - '.github/workflows/**'
               - 'package.json'
             # Changes that affect browser UI, styles, or DOM elements
             e2e:
@@ -43,6 +45,7 @@ jobs:
               - 'index.html'
               - 'tests/e2e/**'
               - 'playwright.config.js'
+              - '.github/workflows/**'
               - 'package.json'
 
   lint:
@@ -93,16 +96,10 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Verify all required checks succeeded or were cleanly skipped
+      - name: Check for job failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: |
-          echo "Filter result: ${{ needs.filter.result }}"
-          echo "Lint result: ${{ needs.lint.result }}"
-          echo "Unit tests result: ${{ needs.unit-tests.result }}"
-          echo "E2E tests result: ${{ needs.e2e-tests.result }}"
-
-          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
-            echo "❌ One or more required CI checks failed or were cancelled."
-            exit 1
-          fi
-
-          echo "✅ All required CI checks passed successfully!"
+          echo "❌ One or more required CI checks failed or were cancelled."
+          exit 1
+      - name: CI Passed
+        run: echo "✅ All required CI checks passed successfully!"
