@@ -235,7 +235,7 @@ export class Scoreboard {
   renderShooter(game) {
     const active = game.getActivePlayer();
     const target = game.getCurrentTarget();
-    const targetLabel = target === 25 ? 'BULLSEYE' : `#${target}`;
+    const targetLabel = target === 25 ? '🎯 BULL' : target;
 
     let html = `
       <div class="scoreboard-shooter">
@@ -248,10 +248,10 @@ export class Scoreboard {
             <span class="pill-stat highlight-legs">Hits: <strong>${active.score}</strong></span>
           </div>
 
-          <div class="shooter-target-banner-hero">
-            
-            <div class="shooter-target-large">${targetLabel}</div>
-            <span class="target-sub-hint">Hit Single (1x), Double (2x), Treble (3x)</span>
+          <div class="shooter-target-hero-banner">
+            <div class="shooter-target-badge">🎯 RANDOM TARGET</div>
+            <div class="shooter-target-huge">${targetLabel}</div>
+            <span class="shooter-target-sub">Single: +1 Hit • Double: +2 Hits • Treble: +3 Hits</span>
           </div>
 
           <div class="hero-turn-darts" style="justify-content:center; margin-top:12px;">
@@ -417,6 +417,10 @@ export class Scoreboard {
   // 7. Render Shanghai Scoreboard
   renderShanghai(game) {
     const active = game.getActivePlayer();
+    const target = game.currentRound;
+    const hasSingle = game.turnDarts.some(d => Number(d.number) === target && (Number(d.mult) === 1 || !d.mult));
+    const hasDouble = game.turnDarts.some(d => Number(d.number) === target && Number(d.mult) === 2);
+    const hasTreble = game.turnDarts.some(d => Number(d.number) === target && Number(d.mult) === 3);
 
     let html = `
       <div class="scoreboard-shanghai">
@@ -429,10 +433,15 @@ export class Scoreboard {
             <span class="pill-stat highlight-legs">Score: <strong>${active.score}</strong></span>
           </div>
 
-          <div class="shanghai-target-hero">
-            
-            <div class="shanghai-target-big">#${game.currentRound}</div>
-            <span class="shanghai-golden-rule">Single, Double & Treble = Instant Win</span>
+          <div class="shanghai-target-hero-banner">
+            <div class="shanghai-target-badge">🎯 TARGET NUMBER</div>
+            <div class="shanghai-target-huge">${target}</div>
+            <div class="shanghai-combo-chips">
+              <span class="combo-chip ${hasSingle ? 'hit' : ''}">Single ${hasSingle ? '✓' : ''}</span>
+              <span class="combo-chip ${hasDouble ? 'hit' : ''}">Double ${hasDouble ? '✓' : ''}</span>
+              <span class="combo-chip ${hasTreble ? 'hit' : ''}">Treble ${hasTreble ? '✓' : ''}</span>
+            </div>
+            <span class="shanghai-golden-rule">Hit Single + Double + Treble for Instant Win!</span>
           </div>
 
           <div class="hero-turn-darts" style="justify-content:center; margin-top:12px;">

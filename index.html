@@ -32,7 +32,7 @@
           <div class="brand-text-wrap">
             <div class="brand-title-row">
               <span class="brand-title">BullSheet</span>
-              <span class="brand-version-badge" id="btn-header-version" title="Version 1.4.1 • Click to view Changelog">v1.4.1</span>
+              <span class="brand-version-badge" id="btn-header-version" title="Version 1.5.0 • Click to view Changelog">v1.5.0</span>
             </div>
             <span class="brand-tagline">Because pub math is total bull-sheet.</span>
           </div>
@@ -287,13 +287,14 @@
           <button id="btn-toggle-input-mode" class="ctrl-btn btn-icon-only" type="button" title="Switch to Interactive Dartboard">🎯<span class="ctrl-text"> Board</span></button>
           <button id="btn-excuse-generator" class="ctrl-btn btn-excuse btn-icon-only" type="button" title="Generate Pub Excuse">🐂<span class="ctrl-text"> Excuse</span></button>
         </div>
+        <div id="game-mode-display" class="game-mode-display-badge" title="Current Game Mode">🎯 Match</div>
         <div class="game-controls-right">
           <select id="game-voice-select" class="ctrl-btn voice-select-compact" title="Audio & Referee Voice">
-            <option value="muted">🔇 Off</option>
-            <option value="sound_only">🔊 Sound</option>
+            <option value="muted">🔇 Mute</option>
+            <option value="sound_only">🔊 SFX Only</option>
             <option value="russ_bray" selected>🎙️ Russ Bray</option>
-            <option value="george_noble">🎯 G. Noble</option>
-            <option value="british_ref">🎩 Brit Ref</option>
+            <option value="george_noble">🎯 George Noble</option>
+            <option value="british_ref">🎩 British Referee</option>
           </select>
           <button id="btn-end-game" class="ctrl-btn btn-end" type="button" title="End Current Match">✕<span class="ctrl-text"> End</span></button>
         </div>
@@ -342,9 +343,6 @@
           </table>
         </div>
 
-        <!-- Heatmap Visualizer Container -->
-        <div id="summary-heatmap-container"></div>
-
         <div style="display: flex; gap: 10px; margin-top: 16px;">
           <button id="btn-copy-match-card" class="ctrl-btn" type="button" style="flex: 1; padding: 12px; font-weight: 600;">Copy Match Card</button>
           <button id="btn-download-image-card" class="ctrl-btn" type="button" style="flex: 1; padding: 12px; font-weight: 600;">📸 Save Image Card</button>
@@ -379,9 +377,6 @@
         <div id="lifetime-stats-grid" class="lifetime-stats-grid">
           <!-- Populated via JS -->
         </div>
-
-        <!-- Lifetime Hit Heatmap Container -->
-        <div id="history-heatmap-container"></div>
 
         <!-- Player Drilldown Selector -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin: 12px 0 6px 0;">

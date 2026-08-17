@@ -40,12 +40,12 @@ export class Dartboard {
   render() {
     const size = 440;
     const center = size / 2;
-    const rBull = 10;
-    const rOuterBull = 24;
-    const rInnerSingle = 85;
-    const rTreble = 98;
-    const rOuterSingle = 145;
-    const rDouble = 158;
+    const rBull = 12;
+    const rOuterBull = 25;
+    const rInnerSingle = 82;
+    const rTreble = 102;
+    const rOuterSingle = 142;
+    const rDouble = 162;
     const rOuterBoard = 205;
 
     let html = `
@@ -124,7 +124,7 @@ export class Dartboard {
 
       // 5. Wire Numbers
       const midAngle = (startOffset + (index + 0.5) * degPerSeg) * (Math.PI / 180);
-      const textR = rOuterBoard - 24;
+      const textR = rOuterBoard - 22;
       const tx = center + textR * Math.cos(midAngle);
       const ty = center + textR * Math.sin(midAngle) + 5;
 

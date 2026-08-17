@@ -441,6 +441,20 @@ body {
   gap: 8px;
 }
 
+.game-mode-display-badge {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: var(--accent-gold);
+  font-weight: 800;
+  font-size: 0.84rem;
+  letter-spacing: 0.03em;
+  padding: 5px 12px;
+  border-radius: 14px;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+}
+
 .ctrl-btn {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
@@ -453,6 +467,14 @@ body {
 }
 
 .btn-excuse {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-excuse:hover,
+.btn-excuse:active {
   background: rgba(245, 158, 11, 0.15);
   color: var(--accent-gold);
   border-color: rgba(245, 158, 11, 0.4);
@@ -512,6 +534,70 @@ body {
   border-radius: 12px;
   font-size: 0.85rem;
   color: var(--text-secondary);
+}
+
+/* Shanghai & Shooter Target Hero Banners */
+.shanghai-target-hero-banner,
+.shooter-target-hero-banner {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 12px 14px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.shanghai-target-badge,
+.shooter-target-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.shanghai-target-huge,
+.shooter-target-huge {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  line-height: 1.1;
+  margin: 2px 0 6px 0;
+  text-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+}
+
+.shanghai-combo-chips {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.combo-chip {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.combo-chip.hit {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+}
+
+.shanghai-golden-rule,
+.shooter-target-sub {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  display: block;
 }
 
 .hero-score-row {
@@ -2685,6 +2771,15 @@ button.brand-logo .brand-tagline {
     border-radius: var(--border-radius-sm);
   }
 
+  .game-mode-display-badge {
+    font-size: 0.72rem;
+    padding: 3px 6px;
+    border-radius: 8px;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .game-controls-left,
   .game-controls-right {
     gap: 4px;
@@ -2865,20 +2960,36 @@ button.brand-logo .brand-tagline {
     font-size: 0.65rem !important;
   }
 
-  /* Bob's 27 Mobile Banner */
-  .bobs-target-hero-banner {
-    padding: 6px 10px !important;
-    margin: 4px 0 !important;
+  /* Bob's 27, Shanghai & Shooter Mobile Banner */
+  .bobs-target-hero-banner,
+  .shanghai-target-hero-banner,
+  .shooter-target-hero-banner {
+    padding: 8px 10px !important;
+    margin: 6px 0 !important;
     border-radius: 8px !important;
   }
 
-  .bobs-target-huge {
-    font-size: 1.8rem !important;
+  .bobs-target-huge,
+  .shanghai-target-huge,
+  .shooter-target-huge {
+    font-size: 2.2rem !important;
     margin: 2px 0 !important;
   }
 
-  .target-pts-sub {
-    font-size: 0.78rem !important;
+  .target-pts-sub,
+  .shanghai-golden-rule,
+  .shooter-target-sub {
+    font-size: 0.76rem !important;
+  }
+
+  .shanghai-combo-chips {
+    gap: 4px !important;
+    margin: 4px 0 !important;
+  }
+
+  .combo-chip {
+    font-size: 0.7rem !important;
+    padding: 2px 6px !important;
   }
 
   /* 4. Pro Dart Keypad: Fast Thumb Entry & Live Points Preview */

@@ -19,7 +19,6 @@ import { KillerGame } from './games/killer.js';
 import { EliminationGame } from './games/elimination.js';
 import { AroundClockGame } from './games/around_clock.js';
 import { Bobs27Game } from './games/bobs27.js';
-import { DartsHeatmap } from './components/heatmap.js';
 import { MatchCardGenerator } from './components/match_card.js';
 
 class BullSheetApp {
@@ -67,8 +66,6 @@ class BullSheetApp {
     sound.toggle(store.settings.sound);
     sound.setVolume(store.settings.volume !== undefined ? store.settings.volume : 0.8);
     caller.setVolume(store.settings.volume !== undefined ? store.settings.volume : 0.8);
-    this.heatmap = new DartsHeatmap(document.getElementById('summary-heatmap-container'));
-    this.historyHeatmap = new DartsHeatmap(document.getElementById('history-heatmap-container'));
     caller.toggle(store.settings.voice);
     caller.toggleSarcasm(store.settings.sarcasm);
 
@@ -148,6 +145,16 @@ class BullSheetApp {
     this.renderPlayerRosterSetup();
     this.renderStatsView();
     this.checkSavedActiveMatch();
+    this.syncGameVoiceSelect();
+
+    window.addEventListener('resize', () => {
+      this.syncGameVoiceSelectLabels();
+      this.updateGameModeDisplay();
+    });
+    window.addEventListener('orientationchange', () => {
+      this.syncGameVoiceSelectLabels();
+      this.updateGameModeDisplay();
+    });
 
     // Prevent accidental page reload/unload during live game
     window.addEventListener('beforeunload', (e) => {
@@ -249,6 +256,82 @@ class BullSheetApp {
     this.showBanterToast("📥 Match History Downloaded!");
   }
 
+  getInGameAudioValue() {
+    if (!store.settings.sound && !store.settings.voice) return 'muted';
+    if (store.settings.sound && !store.settings.voice) return 'sound_only';
+    return caller.style || 'russ_bray';
+  }
+
+  syncGameVoiceSelectLabels() {
+    const select = document.getElementById('game-voice-select');
+    if (!select) return;
+    const isPortrait = window.matchMedia('(max-width: 768px), (orientation: portrait)').matches;
+    const labels = isPortrait ? {
+      muted: '🔇 Mute',
+      sound_only: '🔊 SFX Only',
+      russ_bray: '🎙️ R. Bray',
+      george_noble: '🎯 G. Noble',
+      british_ref: '🎩 Brit Ref'
+    } : {
+      muted: '🔇 Mute',
+      sound_only: '🔊 SFX Only',
+      russ_bray: '🎙️ Russ Bray',
+      george_noble: '🎯 George Noble',
+      british_ref: '🎩 British Referee'
+    };
+
+    for (const opt of select.options) {
+      if (labels[opt.value]) {
+        opt.textContent = labels[opt.value];
+      }
+    }
+  }
+
+  syncGameVoiceSelect() {
+    const gameSel = document.getElementById('game-voice-select');
+    if (gameSel) {
+      gameSel.value = this.getInGameAudioValue();
+    }
+    this.syncGameVoiceSelectLabels();
+  }
+
+  getGameModeDisplayName(isPortrait = false) {
+    switch (this.selectedGameType) {
+      case 'x01': {
+        const startScore = this.currentGame?.startScore || 501;
+        const out = this.currentGame?.outMode === 'double' ? 'DO' : (this.currentGame?.outMode === 'master' ? 'MO' : 'SO');
+        return isPortrait ? `🎯 X01 • ${startScore}` : `🎯 X01 (${startScore} ${out})`;
+      }
+      case 'cricket':
+        return isPortrait ? '🦗 Cricket' : '🦗 Cricket';
+      case 'split_score':
+        return isPortrait ? '➗ Split Score' : '➗ Split Score (Halve-It)';
+      case 'killer':
+        return isPortrait ? '🔪 Killer' : '🔪 Killer Party';
+      case 'elimination':
+        return isPortrait ? '💀 Elimination' : '💀 Elimination';
+      case 'shanghai':
+        return isPortrait ? '🎯 Shanghai' : `🎯 Shanghai (${this.currentGame?.maxRounds || 7}R)`;
+      case 'around_clock':
+        return isPortrait ? '⏰ Clock' : '⏰ Around the Clock';
+      case 'bobs27':
+        return isPortrait ? "🎯 Bob's 27" : "🎯 Bob's 27";
+      case 'highscore':
+        return isPortrait ? '🏆 Highscore' : `🏆 Highscore (${this.currentGame?.maxRounds || 7}R)`;
+      case 'shooter':
+        return isPortrait ? '🎯 Shooter' : '🎯 Shooter';
+      default:
+        return '🎯 Match';
+    }
+  }
+
+  updateGameModeDisplay() {
+    const el = document.getElementById('game-mode-display');
+    if (!el) return;
+    const isPortrait = window.matchMedia('(max-width: 640px), (orientation: portrait)').matches;
+    el.textContent = this.getGameModeDisplayName(isPortrait);
+  }
+
   setAudioMode(mode) {
     if (mode === 'muted') {
       sound.toggle(false);
@@ -267,9 +350,7 @@ class BullSheetApp {
       store.saveSettings({ sound: true, voice: true });
     }
 
-    const gameSel = document.getElementById('game-voice-select');
-    if (gameSel) gameSel.value = (mode === 'ref_voice') ? (caller.style || 'russ_bray') : mode;
-
+    this.syncGameVoiceSelect();
     this.updateSettingsAudioVisibility();
   }
 
@@ -363,6 +444,8 @@ class BullSheetApp {
 
     if (viewId === 'view-changelog') {
       loadAndRenderChangelog(document.getElementById('changelog-page-list'));
+    } else if (viewId === 'view-game') {
+      this.updateGameModeDisplay();
     }
 
     window.scrollTo(0, 0);
@@ -879,6 +962,7 @@ class BullSheetApp {
 
     this.saveCurrentMatchState();
     this.setInputMode(this.inputMode);
+    this.syncGameVoiceSelect();
     this.showView('view-game', true);
     this.updateScoreboard();
 
@@ -984,10 +1068,6 @@ class BullSheetApp {
       this.lastMatchData = matchRecord;
       store.clearActiveMatch();
 
-      if (this.heatmap) {
-        this.heatmap.render(this.currentGame);
-      }
-
       this.renderSummary(res.winner);
       this.showView('view-summary', true);
       return;
@@ -1052,6 +1132,8 @@ class BullSheetApp {
 
   updateScoreboard() {
     if (!this.currentGame) return;
+
+    this.updateGameModeDisplay();
 
     switch (this.selectedGameType) {
       case 'x01':
@@ -1201,7 +1283,7 @@ class BullSheetApp {
 
     const gameVoiceSelect = document.getElementById('game-voice-select');
     if (gameVoiceSelect) {
-      gameVoiceSelect.value = this.getAudioMode();
+      this.syncGameVoiceSelect();
       gameVoiceSelect.addEventListener('change', (e) => {
         this.setAudioMode(e.target.value);
       });
@@ -1319,8 +1401,7 @@ class BullSheetApp {
       voiceStyleSel.value = caller.style || 'russ_bray';
       voiceStyleSel.addEventListener('change', (e) => {
         caller.setStyle(e.target.value);
-        const gameSel = document.getElementById('game-voice-select');
-        if (gameSel) gameSel.value = e.target.value;
+        this.syncGameVoiceSelect();
       });
     }
 
@@ -1530,19 +1611,7 @@ class BullSheetApp {
       filtered = filtered.filter(m => m.players && m.players.some(p => p.name.toLowerCase() === playerName.toLowerCase()));
     }
 
-    // 4. Render Board Hit Heatmap
-    const histHeatContainer = document.getElementById('history-heatmap-container');
-    if (this.historyHeatmap && histHeatContainer) {
-      if (filtered.length > 0) {
-        histHeatContainer.style.display = 'block';
-        const heatTitle = playerName === 'all' ? `🎯 Board Distribution (${mode.toUpperCase()})` : `🎯 ${playerName}'s Hit Heatmap (${mode.toUpperCase()})`;
-        this.historyHeatmap.render(filtered, heatTitle, playerName !== 'all' ? playerName : null);
-      } else {
-        histHeatContainer.style.display = 'none';
-      }
-    }
-
-    // 5. Render Filtered Match Cards List
+    // 4. Render Filtered Match Cards List
     if (filtered.length === 0) {
       listEl.innerHTML = `
         <div class="empty-history-box" style="text-align:center; padding:30px; background:var(--bg-secondary); border-radius:var(--border-radius-md); border:1px dashed var(--border-color); margin-top:16px;">
