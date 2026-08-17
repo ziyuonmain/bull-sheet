@@ -90,14 +90,17 @@ describe('Party & Training Game Engines', () => {
   test('Split Score (Halve-It): halves score when round target is missed', () => {
     const game = new SplitScoreGame({
       players: [{ name: 'Alice' }],
-      startScore: 40
+      startScore: 40,
+      roundsList: [
+        { id: '20', label: '20', targetType: 'num', value: 20 }
+      ]
     });
 
     assert.equal(game.players[0].score, 40);
-    // Miss all 3 darts on target -> score is halved to 20
-    game.recordDart({ number: 2, mult: 1, score: 2, label: '2' });
-    game.recordDart({ number: 2, mult: 1, score: 2, label: '2' });
-    game.recordDart({ number: 2, mult: 1, score: 2, label: '2' });
+    // Target is 20 -> Miss all 3 darts (throwing 1s) -> score is halved to 20
+    game.recordDart({ number: 1, mult: 1, score: 1, label: '1' });
+    game.recordDart({ number: 1, mult: 1, score: 1, label: '1' });
+    game.recordDart({ number: 1, mult: 1, score: 1, label: '1' });
     game.finishTurn();
 
     assert.equal(game.players[0].score, 20);
