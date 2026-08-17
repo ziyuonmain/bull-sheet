@@ -5,6 +5,13 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual deploy (Admin only)'
+        required: false
+        default: 'Manual production deploy'
+        type: string
 
 jobs:
   filter:
@@ -126,7 +133,12 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: [filter, ci-status]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.filter.outputs.app == 'true'
+    if: |
+      github.ref == 'refs/heads/main' &&
+      (
+        (github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner) ||
+        (github.event_name == 'push' && needs.filter.outputs.app == 'true')
+      )
     permissions:
       pages: write
       id-token: write
