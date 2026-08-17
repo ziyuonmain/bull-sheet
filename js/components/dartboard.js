@@ -201,7 +201,7 @@ export class Dartboard {
     this.svg.addEventListener('click', handleHit);
   }
 
-  addHitMarker(x, y, label) {
+  addHitMarker(x, y, _label) {
     const markersGroup = this.svg.querySelector('#dart-hit-markers');
     if (!markersGroup) return;
 

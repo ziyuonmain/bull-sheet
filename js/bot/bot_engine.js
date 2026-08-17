@@ -102,7 +102,7 @@ export class BotEngine {
 
 
   // 1. X01 Mode (501 / 301)
-  throwDartX01(currentScore, dartsLeftInTurn = 3, outMode = 'double', hasDoubledIn = true) {
+  throwDartX01(currentScore, dartsLeftInTurn = 3, _outMode = 'double', hasDoubledIn = true) {
     const prof = this.profile;
 
     // Handle Double In if required

@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { CHECKOUT_TABLE, BOGEY_NUMBERS, getCheckoutSuggestion } from '../../js/components/checkout.js';
+import { CHECKOUT_TABLE, getCheckoutSuggestion } from '../../js/components/checkout.js';
 
 describe('Checkout Guide & Bogey Calculations', () => {
   test('covers all valid checkouts from 170 down to 2', () => {

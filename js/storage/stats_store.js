@@ -24,7 +24,7 @@ class StatsStore {
         vibration: true,
         announceTurnTotal: false
       };
-    } catch (e) {
+    } catch {
       return {
         theme: 'bullsheet',
         sound: true,
@@ -53,7 +53,7 @@ class StatsStore {
       if (!saved) return [];
       const parsed = JSON.parse(saved);
       return Array.isArray(parsed) ? parsed.filter(p => p.id !== 'p_default_1' && p.id !== 'p_default_2' && p.name !== 'Player 1' && p.name !== 'Player 2') : [];
-    } catch (e) {
+    } catch {
       return [];
     }
   }
@@ -96,7 +96,7 @@ class StatsStore {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_STATS);
       return saved ? JSON.parse(saved) : [];
-    } catch (e) {
+    } catch {
       return [];
     }
   }
@@ -218,14 +218,14 @@ class StatsStore {
   saveActiveMatchState(state) {
     try {
       localStorage.setItem(STORAGE_KEY_ACTIVE_MATCH, JSON.stringify(state));
-    } catch (e) {}
+    } catch {}
   }
 
   loadActiveMatchState() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_ACTIVE_MATCH);
       return saved ? JSON.parse(saved) : null;
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -270,7 +270,7 @@ class StatsStore {
   clearActiveMatch() {
     try {
       localStorage.removeItem(STORAGE_KEY_ACTIVE_MATCH);
-    } catch (e) {}
+    } catch {}
   }
 }
 
