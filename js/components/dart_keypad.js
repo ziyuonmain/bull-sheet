@@ -50,12 +50,10 @@ export class DartKeypad {
 
   updateNumberGridLabels() {
     const mult = this.currentMultiplier;
-    const prefix = mult === 3 ? 'T' : (mult === 2 ? 'D' : 'S');
-    const badgeCls = mult === 3 ? 'pts-treble' : (mult === 2 ? 'pts-double' : 'pts-single');
+    const prefix = mult === 3 ? 'T' : (mult === 2 ? 'D' : '');
 
     this.container.querySelectorAll('.dart-num-btn').forEach(btn => {
       const num = Number(btn.dataset.num);
-      const score = num * mult;
 
       if (mult === 1) {
         btn.innerHTML = `
@@ -64,10 +62,9 @@ export class DartKeypad {
         btn.className = `dart-num-btn ${num >= 18 ? 'top-target' : ''}`;
       } else {
         btn.innerHTML = `
-          <span class="num-prefix">${prefix}${num}</span>
-          <span class="num-score ${badgeCls}">${score}</span>
+          <span class="num-main">${prefix}${num}</span>
         `;
-        btn.className = `dart-num-btn mult-active-${mult}`;
+        btn.className = `dart-num-btn ${num >= 18 ? 'top-target' : ''} mult-active-${mult}`;
       }
     });
   }

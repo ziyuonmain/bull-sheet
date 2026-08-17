@@ -3015,9 +3015,9 @@ button.brand-logo .brand-tagline {
   }
 
   .options-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px 12px !important;
   }
 
   .options-row[style*="display: none"],
@@ -3027,16 +3027,26 @@ button.brand-logo .brand-tagline {
 
   .option-group {
     min-width: 0 !important;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
   }
 
   .option-group label {
-    font-size: 0.72rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-secondary);
   }
 
   .option-group select,
   .option-group input {
-    padding: 10px 12px;
-    font-size: 0.95rem;
+    padding: 9px 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
     border-radius: 8px;
     width: 100%;
     box-sizing: border-box;
@@ -3384,8 +3394,13 @@ button.brand-logo .brand-tagline {
 }
 
 .btn-roster-compact {
-  padding: 4px 8px !important;
-  font-size: 0.78rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 5px 10px !important;
+  font-size: 0.82rem !important;
+  line-height: 1 !important;
   border-radius: 6px !important;
 }
 

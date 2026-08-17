@@ -695,11 +695,11 @@ class BullSheetApp {
         const partyOpts = document.getElementById('setup-party-options');
         const highscoreOpts = document.getElementById('setup-highscore-options');
 
-        if (x01Opts) x01Opts.style.display = this.selectedGameType === 'x01' ? 'flex' : 'none';
-        if (splitOpts) splitOpts.style.display = this.selectedGameType === 'split_score' ? 'flex' : 'none';
-        if (cricketOpts) cricketOpts.style.display = this.selectedGameType === 'cricket' ? 'flex' : 'none';
-        if (highscoreOpts) highscoreOpts.style.display = ['highscore', 'shooter'].includes(this.selectedGameType) ? 'flex' : 'none';
-        if (partyOpts) partyOpts.style.display = ['killer', 'elimination', 'shanghai'].includes(this.selectedGameType) ? 'flex' : 'none';
+        if (x01Opts) x01Opts.style.display = this.selectedGameType === 'x01' ? '' : 'none';
+        if (splitOpts) splitOpts.style.display = this.selectedGameType === 'split_score' ? '' : 'none';
+        if (cricketOpts) cricketOpts.style.display = this.selectedGameType === 'cricket' ? '' : 'none';
+        if (highscoreOpts) highscoreOpts.style.display = ['highscore', 'shooter'].includes(this.selectedGameType) ? '' : 'none';
+        if (partyOpts) partyOpts.style.display = ['killer', 'elimination', 'shanghai'].includes(this.selectedGameType) ? '' : 'none';
       });
     });
 
