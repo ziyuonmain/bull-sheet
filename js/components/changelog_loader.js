@@ -22,7 +22,7 @@ export async function loadAndRenderChangelog(containerEl) {
     containerEl.innerHTML = `
       <div style="padding: 24px; text-align: center; color: var(--text-secondary);">
         <p style="font-size: 1.1rem; margin-bottom: 8px;">📜 Release Notes</p>
-        <p style="font-size: 0.9rem;">View complete release notes online at <a href="https://github.com/zyu-wok/bull-sheet/blob/main/CHANGELOG.md" target="_blank" style="color: var(--accent-gold); text-decoration: underline;">CHANGELOG.md on GitHub</a>.</p>
+        <p style="font-size: 0.9rem;">View complete release notes online at <a href="https://github.com/ziyuonmain/bull-sheet/blob/main/CHANGELOG.md" target="_blank" style="color: var(--accent-gold); text-decoration: underline;">CHANGELOG.md on GitHub</a>.</p>
       </div>
     `;
   }

@@ -47,7 +47,7 @@ export class MatchCardGenerator {
     }
 
     lines.push(`━━━━━━━━━━━━━━━━━━━━━━`);
-    lines.push(`🎯 Scored on BullSheet • https://zyu-wok.github.io/bull-sheet/`);
+    lines.push(`🎯 Scored on BullSheet • https://ziyuonmain.github.io/bull-sheet/`);
 
     return lines.join('\n');
   }
@@ -129,7 +129,7 @@ export class MatchCardGenerator {
     // Footer
     ctx.fillStyle = '#64748b';
     ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('No Ads • 100% Free • https://zyu-wok.github.io/bull-sheet/', 40, 460);
+    ctx.fillText('No Ads • 100% Free • https://ziyuonmain.github.io/bull-sheet/', 40, 460);
 
     return canvas.toDataURL('image/png');
   }

@@ -42,7 +42,7 @@ bull-sheet/
 Because there is no build step, you can serve the directory with any static HTTP server:
 
 ```bash
-git clone https://github.com/zyu-wok/bull-sheet.git
+git clone https://github.com/ziyuonmain/bull-sheet.git
 cd bull-sheet
 
 # Start dev server
