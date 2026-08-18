@@ -5,7 +5,7 @@
 A darts scoreboard web app that runs in your browser. No ads, no accounts, no install required. Works offline once loaded.
 
 <p align="center">
-  <strong>🎯 <a href="https://zyu-wok.github.io/bull-sheet/">Play BullSheet</a> 🎯</strong>
+  <strong>🎯 <a href="https://ziyuonmain.github.io/bull-sheet/">Play BullSheet</a> 🎯</strong>
 </p>
 
 Designed to run on a phone or tablet at the oche. Or honestly, a laptop on the kitchen table.
