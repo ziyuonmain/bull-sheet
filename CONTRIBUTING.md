@@ -67,13 +67,16 @@ npm run lint:fix
 
 ### Run Tests
 ```bash
-# Run only unit tests
+# Run only unit tests (zero-config, native Node.js runner)
 npm run test:unit
 
-# Run only headless browser E2E tests
+# Install Playwright browser binary (first time only)
+npx playwright install chromium
+
+# Run headless browser E2E tests
 npm run test:e2e
 
-# Run all tests
+# Run all tests (unit + E2E)
 npm test
 ```
 

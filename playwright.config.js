@@ -6,15 +6,15 @@ export default defineConfig({
   fullyParallel: true,
   webServer: {
     command: 'node dev_server.js 8080',
-    url: 'http://localhost:8080',
+    url: 'http://127.0.0.1:8080',
     reuseExistingServer: !process.env.CI,
-    timeout: 10000
+    timeout: 15000
   },
   use: {
-    baseURL: 'http://localhost:8080',
+    baseURL: 'http://127.0.0.1:8080',
     headless: true,
     launchOptions: {
-      args: ['--mute-audio']
+      args: ['--mute-audio', '--no-sandbox', '--disable-setuid-sandbox']
     }
   },
   projects: [

@@ -110,10 +110,17 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-      - run: |
-          npm ci
-          npx playwright install --with-deps chromium
-          npm run test:e2e
+      - run: npm ci
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+      - run: npm run test:e2e
 
   ci-status:
     name: CI Status
