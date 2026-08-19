@@ -40,7 +40,7 @@ export const BOT_PROFILES = {
   },
   oche_master: {
     id: 'oche_master',
-    name: '🎯 Semi-Pro',
+    name: '🏅 Semi-Pro',
     description: 'Tournament county ace with heavy treble scoring and clutch double finishes.',
     skillRating: 'Semi-Pro',
     t20Chance: 0.58,

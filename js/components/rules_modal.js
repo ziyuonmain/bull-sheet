@@ -2,7 +2,7 @@
 export const GAME_RULES = {
   bobs27: {
     title: "Bob's 27",
-    icon: "🎯",
+    icon: "🛡️",
     objective: "Start at 27 points. Survive 21 rounds from D1 to D20 + Bull without dropping to 0.",
     rules: [
       "21 total rounds: D1 in Round 1, D2 in Round 2, up to D20 and Bullseye (Round 21).",
@@ -66,7 +66,7 @@ export const GAME_RULES = {
   },
   shooter: {
     title: "Shooter",
-    icon: "🎯",
+    icon: "🏹",
     objective: "Hit the designated target called each round.",
     rules: [
       "A random target is assigned each round.",

@@ -10,7 +10,7 @@ const CALLER_PACKS = {
   },
   george_noble: {
     id: 'george_noble',
-    name: '🎯 George Noble (Official PDC Tournament Referee)',
+    name: '🎙️ George Noble (Official PDC Tournament Referee)',
     localPath: './audio/george_noble/',
     remoteUrl: 'https://autodarts.x10.mx/georgeno/'
   },

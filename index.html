@@ -28,7 +28,7 @@
     <header class="app-header">
       <div class="brand-logo-area">
         <button class="brand-logo" id="brand-logo-btn" type="button" aria-label="BullSheet Home" onclick="window.app && window.app.handleBrandClick()">
-          <span class="brand-bull-icon">🎯🐂</span>
+          <img src="icons/icon.svg" alt="BullSheet Logo" class="brand-bull-icon brand-bull-img" width="38" height="38" />
           <div class="brand-text-wrap">
             <div class="brand-title-row">
               <span class="brand-title">BullSheet</span>
@@ -38,19 +38,18 @@
           </div>
         </button>
       </div>
-
       <div class="header-right-group">
-        <nav class="nav-tabs">
-          <button class="nav-tab-btn active" data-target="view-setup" title="Play Matches">
+        <nav class="nav-tabs" aria-label="Main Navigation">
+          <button class="nav-tab-btn active" data-target="view-setup" type="button" title="Play Matches">
             <span class="tab-icon">🎯</span><span class="tab-label">Play</span>
           </button>
-          <button class="nav-tab-btn" data-target="view-stats" title="Match History & Stats">
+          <button class="nav-tab-btn" data-target="view-stats" type="button" title="Match History & Stats">
             <span class="tab-icon">📊</span><span class="tab-label">History</span>
           </button>
-          <button class="nav-tab-btn" data-target="view-settings" title="Audio & Settings">
+          <button class="nav-tab-btn" data-target="view-settings" type="button" title="Audio & Settings">
             <span class="tab-icon">⚙️</span><span class="tab-label">Settings</span>
           </button>
-          <button class="nav-tab-btn" data-target="view-changelog" title="Release Changelog">
+          <button class="nav-tab-btn" data-target="view-changelog" type="button" title="Release Changelog">
             <span class="tab-icon">📜</span><span class="tab-label">Changelog</span>
           </button>
         </nav>
@@ -75,7 +74,7 @@
         <div id="resume-banner-container"></div>
 
         <!-- Game Mode Selection Grid -->
-        <div>
+        <div class="setup-options-panel">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <h2 class="setup-section-title" style="margin:0;">Game Mode</h2>
             <button id="btn-rules-setup" class="ctrl-btn btn-rules-pill" type="button">Rules</button>
@@ -103,7 +102,7 @@
               <span class="mode-desc">Max points in N rounds</span>
             </div>
             <div class="game-mode-card" data-mode="shooter">
-              <span class="mode-icon">🎯</span>
+              <span class="mode-icon">🏹</span>
               <span class="mode-title">Shooter</span>
               <span class="mode-desc">Quick-draw target drill</span>
             </div>
@@ -128,7 +127,7 @@
               <span class="mode-desc">1 to 20 + Bull training</span>
             </div>
             <div class="game-mode-card" data-mode="bobs27">
-              <span class="mode-icon">🎯</span>
+              <span class="mode-icon">🛡️</span>
               <span class="mode-title">Bob's 27</span>
               <span class="mode-desc">Double training drill</span>
             </div>
@@ -196,7 +195,7 @@
                 <option value="100">100</option>
               </select>
             </div>
-            <div class="option-group" id="opt-split-custom-group" style="display: none; width: 100%;">
+            <div class="option-group full-width" id="opt-split-custom-group" style="display: none; width: 100%;">
               <label for="opt-split-custom-input">Custom Targets (comma separated, e.g. 14, 18, D, 11, T, Bull)</label>
               <input type="text" id="opt-split-custom-input" placeholder="e.g. 14, 18, D, 11, T, 20, Bull" value="14, 18, D, 11, T, 20, Bull" />
             </div>
@@ -569,7 +568,7 @@
       <div class="rules-protip-box" id="rules-modal-protip"></div>
 
       <div class="modal-actions" style="margin-top: 12px;">
-        <button class="modal-btn btn-modal-next modal-close" type="button" style="width:100%;">Got it, Let's Play!</button>
+        <button class="modal-btn btn-modal-next modal-close" type="button" style="width:100%;">Got it!</button>
       </div>
     </div>
   </div>

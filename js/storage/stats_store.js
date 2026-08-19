@@ -67,7 +67,7 @@ class StatsStore {
     }
   }
 
-  addSavedPlayer(name, avatar = '🎯', color = '#f59e0b') {
+  addSavedPlayer(name, avatar = '👤', color = '#f59e0b') {
     const trimmed = (name || '').trim();
     if (!trimmed) return null;
 

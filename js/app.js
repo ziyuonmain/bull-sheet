@@ -270,13 +270,13 @@ class BullSheetApp {
       muted: '🔇 Mute',
       sound_only: '🔊 SFX Only',
       russ_bray: '🎙️ R. Bray',
-      george_noble: '🎯 G. Noble',
+      george_noble: '🎙️ G. Noble',
       british_ref: '🎩 Brit Ref'
     } : {
       muted: '🔇 Mute',
       sound_only: '🔊 SFX Only',
       russ_bray: '🎙️ Russ Bray',
-      george_noble: '🎯 George Noble',
+      george_noble: '🎙️ George Noble',
       british_ref: '🎩 British Referee'
     };
 
@@ -303,23 +303,23 @@ class BullSheetApp {
         return isPortrait ? `🎯 X01 • ${startScore}` : `🎯 X01 (${startScore} ${out})`;
       }
       case 'cricket':
-        return isPortrait ? '🦗 Cricket' : '🦗 Cricket';
+        return isPortrait ? '🏏 Cricket' : '🏏 Cricket';
       case 'split_score':
-        return isPortrait ? '➗ Split Score' : '➗ Split Score (Halve-It)';
+        return isPortrait ? '⚡ Split Score' : '⚡ Split Score (Halve-It)';
       case 'killer':
         return isPortrait ? '🔪 Killer' : '🔪 Killer Party';
       case 'elimination':
-        return isPortrait ? '💀 Elimination' : '💀 Elimination';
+        return isPortrait ? '💥 Elimination' : '💥 Elimination';
       case 'shanghai':
-        return isPortrait ? '🎯 Shanghai' : `🎯 Shanghai (${this.currentGame?.maxRounds || 7}R)`;
+        return isPortrait ? '🏮 Shanghai' : `🏮 Shanghai (${this.currentGame?.maxRounds || 7}R)`;
       case 'around_clock':
         return isPortrait ? '⏰ Clock' : '⏰ Around the Clock';
       case 'bobs27':
-        return isPortrait ? "🎯 Bob's 27" : "🎯 Bob's 27";
+        return isPortrait ? "🛡️ Bob's 27" : "🛡️ Bob's 27";
       case 'highscore':
         return isPortrait ? '🏆 Highscore' : `🏆 Highscore (${this.currentGame?.maxRounds || 7}R)`;
       case 'shooter':
-        return isPortrait ? '🎯 Shooter' : '🎯 Shooter';
+        return isPortrait ? '🏹 Shooter' : '🏹 Shooter';
       default:
         return '🎯 Match';
     }
@@ -494,7 +494,7 @@ class BullSheetApp {
 
     listEl.innerHTML = store.savedPlayers.map(p => `
       <div class="roster-manager-item" style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--bg-primary); border-radius:6px; margin-bottom:6px;">
-        <span style="font-weight:700; color:var(--text-primary);">🎯 ${p.name}</span>
+        <span style="font-weight:700; color:var(--text-primary);">${p.avatar || '👤'} ${p.name}</span>
         <button class="btn-delete-saved-player" type="button" data-id="${p.id}" style="background:none; border:none; color:#ef4444; font-size:1.1rem; cursor:pointer;" title="Delete Profile">🗑️</button>
       </div>
     `).join('');
@@ -1554,7 +1554,7 @@ class BullSheetApp {
         playerSelect.innerHTML = `
           <option value="all" ${currentVal === 'all' ? 'selected' : ''}>👤 All Saved Players</option>
           ${savedPlayers.map(p => `
-            <option value="${p}" ${currentVal === p ? 'selected' : ''}>🎯 ${p}</option>
+            <option value="${p}" ${currentVal === p ? 'selected' : ''}>👤 ${p}</option>
           `).join('')}
         `;
       }
@@ -1625,6 +1625,8 @@ class BullSheetApp {
 
     listEl.innerHTML = filtered.map(m => {
       const modeKey = m.gameType || 'x01';
+      const modeIcons = { x01: '🎯', cricket: '🏏', split_score: '⚡', highscore: '🏆', shooter: '🏹', killer: '🔪', elimination: '💥', shanghai: '🏮', around_clock: '⏰', bobs27: '🛡️' };
+      const modeIcon = modeIcons[modeKey] || '🎯';
       const badgeCls = ['x01', 'cricket', 'split_score', 'bobs27'].includes(modeKey) ? `mode-${modeKey}` : 'mode-party';
       const winner = m.winner || m.players?.find(p => p.won) || m.players?.[0] || { name: 'Player' };
       const dateStr = new Date(m.date || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -1632,7 +1634,7 @@ class BullSheetApp {
       return `
         <div class="rich-history-card" style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--border-radius-md); padding:16px; margin-bottom:14px;">
           <div class="rich-history-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span class="hist-game-badge ${badgeCls}" style="font-weight:700; color:var(--accent-gold);">🎯 ${modeKey.toUpperCase()}</span>
+            <span class="hist-game-badge ${badgeCls}" style="font-weight:700; color:var(--accent-gold);">${modeIcon} ${modeKey.toUpperCase()}</span>
             <span class="hist-time-stamp" style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</span>
           </div>
           
