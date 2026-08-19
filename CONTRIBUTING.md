@@ -152,10 +152,32 @@ npm run bump major
 4. Creates a release skeleton in `CHANGELOG.md` if not already present.
 5. Runs `npm run lint` and `npm run test:unit` to guarantee everything is green.
 
-### GitHub Actions Auto-Release
-When code is pushed or merged into `main` with an incremented version:
-- GitHub Actions automatically creates and pushes the annotated git tag `vX.Y.Z`.
+### GitHub Actions Auto-Release & CI Pipeline
+When code is pushed or merged into `main`:
+- Changed files are automatically detected to run only affected checks in parallel.
+- When an incremented version is detected, GitHub Actions automatically creates and pushes the annotated git tag `vX.Y.Z`.
 - Automatically publishes a GitHub Release using the release notes from `CHANGELOG.md`.
+- Automatically deploys the updated app to GitHub Pages.
+
+```mermaid
+flowchart TD
+    Push([New Commits on Main]) --> Filter[Detect File Changes]
+    
+    subgraph Parallel Checks
+        Filter --> Lint[Code Quality & Lint]
+        Filter --> Unit[Unit & Integrity Tests]
+        Filter --> E2E[E2E Browser Tests]
+    end
+    
+    Lint --> CIStatus[CI Status Gate]
+    Unit --> CIStatus
+    E2E --> CIStatus
+    
+    subgraph Deployment & Publishing
+        CIStatus --> Release[GitHub Release & Auto-Tag]
+        CIStatus --> Deploy[Deploy to GitHub Pages]
+    end
+```
 
 ---
 

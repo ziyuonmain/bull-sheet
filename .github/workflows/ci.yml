@@ -23,16 +23,12 @@ jobs:
       unit: ${{ steps.changes.outputs.unit }}
       e2e: ${{ steps.changes.outputs.e2e }}
       app: ${{ steps.changes.outputs.app }}
-      meta: ${{ steps.changes.outputs.meta }}
     steps:
       - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
         id: changes
         with:
           filters: |
-            # Project metadata & version changes
-            meta:
-              - 'package.json'
             # Code & tooling configs that need linting
             code:
               - 'js/**'
@@ -150,7 +146,6 @@ jobs:
     if: |
       github.ref == 'refs/heads/main' &&
       github.event_name == 'push' &&
-      needs.filter.outputs.meta == 'true' &&
       needs.ci-status.result == 'success'
     permissions:
       contents: write
@@ -160,42 +155,29 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Extract & Compare Version
-        id: version
+      - name: Check if Version Tag Exists
+        id: release-check
         run: |
-          PREV_VER=$(git show HEAD~1:package.json 2>/dev/null | node -e "let data=''; process.stdin.on('data', c => data += c); process.stdin.on('end', () => { try { console.log(JSON.parse(data).version || ''); } catch { console.log(''); } });" 2>/dev/null || echo "")
           CURR_VER=$(node -p "require('./package.json').version")
+          TAG="v${CURR_VER}"
+          echo "Current package.json version: ${CURR_VER} (${TAG})"
           
-          echo "Previous version: ${PREV_VER:-none}"
-          echo "Current version: ${CURR_VER}"
-          
-          if [ -n "$PREV_VER" ] && [ "$PREV_VER" = "$CURR_VER" ]; then
-            echo "is_bump=false" >> "$GITHUB_OUTPUT"
-            echo "Version has not changed ($CURR_VER). Skipping release."
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            echo "Tag ${TAG} already exists. Skipping release."
           else
-            echo "is_bump=true" >> "$GITHUB_OUTPUT"
-            echo "tag=v${CURR_VER}" >> "$GITHUB_OUTPUT"
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+            echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
             echo "version=${CURR_VER}" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Check if tag exists
-        id: check-tag
-        if: steps.version.outputs.is_bump == 'true'
-        run: |
-          if git rev-parse "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "Tag ${{ steps.version.outputs.tag }} already exists."
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-            echo "Tag ${{ steps.version.outputs.tag }} is new."
+            echo "Tag ${TAG} is missing. Creating new GitHub Release."
           fi
 
       - name: Create Git Tag and GitHub Release
-        if: steps.version.outputs.is_bump == 'true' && steps.check-tag.outputs.exists == 'false'
+        if: steps.release-check.outputs.should_release == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="${{ steps.version.outputs.tag }}"
+          TAG="${{ steps.release-check.outputs.tag }}"
           git tag -a "$TAG" -m "Release $TAG"
           git push origin "$TAG"
           gh release create "$TAG" \
