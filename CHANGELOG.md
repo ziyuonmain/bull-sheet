@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.3] - 2026-08-19
+### 🎨 Logo Branding, Distinct Mode Emojis & UI Polish
+#### Added
+- **🐂 Vector SVG Logo**: Replaced the header emoji placeholder with the official BullSheet logo.
+
+#### Changed
+- **🏹 Distinct Game & Role Emojis**: Replaced repetitive bullseye (`🎯`) icons with distinct emojis for Shooter (`🏹`), Bob's 27 (`🛡️`), George Noble (`🎙️`), Semi-Pro bot (`🏅`), and player profiles (`👤`).
+- **💬 Rules Modal Button**: Simplified confirmation button to "Got it!".
+
+#### Fixed
+- **📐 Split Score Layout**: Fixed alignment of custom target inputs in landscape mode.
+
+---
+
 ## [1.4.2] - 2026-08-17
 ### 🎯 In-Game Mode Badge, Touch Target Scaling & Streamlined Post-Match Stats
 #### Added

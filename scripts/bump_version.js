@@ -125,10 +125,10 @@ function run() {
 
   console.log(`\n🎉 Successfully bumped BullSheet to v${nextVersion}!`);
   console.log(`\nNext steps:`);
-  console.log(`  1. Fill in release notes in CHANGELOG.md (if not already done)`);
+  console.log(`  1. Review release notes in CHANGELOG.md`);
   console.log(`  2. Commit: git commit -am "chore(release): bump version to ${nextVersion} and update changelog"`);
-  console.log(`  3. Tag: git tag -a v${nextVersion} -m "Release v${nextVersion}"`);
-  console.log(`  4. Push: git push origin main --tags\n`);
+  console.log(`  3. Push:   git push origin main`);
+  console.log(`\n✨ GitHub Actions CI will automatically create git tag v${nextVersion}, publish the GitHub Release, and deploy to GitHub Pages!\n`);
 }
 
 run();
