@@ -26,7 +26,6 @@ export class Scoreboard {
     const turnTotal = game.turnDarts.reduce((acc, d) => acc + (d.effectiveScore !== undefined ? d.effectiveScore : (d.score || 0)), 0);
 
     const inModeLabel = game.inMode === 'master' ? 'MASTER IN' : 'DOUBLE IN';
-    const inTargetDesc = game.inMode === 'master' ? 'Hit any Double, Treble, or D-Bull to open score' : 'Hit any Double (D1–D20 or D-Bull) to open score';
 
     let html = `
       <div class="scoreboard-x01">
