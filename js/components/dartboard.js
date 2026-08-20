@@ -240,6 +240,10 @@ export class Dartboard {
       this.svg.querySelectorAll('.seg-double, .seg-bull-inner').forEach(el => {
         el.classList.add('target-highlight-active');
       });
+    } else if (targetInfo.type === 'master') {
+      this.svg.querySelectorAll('.seg-double, .seg-treble, .seg-bull-inner').forEach(el => {
+        el.classList.add('target-highlight-active');
+      });
     } else if (targetInfo.type === 'treble') {
       this.svg.querySelectorAll('.seg-treble').forEach(el => {
         el.classList.add('target-highlight-active');

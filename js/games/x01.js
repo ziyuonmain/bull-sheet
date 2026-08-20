@@ -47,6 +47,10 @@ export class X01Game {
     return this.players[this.activePlayerIdx];
   }
 
+  isEntryLocked(player = this.getActivePlayer()) {
+    return this.inMode !== 'straight' && !player.hasDoubledIn;
+  }
+
   recordDart(dart) {
     if (this.isMatchOver) return null;
 
@@ -63,14 +67,24 @@ export class X01Game {
     const dartScore = Number(dart.score) || (dartNum * dartMult);
 
     let scoredVal = dartScore;
+    let justOpened = false;
+    let lockedMiss = false;
 
     if (!player.hasDoubledIn) {
-      if (dartMult === 2 || (dartNum === 25 && dartMult === 2)) {
+      const qualifies = (this.inMode === 'master' && (dartMult >= 2 || (dartNum === 25 && dartMult === 2))) ||
+                        (this.inMode !== 'master' && (dartMult === 2 || (dartNum === 25 && dartMult === 2)));
+      if (qualifies) {
         player.hasDoubledIn = true;
+        justOpened = true;
       } else {
         scoredVal = 0;
+        lockedMiss = true;
       }
     }
+
+    dart.effectiveScore = scoredVal;
+    dart.lockedMiss = lockedMiss;
+    dart.justOpened = justOpened;
 
     const remaining = player.score - scoredVal;
     let isBust = false;
@@ -107,11 +121,13 @@ export class X01Game {
     // Save snapshot for undo
     this.history.push({
       playerIdx: this.activePlayerIdx,
-      dart: { ...dart, effectiveScore: scoredVal },
+      dart: { ...dart },
       prevScore,
       prevDoubledIn,
       isBust,
       isLegWin,
+      justOpened,
+      lockedMiss,
       turnDartsSnapshot: [...this.turnDarts],
       allPlayersSnapshot: this.players.map(p => ({
         score: p.score,
@@ -150,7 +166,7 @@ export class X01Game {
     player.totalScoreScored += scoredVal;
 
     if (this.turnDarts.length === 3) {
-      const turnScore = this.turnDarts.reduce((acc, d) => acc + (d.score || 0), 0);
+      const turnScore = this.turnDarts.reduce((acc, d) => acc + (d.effectiveScore !== undefined ? d.effectiveScore : (d.score || 0)), 0);
       this.updateTurnStats(player, turnScore);
       return {
         type: 'visit_complete',
@@ -159,6 +175,8 @@ export class X01Game {
         lastDart: dart,
         turnScore,
         remaining: player.score,
+        justOpened,
+        lockedMiss,
         nextPlayer: this.getNextPlayer()
       };
     }
@@ -168,6 +186,8 @@ export class X01Game {
       player,
       dart,
       remaining: player.score,
+      justOpened,
+      lockedMiss,
       dartsLeft: 3 - this.turnDarts.length,
       checkout: this.getCheckout(player.score, 3 - this.turnDarts.length)
     };

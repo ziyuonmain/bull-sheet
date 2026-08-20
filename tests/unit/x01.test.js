@@ -53,15 +53,52 @@ describe('X01Game Engine', () => {
       players: [{ name: 'Alice' }]
     });
 
-    // Single 20 without double-in -> score stays 301
-    game.recordDart({ number: 20, mult: 1, score: 20, label: '20' });
+    assert.equal(game.isEntryLocked(), true);
+
+    // Single 20 without double-in -> score stays 301, lockedMiss is true
+    const d1 = game.recordDart({ number: 20, mult: 1, score: 20, label: '20' });
     assert.equal(game.players[0].score, 301);
     assert.equal(game.players[0].hasDoubledIn, false);
+    assert.equal(d1.lockedMiss, true);
+    assert.equal(d1.justOpened, false);
+    assert.equal(game.isEntryLocked(), true);
 
     // Hit Double 16 -> Doubles in, scores 32 points!
-    game.recordDart({ number: 16, mult: 2, score: 32, label: 'D16' });
+    const d2 = game.recordDart({ number: 16, mult: 2, score: 32, label: 'D16' });
     assert.equal(game.players[0].hasDoubledIn, true);
     assert.equal(game.players[0].score, 269);
+    assert.equal(d2.justOpened, true);
+    assert.equal(d2.lockedMiss, false);
+    assert.equal(game.isEntryLocked(), false);
+
+    // Undo should restore locked state
+    game.undo();
+    assert.equal(game.players[0].hasDoubledIn, false);
+    assert.equal(game.players[0].score, 301);
+    assert.equal(game.isEntryLocked(), true);
+  });
+
+  test('handles Master In mode: allows doubles and trebles to qualify', () => {
+    const game = new X01Game({
+      startScore: 501,
+      inMode: 'master',
+      outMode: 'double',
+      players: [{ name: 'Alice' }]
+    });
+
+    assert.equal(game.isEntryLocked(), true);
+
+    // Single 20 -> ignored
+    const d1 = game.recordDart({ number: 20, mult: 1, score: 20, label: '20' });
+    assert.equal(game.players[0].score, 501);
+    assert.equal(d1.lockedMiss, true);
+
+    // Treble 20 -> qualifies in Master In!
+    const d2 = game.recordDart({ number: 20, mult: 3, score: 60, label: 'T20' });
+    assert.equal(game.players[0].hasDoubledIn, true);
+    assert.equal(game.players[0].score, 441);
+    assert.equal(d2.justOpened, true);
+    assert.equal(game.isEntryLocked(), false);
   });
 
   test('bust logic: reverts score and detects bust on leaving 1 or going negative', () => {

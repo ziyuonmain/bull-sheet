@@ -1088,6 +1088,13 @@ class BullSheetApp {
       return;
     }
 
+    if (res.justOpened) {
+      sound.playBullseye();
+      this.showBanterToast(`🔓 OPENED! ${res.player?.name || 'Player'} is in the game with ${res.dart?.label || 'a Double'}!`);
+    } else if (res.lockedMiss) {
+      this.showBanterToast(`🔒 0 pts — Must hit ${this.currentGame?.inMode === 'master' ? 'Double or Treble' : 'a Double'} to start scoring!`);
+    }
+
     if (res.type === 'dart_recorded') {
       // Dart 1 or Dart 2: Announce single dart throw
       const dartScore = res.dart?.score !== undefined ? res.dart.score : ((res.dart?.number || 0) * (res.dart?.mult || 1));
@@ -1126,7 +1133,6 @@ class BullSheetApp {
         caller.callSingleDart(lastDartScore, lastDart);
       }
     }
-
 
   }
 
@@ -1177,7 +1183,15 @@ class BullSheetApp {
         const active = this.currentGame.getActivePlayer();
         const dartsLeft = 3 - this.currentGame.turnDarts.length;
         const checkout = this.currentGame.getCheckout(active.score, dartsLeft);
-        if (checkout && checkout.route && checkout.route.length > 0) {
+        const isEntryLocked = this.currentGame.isEntryLocked ? this.currentGame.isEntryLocked(active) : (this.currentGame.inMode !== 'straight' && !active.hasDoubledIn);
+
+        if (isEntryLocked) {
+          if (this.currentGame.inMode === 'master') {
+            this.dartboard.highlightTarget({ type: 'master' });
+          } else {
+            this.dartboard.highlightTarget({ type: 'double' });
+          }
+        } else if (checkout && checkout.route && checkout.route.length > 0) {
           this.dartboard.highlightCheckout(checkout.route, 0);
         } else {
           this.dartboard.clearHighlights();
@@ -1201,11 +1215,14 @@ class BullSheetApp {
       } else if (this.selectedGameType === 'killer') {
         const active = this.currentGame.getActivePlayer();
         if (active) {
+          this.dartboard.clearHighlights();
           if (!active.isKiller) {
-            this.dartboard.highlightTarget({ type: 'num', value: active.targetNumber });
+            this.dartboard.highlightTarget('D' + active.targetNumber);
           } else {
-            const opp = this.currentGame.players.find(p => !p.isEliminated && p.id !== active.id);
-            if (opp) this.dartboard.highlightTarget({ type: 'num', value: opp.targetNumber });
+            const opps = this.currentGame.players.filter(p => !p.isEliminated && p.id !== active.id);
+            opps.forEach(opp => {
+              this.dartboard.highlightSegmentByLabel('D' + opp.targetNumber, 'target-highlight-active');
+            });
           }
         }
       } else {

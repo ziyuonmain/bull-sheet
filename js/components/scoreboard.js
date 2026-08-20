@@ -20,9 +20,13 @@ export class Scoreboard {
   // 1. Render X01 Scoreboard
   renderX01(game) {
     const active = game.getActivePlayer();
+    const isLocked = game.isEntryLocked ? game.isEntryLocked(active) : (game.inMode !== 'straight' && !active.hasDoubledIn);
     const dartsLeft = 3 - game.turnDarts.length;
-    const checkout = game.getCheckout(active.score, dartsLeft);
-    const turnTotal = game.turnDarts.reduce((acc, d) => acc + (d.score || 0), 0);
+    const checkout = !isLocked ? game.getCheckout(active.score, dartsLeft) : null;
+    const turnTotal = game.turnDarts.reduce((acc, d) => acc + (d.effectiveScore !== undefined ? d.effectiveScore : (d.score || 0)), 0);
+
+    const inModeLabel = game.inMode === 'master' ? 'MASTER IN' : 'DOUBLE IN';
+    const inTargetDesc = game.inMode === 'master' ? 'Hit any Double, Treble, or D-Bull to open score' : 'Hit any Double (D1–D20 or D-Bull) to open score';
 
     let html = `
       <div class="scoreboard-x01">
@@ -32,6 +36,7 @@ export class Scoreboard {
             <div class="hero-player-name">
               <span class="active-pulse-badge">▶ THROWING</span>
               <h2>${active.name} ${active.isBot ? '<span class="bot-badge">BOT</span>' : ''}</h2>
+              ${isLocked ? `<span class="hero-lock-badge">🔒 ${inModeLabel}</span>` : ''}
             </div>
             <div class="hero-legs-sets">
               <span class="pill-stat">Set <strong>${active.setsWon}</strong></span>
@@ -42,7 +47,6 @@ export class Scoreboard {
           <!-- Main Giant Score -->
           <div class="hero-score-row">
             <div class="score-display-block">
-              
               <div class="hero-big-score" id="hero-score-val">${active.score}</div>
             </div>
             
@@ -50,29 +54,34 @@ export class Scoreboard {
             <div class="turn-breakdown-box">
               <div class="turn-box-title">THIS TURN: <strong class="turn-sum-val">+${turnTotal}</strong></div>
               <div class="hero-turn-darts">
-                <div class="dart-slot ${game.turnDarts[0] ? 'filled' : ''}">
+                <div class="dart-slot ${game.turnDarts[0] ? (game.turnDarts[0].lockedMiss ? 'filled-locked' : (game.turnDarts[0].justOpened ? 'filled-opened' : 'filled')) : ''}">
                   <span class="dart-slot-num">1</span>
-                  <strong class="dart-slot-val">${game.turnDarts[0]?.label || '—'}</strong>
+                  <strong class="dart-slot-val">${game.turnDarts[0] ? (game.turnDarts[0].lockedMiss ? `${game.turnDarts[0].label} (0)` : (game.turnDarts[0].label || '—')) : '—'}</strong>
                 </div>
-                <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}">
+                <div class="dart-slot ${game.turnDarts[1] ? (game.turnDarts[1].lockedMiss ? 'filled-locked' : (game.turnDarts[1].justOpened ? 'filled-opened' : 'filled')) : ''}">
                   <span class="dart-slot-num">2</span>
-                  <strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong>
+                  <strong class="dart-slot-val">${game.turnDarts[1] ? (game.turnDarts[1].lockedMiss ? `${game.turnDarts[1].label} (0)` : (game.turnDarts[1].label || '—')) : '—'}</strong>
                 </div>
-                <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}">
+                <div class="dart-slot ${game.turnDarts[2] ? (game.turnDarts[2].lockedMiss ? 'filled-locked' : (game.turnDarts[2].justOpened ? 'filled-opened' : 'filled')) : ''}">
                   <span class="dart-slot-num">3</span>
-                  <strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong>
+                  <strong class="dart-slot-val">${game.turnDarts[2] ? (game.turnDarts[2].lockedMiss ? `${game.turnDarts[2].label} (0)` : (game.turnDarts[2].label || '—')) : '—'}</strong>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Clean Checkout / Setup Pill -->
-          <div class="checkout-pill-bar ${checkout ? 'has-checkout' : 'no-checkout'}">
-            <span class="checkout-pill-tag">${checkout ? 'FINISH' : 'SETUP'}</span>
-            <span class="checkout-pill-route">${checkout ? checkout.join(' • ') : (active.score <= 170 ? 'Bogey number — set up a double' : 'Aim Treble 20')}</span>
-          </div>
-
-          
+          <!-- Clean Checkout / Entry Guidance Pill -->
+          ${isLocked ? `
+            <div class="checkout-pill-bar in-mode-entry-bar">
+              <span class="checkout-pill-tag tag-double-in">ENTRY</span>
+              <span class="checkout-pill-route">${game.inMode === 'master' ? '🎯 Aim any Double or Treble to open score' : '🎯 Aim any Double (or D-Bull) to open score'}</span>
+            </div>
+          ` : `
+            <div class="checkout-pill-bar ${checkout ? 'has-checkout' : 'no-checkout'}">
+              <span class="checkout-pill-tag">${checkout ? 'FINISH' : 'SETUP'}</span>
+              <span class="checkout-pill-route">${checkout ? checkout.join(' • ') : (active.score <= 170 ? 'Bogey number — set up a double' : 'Aim Treble 20')}</span>
+            </div>
+          `}
 
           <!-- Live Player Statistics Bar -->
           <div class="hero-stats-bar">
@@ -97,18 +106,26 @@ export class Scoreboard {
 
         <!-- Multiplayer Standings Strip -->
         <div class="multiplayer-strip-container">
-          <div class="strip-header-label">ALL PLAYERS STANDINGS</div>
+          <div class="strip-header-label">ALL PLAYERS STANDINGS ${game.inMode !== 'straight' ? `• <span style="color:var(--accent-gold); font-weight:800;">${inModeLabel}</span>` : ''}</div>
           <div class="multiplayer-strip">
-            ${game.players.map((p, i) => `
-              <div class="player-mini-card ${i === game.activePlayerIdx ? 'is-active' : ''}">
-                <div class="mini-card-header">
-                  <span class="mini-name">${p.name} ${p.isBot ? '<small>(BOT)</small>' : ''}</span>
-                  <span class="mini-legs">L: ${p.legsWon} | S: ${p.setsWon}</span>
+            ${game.players.map((p, i) => {
+              const pLocked = game.inMode !== 'straight' && !p.hasDoubledIn;
+              return `
+                <div class="player-mini-card ${i === game.activePlayerIdx ? 'is-active' : ''} ${pLocked ? 'mini-card-locked' : ''}">
+                  <div class="mini-card-header">
+                    <span class="mini-name">${p.name} ${p.isBot ? '<small>(BOT)</small>' : ''}</span>
+                    <span class="mini-legs">L: ${p.legsWon} | S: ${p.setsWon}</span>
+                  </div>
+                  <div class="mini-score">${p.score}</div>
+                  <div class="mini-footer-row">
+                    <div class="mini-avg-badge">Avg: ${game.getPlayerAvg(p)}</div>
+                    ${game.inMode !== 'straight' ? `
+                      <span class="mini-in-tag ${pLocked ? 'tag-locked' : 'tag-open'}">${pLocked ? '🔒 Locked' : '✓ In'}</span>
+                    ` : ''}
+                  </div>
                 </div>
-                <div class="mini-score">${p.score}</div>
-                <div class="mini-avg-badge">Avg: ${game.getPlayerAvg(p)}</div>
-              </div>
-            `).join('')}
+              `;
+            }).join('')}
           </div>
         </div>
       </div>
@@ -282,43 +299,103 @@ export class Scoreboard {
   // 5. Render Killer Scoreboard
   renderKiller(game) {
     const active = game.getActivePlayer();
+    const aliveOpponents = game.players.filter(p => !p.isEliminated && p.id !== active.id);
 
     let html = `
       <div class="scoreboard-killer">
+        <!-- Giant Active Player Turn Card -->
         <div class="hero-player-card ${active.isKiller ? 'is-killer-hero' : ''}">
           <div class="hero-header">
             <div class="hero-player-name">
               <span class="active-pulse-badge">▶ THROWING</span>
-              <h2>${active.name} ${active.isKiller ? '<span class="killer-badge">🔪 KILLER</span>' : '<span class="status-qualifying">Target: Double ' + active.targetNumber + ' to Qualify</span>'}</h2>
+              <h2>${active.name} ${active.isBot ? '<span class="bot-badge">BOT</span>' : ''}</h2>
+              <span class="killer-status-badge ${active.isKiller ? 'status-killer' : 'status-qualifying'}">
+                ${active.isKiller ? '🔪 ACTIVE KILLER' : `🔒 QUALIFY: D${active.targetNumber}`}
+              </span>
             </div>
-            <span class="pill-stat highlight-legs">Lives: <strong>${active.lives}</strong></span>
+            <div class="killer-lives-pill">
+              <span class="lives-hearts-display">
+                ${'❤️'.repeat(active.lives)}${'🖤'.repeat(Math.max(0, game.startingLives - active.lives))}
+              </span>
+              <span class="lives-count-text"><strong>${active.lives}</strong> / ${game.startingLives} Lives</span>
+            </div>
           </div>
 
-          <div class="hero-turn-darts" style="justify-content:center; margin-top:12px;">
-            <div class="dart-slot ${game.turnDarts[0] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[0]?.label || '—'}</strong></div>
-            <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong></div>
-            <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
+          <!-- Mission / Target Guidance Card -->
+          <div class="killer-mission-bar ${active.isKiller ? 'mission-hunting' : 'mission-qualifying'}">
+            <div class="killer-mission-header">
+              <span class="mission-tag">${active.isKiller ? '🎯 HUNTING PHASE' : '🔒 QUALIFICATION PHASE'}</span>
+              <span class="mission-title">${active.isKiller ? 'ELIMINATE OPPONENTS' : `HIT DOUBLE ${active.targetNumber}`}</span>
+            </div>
+            
+            ${active.isKiller ? `
+              <div class="killer-hunt-targets">
+                ${aliveOpponents.map(opp => `
+                  <div class="hunt-target-chip">
+                    <span class="hunt-opp-name">${opp.name}</span>
+                    <strong class="hunt-opp-target">D${opp.targetNumber}</strong>
+                    <span class="hunt-opp-lives">${'❤️'.repeat(opp.lives)}</span>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="killer-mission-sub">Hit any opponent's double to steal their lives!</div>
+            ` : `
+              <div class="killer-qualify-target-huge">
+                <span class="target-prefix">YOUR TARGET:</span> <strong>D${active.targetNumber}</strong>
+              </div>
+              <div class="killer-mission-sub">Land on <strong>Double ${active.targetNumber}</strong> to become an active Killer!</div>
+            `}
+          </div>
+
+          <!-- Turn Darts Slots -->
+          <div class="hero-turn-darts" style="justify-content:center; margin-top:14px;">
+            <div class="dart-slot ${game.turnDarts[0] ? 'filled' : ''}">
+              <span class="dart-slot-num">1</span>
+              <strong class="dart-slot-val">${game.turnDarts[0]?.label || '—'}</strong>
+            </div>
+            <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}">
+              <span class="dart-slot-num">2</span>
+              <strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong>
+            </div>
+            <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}">
+              <span class="dart-slot-num">3</span>
+              <strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong>
+            </div>
           </div>
         </div>
 
-        <div class="killer-grid" style="margin-top:16px;">
+        <!-- Standings / Roster Grid -->
+        <div class="killer-grid" style="margin-top:14px;">
           ${game.players.map((p, i) => {
-            const livesArray = Array.from({ length: game.startingLives }, (_, idx) => idx < p.lives);
+            const isActive = i === game.activePlayerIdx;
             return `
-              <div class="killer-card ${i === game.activePlayerIdx ? 'is-active' : ''} ${p.isEliminated ? 'is-dead' : ''} ${p.isKiller ? 'is-killer-card' : ''}">
-                <div class="killer-card-top">
-                  <div class="k-name">${p.name} ${p.isBot ? '<small>(BOT)</small>' : ''}</div>
-                  <div class="k-target">#${p.targetNumber}</div>
+              <div class="killer-player-card ${isActive ? 'is-active' : ''} ${p.isEliminated ? 'is-eliminated' : ''} ${p.isKiller ? 'is-killer-player' : ''}">
+                <div class="k-card-header">
+                  <div class="k-player-identity">
+                    <span class="k-name">${p.name} ${p.isBot ? '<small class="bot-badge-small">BOT</small>' : ''}</span>
+                  </div>
+                  <div class="k-target-pill">
+                    <span class="k-target-sub">TARGET</span>
+                    <strong class="k-target-num">#${p.targetNumber}</strong>
+                  </div>
                 </div>
                 
-                <div class="k-status">
-                  ${p.isEliminated ? '<span class="badge-eliminated">☠️ ELIMINATED</span>' : (p.isKiller ? '<span class="badge-killer">🔪 KILLER</span>' : '<span class="badge-hunt">Needs D' + p.targetNumber + '</span>')}
+                <div class="k-status-row">
+                  ${p.isEliminated ? `
+                    <span class="k-badge k-badge-dead">☠️ ELIMINATED</span>
+                  ` : p.isKiller ? `
+                    <span class="k-badge k-badge-active-killer">🔪 KILLER <span class="k-kills-count">(${p.kills} ⚔️)</span></span>
+                  ` : `
+                    <span class="k-badge k-badge-hunting">🔒 Needs D${p.targetNumber}</span>
+                  `}
                 </div>
 
-                <div class="k-lives-row">
-                  ${livesArray.map(alive => `<span class="life-heart ${alive ? 'alive' : 'lost'}">${alive ? '❤️' : '🖤'}</span>`).join('')}
+                <div class="k-lives-container">
+                  <div class="k-lives-icons">
+                    ${Array.from({ length: game.startingLives }, (_, idx) => idx < p.lives ? '<span class="life-pip-alive">❤️</span>' : '<span class="life-pip-lost">🖤</span>').join('')}
+                  </div>
+                  <div class="k-lives-text">${p.isEliminated ? 'Eliminated' : `${p.lives} / ${game.startingLives} Lives`}</div>
                 </div>
-                <div class="k-kills">Kills: <strong>${p.kills}</strong></div>
               </div>
             `;
           }).join('')}

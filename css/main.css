@@ -979,46 +979,292 @@ body {
 .mark-cross { color: #f59e0b; }
 .mark-closed { color: var(--accent-green); }
 
-/* ---------------- KILLER SCOREBOARD ---------------- */
-.killer-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+/* ---------------- KILLER SCOREBOARD & TOURNAMENT CARDS ---------------- */
+.scoreboard-killer {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
-.killer-card {
+.hero-player-card.is-killer-hero {
+  border-color: #ef4444;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.killer-status-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 12px;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.killer-status-badge.status-qualifying {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.killer-status-badge.status-killer {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  border: 1.5px solid #ef4444;
+  animation: killer-glow 2s infinite alternate;
+}
+
+@keyframes killer-glow {
+  0% { box-shadow: 0 0 6px rgba(239, 68, 68, 0.3); }
+  100% { box-shadow: 0 0 16px rgba(239, 68, 68, 0.7); }
+}
+
+.killer-lives-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-tertiary);
+  padding: 4px 10px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  font-size: 0.8rem;
+}
+
+.lives-hearts-display {
+  letter-spacing: 2px;
+  font-size: 0.95rem;
+}
+
+.killer-mission-bar {
+  background: var(--bg-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 12px 14px;
+  margin: 10px 0;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.killer-mission-bar.mission-qualifying {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(217, 119, 6, 0.06) 100%);
+}
+
+.killer-mission-bar.mission-hunting {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.16) 0%, rgba(185, 28, 28, 0.08) 100%);
+}
+
+.killer-mission-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.mission-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.mission-title {
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.killer-qualify-target-huge {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  line-height: 1.1;
+  margin: 4px 0 6px 0;
+  text-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+}
+
+.killer-qualify-target-huge .target-prefix {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.killer-hunt-targets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.hunt-target-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-secondary);
+  border: 1.5px solid rgba(239, 68, 68, 0.5);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 0.82rem;
+}
+
+.hunt-opp-name {
+  font-weight: 700;
+  color: #f3f4f6;
+}
+
+.hunt-opp-target {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  font-family: var(--font-mono);
+}
+
+.hunt-opp-lives {
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+}
+
+.killer-mission-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.killer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.killer-player-card {
   background: var(--bg-secondary);
   border: 2px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  padding: 16px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.killer-card.is-active {
+.killer-player-card.is-active {
   border-color: var(--accent-gold);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
 }
 
-.killer-card.is-killer-card {
-  border-color: var(--accent-red);
-  background: rgba(239, 68, 68, 0.05);
+.killer-player-card.is-killer-player {
+  border-color: #ef4444;
+  background: linear-gradient(145deg, rgba(239, 68, 68, 0.08) 0%, var(--bg-secondary) 100%);
 }
 
-.killer-card.is-dead {
-  opacity: 0.4;
-  filter: grayscale(1);
+.killer-player-card.is-eliminated {
+  opacity: 0.35;
+  filter: grayscale(0.9);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-.killer-card-top {
+.k-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.k-name { font-weight: 800; font-size: 1.1rem; }
-.k-target { font-size: 1.5rem; font-weight: 900; color: var(--accent-gold); font-family: var(--font-mono); }
-.k-lives-row { font-size: 1.3rem; letter-spacing: 4px; }
+.k-name {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.bot-badge-small {
+  font-size: 0.6rem;
+  font-weight: 800;
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-gold);
+  padding: 1px 4px;
+  border-radius: 4px;
+  margin-left: 2px;
+}
+
+.k-target-pill {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.k-target-sub {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.k-target-num {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  font-family: var(--font-mono);
+}
+
+.k-status-row {
+  display: flex;
+  align-items: center;
+}
+
+.k-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.k-badge-dead {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.k-badge-active-killer {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.22);
+  border: 1px solid #ef4444;
+}
+
+.k-badge-hunting {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.k-kills-count {
+  font-weight: 900;
+  color: #fff;
+  margin-left: 2px;
+}
+
+.k-lives-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-color);
+}
+
+.k-lives-icons {
+  font-size: 0.95rem;
+  letter-spacing: 2px;
+}
+
+.k-lives-text {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
 
 /* ---------------- EXCUSE MODAL & WINDOWS ---------------- */
 .modal-window {
@@ -1552,6 +1798,88 @@ body {
   border-color: #ef4444 !important;
   background: rgba(239, 68, 68, 0.2) !important;
   color: #fca5a5 !important;
+}
+
+.dart-slot.filled-locked {
+  border-color: #f59e0b !important;
+  background: rgba(245, 158, 11, 0.22) !important;
+  color: #fbbf24 !important;
+}
+
+.dart-slot.filled-opened {
+  border-color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.3) !important;
+  color: #34d399 !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+  animation: open-slot-flash 1s ease-out;
+}
+
+/* ---------------- CLEAN ENTRY REQUIREMENT STYLES ---------------- */
+.hero-lock-badge {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 12px;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.checkout-pill-bar.in-mode-entry-bar {
+  border: 1.5px solid rgba(245, 158, 11, 0.5) !important;
+  background: rgba(245, 158, 11, 0.12) !important;
+}
+
+.tag-double-in {
+  background: #f59e0b !important;
+  color: #12151b !important;
+  font-weight: 900 !important;
+}
+
+.player-mini-card.mini-card-locked {
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+.mini-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.mini-in-tag.tag-locked {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.mini-in-tag.tag-open {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+@keyframes in-lock-glow {
+  0% { box-shadow: 0 0 6px rgba(245, 158, 11, 0.2); }
+  100% { box-shadow: 0 0 16px rgba(245, 158, 11, 0.5); }
+}
+
+@keyframes open-slot-flash {
+  0% { transform: scale(1.15); filter: brightness(1.8); }
+  100% { transform: scale(1); filter: brightness(1); }
 }
 
 /* ---------------- SVG DARTBOARD TARGET HIGHLIGHT ---------------- */
