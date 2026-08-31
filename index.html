@@ -77,7 +77,7 @@
         <div class="setup-options-panel">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <h2 class="setup-section-title" style="margin:0;">Game Mode</h2>
-            <button id="btn-rules-setup" class="ctrl-btn btn-rules-pill" type="button">Rules</button>
+            <button id="btn-rules-setup" class="ctrl-btn btn-rules-pill" type="button">📋 Rules</button>
           </div>
           
           <div class="game-modes-grid">
@@ -92,7 +92,7 @@
               <span class="mode-desc">Standard & Cutthroat</span>
             </div>
             <div class="game-mode-card" data-mode="split_score">
-              <span class="mode-icon">⚡</span>
+              <span class="mode-icon">➗</span>
               <span class="mode-title">Split Score</span>
               <span class="mode-desc">Halve-It on miss</span>
             </div>
@@ -107,12 +107,12 @@
               <span class="mode-desc">Quick-draw target drill</span>
             </div>
             <div class="game-mode-card" data-mode="killer">
-              <span class="mode-icon">🔪</span>
+              <span class="mode-icon">⚔️</span>
               <span class="mode-title">Killer</span>
               <span class="mode-desc">Hunt your friends' lives</span>
             </div>
             <div class="game-mode-card" data-mode="elimination">
-              <span class="mode-icon">💥</span>
+              <span class="mode-icon">💀</span>
               <span class="mode-title">Elimination</span>
               <span class="mode-desc">Beat the leader or bust</span>
             </div>
@@ -135,8 +135,8 @@
         </div>
 
         <!-- Mode Specific Options -->
-        <div class="setup-options-panel">
-          <h2 class="setup-section-title">Match Rules</h2>
+        <div id="setup-spec-panel" class="setup-options-panel">
+          <h2 class="setup-section-title">Match Specifications</h2>
           
           <!-- X01 Options -->
           <div id="setup-x01-options" class="options-row">
@@ -247,11 +247,10 @@
 
         <!-- Saved Player Profiles & Match Lineup -->
         <div class="setup-options-panel">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <div class="lineup-title-group">
-              <h2 class="setup-section-title" style="margin:0; display:flex; align-items:center; gap:6px;">
-                Match Lineup <span class="lineup-count-pill">1–8 Players</span>
-              </h2>
+          <div class="setup-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px;">
+            <div class="lineup-title-group" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <h2 class="setup-section-title" style="margin: 0;">Match Lineup</h2>
+              <span class="lineup-count-pill">1–8 Players</span>
             </div>
             <button id="btn-open-roster-manager" class="ctrl-btn btn-roster-compact" type="button" title="Manage Saved Roster">
               <span>👥</span>
@@ -283,19 +282,16 @@
     <main id="view-game" class="app-view">
       <div class="game-controls-bar">
         <div class="game-controls-left">
-          <button id="btn-rules-game" class="ctrl-btn btn-icon-only" type="button" title="View Game Rules">ℹ️<span class="ctrl-text"> Rules</span></button>
-          <button id="btn-toggle-input-mode" class="ctrl-btn btn-icon-only" type="button" title="Switch to Interactive Dartboard">🎯<span class="ctrl-text"> Board</span></button>
-          <button id="btn-excuse-generator" class="ctrl-btn btn-excuse btn-icon-only" type="button" title="Generate Pub Excuse">🐂<span class="ctrl-text"> Excuse</span></button>
-        </div>
-        <div id="game-mode-display" class="game-mode-display-badge" title="Current Game Mode">🎯 Match</div>
-        <div class="game-controls-right">
-          <select id="game-voice-select" class="ctrl-btn voice-select-compact" title="Audio & Referee Voice">
-            <option value="muted">🔇 Mute</option>
-            <option value="sound_only">🔊 SFX Only</option>
-            <option value="russ_bray" selected>🎙️ Russ Bray</option>
-            <option value="george_noble">🎯 George Noble</option>
-            <option value="british_ref">🎩 British Referee</option>
+          <select id="select-input-mode" class="ctrl-btn input-mode-select" title="Input View Mode" aria-label="Input View">
+            <option value="board" selected>🎯 Dartboard View</option>
+            <option value="keypad">🔢 Keypad View</option>
+            <option value="numpad">🧮 Numpad View</option>
           </select>
+          <button id="btn-excuse-generator" class="ctrl-btn btn-excuse btn-icon-only" type="button" title="Generate Pub Excuse">💭<span class="ctrl-text"> Excuse</span></button>
+        </div>
+        <button id="game-mode-display" class="game-mode-display-badge" type="button" title="Click to view Game Rules">Match</button>
+        <div class="game-controls-right">
+          <button id="btn-game-settings" class="ctrl-btn btn-icon-only" type="button" title="Match &amp; App Settings">⚙️<span class="ctrl-text"> Settings</span></button>
           <button id="btn-end-game" class="ctrl-btn btn-end" type="button" title="End Current Match">✕<span class="ctrl-text"> End</span></button>
         </div>
       </div>
@@ -306,13 +302,16 @@
           <!-- Populated dynamically via JS -->
         </div>
 
-        <!-- Input Area: Dart Keypad / Interactive Dartboard -->
+        <!-- Input Area: Interactive Dartboard / Dart Keypad / Dart Numpad -->
         <div class="input-area">
-          <div id="dart-keypad-container">
+          <div id="dartboard-container">
+            <!-- SVG Dartboard injected via JS -->
+          </div>
+          <div id="dart-keypad-container" style="display: none;">
             <!-- Pro Speed Dart Keypad injected via JS -->
           </div>
-          <div id="dartboard-container" style="display: none;">
-            <!-- SVG Dartboard injected via JS -->
+          <div id="dart-numpad-container" style="display: none;">
+            <!-- Pro Dart Numpad injected via JS -->
           </div>
         </div>
       </div>
@@ -326,21 +325,23 @@
 
         <div class="setup-options-panel">
           <h2 class="setup-section-title">Final Match Statistics</h2>
-          <table class="cricket-table" style="margin-top: 12px;">
-            <thead>
-              <tr>
-                <th>Player</th>
-                <th>Final Score</th>
-                <th>Legs Won</th>
-                <th>3-Dart Avg</th>
-                <th>High Turn</th>
-                <th>180s</th>
-              </tr>
-            </thead>
-            <tbody id="summary-stats-tbody">
-              <!-- Populated via JS -->
-            </tbody>
-          </table>
+          <div id="summary-table-dynamic-wrapper" style="overflow-x: auto; margin-top: 12px;">
+            <table class="cricket-table" id="summary-stats-table">
+              <thead id="summary-stats-thead">
+                <tr>
+                  <th>Player</th>
+                  <th>Final Score</th>
+                  <th>Legs Won</th>
+                  <th>3-Dart Avg</th>
+                  <th>High Turn</th>
+                  <th>180s</th>
+                </tr>
+              </thead>
+              <tbody id="summary-stats-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 16px;">
@@ -441,7 +442,7 @@
               <label for="setting-voice-style">Referee Voice</label>
               <select id="setting-voice-style">
                 <option value="russ_bray" selected>🎙️ Russ Bray</option>
-                <option value="george_noble">🎯 George Noble</option>
+                <option value="george_noble">👨‍⚖️ George Noble</option>
                 <option value="british_ref">🎩 British Referee</option>
               </select>
             </div>
@@ -468,36 +469,6 @@
             </a>
           </div>
         </div>
-      </div>
-    </main>
-
-    <!-- 6. CHANGELOG & UPDATES VIEW -->
-    <main id="view-changelog" class="app-view">
-      <div class="setup-container" style="max-width: 760px;">
-        
-        <!-- Header with Back Button -->
-        <div style="display: flex; align-items: center; margin-bottom: 14px;">
-          <button id="btn-changelog-back" class="ctrl-btn" type="button" style="padding: 7px 14px; font-size: 0.85rem;">
-            ← Back to Play
-          </button>
-        </div>
-
-        <div class="history-dashboard-header" style="margin-bottom: 16px;">
-          <div class="history-title-wrap">
-            <h1 class="history-main-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.3rem;">
-              <span>📜 Release Changelog</span>
-            </h1>
-            <p class="history-subtitle">All notable updates and feature refinements in BullSheet.</p>
-          </div>
-        </div>
-
-        <!-- Changelog Cards List (Populated Dynamically from CHANGELOG.md) -->
-        <div id="changelog-page-list" class="changelog-page-list">
-          <div style="padding: 32px 16px; text-align: center; color: var(--text-secondary);">
-            <div style="font-size: 1.5rem; margin-bottom: 8px;">📜</div>
-            <div>Loading release notes...</div>
-          </div>        </div>
-
       </div>
     </main>
   </div>
@@ -553,11 +524,11 @@
       <button class="modal-top-close-btn modal-close" type="button" aria-label="Close rules">✕</button>
       
       <div class="rules-modal-header">
-        <h2 class="modal-title" id="rules-modal-title">🎯 Game Rules</h2>
+        <h2 class="modal-title" id="rules-modal-title">📋 Game Rules</h2>
       </div>
       
       <div class="rules-objective-box">
-        <strong>🎯 Objective:</strong>
+        <strong>🏁 Objective:</strong>
         <span id="rules-modal-objective"></span>
       </div>
 
@@ -569,7 +540,7 @@
       <div class="rules-protip-box" id="rules-modal-protip"></div>
 
       <div class="modal-actions" style="margin-top: 12px;">
-        <button class="modal-btn btn-modal-next modal-close" type="button" style="width:100%;">Got it!</button>
+        <button class="modal-btn btn-modal-next modal-close" type="button" style="width:100%;">Got It</button>
       </div>
     </div>
   </div>
@@ -585,6 +556,81 @@
       <div class="modal-actions">
         <button id="btn-next-excuse" class="modal-btn btn-modal-next" type="button">Another Excuse</button>
         <button class="modal-btn btn-modal-close modal-close" type="button">Back to Throw</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-Game Settings Modal -->
+  <div id="modal-settings" class="modal-window">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content" style="max-width: 480px; text-align: left;">
+      <button class="modal-top-close-btn modal-close" type="button" aria-label="Close settings">✕</button>
+      <div class="modal-title" style="color: var(--accent-gold);">⚙️ Match &amp; App Settings</div>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -6px; margin-bottom: 16px;">
+        Adjust sound, voice caller, and visuals without interrupting your match.
+      </p>
+
+      <!-- Appearance -->
+      <div class="setup-options-panel" style="margin-bottom: 12px; padding: 14px;">
+        <h3 class="setup-section-title" style="font-size: 1.05rem; margin-bottom: 8px;">Appearance</h3>
+        <div class="option-group">
+          <label for="modal-setting-theme">Theme</label>
+          <select id="modal-setting-theme">
+            <option value="bullsheet">🐂 Pub Chalkboard</option>
+            <option value="excel">📊 Excel Sheet</option>
+            <option value="neon">⚡ PDC Arena</option>
+            <option value="dark">🌑 OLED Midnight</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Audio & Referee Voice -->
+      <div class="setup-options-panel" style="margin-bottom: 12px; padding: 14px;">
+        <h3 class="setup-section-title" style="font-size: 1.05rem; margin-bottom: 8px;">Audio &amp; Voice Caller</h3>
+        <div class="option-group">
+          <label for="modal-setting-audio-mode">Audio Mode</label>
+          <select id="modal-setting-audio-mode">
+            <option value="muted">🔇 Mute</option>
+            <option value="sound_only">🔊 SFX Only</option>
+            <option value="ref_voice">🗣️ Referee Voice</option>
+          </select>
+        </div>
+
+        <div id="modal-volume-group" class="option-group" style="margin-top: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label for="modal-setting-volume" style="margin: 0; font-size: 0.9rem; font-weight: 600;">Master Volume</label>
+            <span id="modal-setting-volume-label" style="font-size: 0.85rem; color: var(--accent-gold); font-weight: 700;">80%</span>
+          </div>
+          <input type="range" id="modal-setting-volume" min="0" max="100" value="80" style="width: 100%; cursor: pointer; accent-color: var(--accent-gold);" />
+        </div>
+
+        <div id="modal-ref-voice-group" style="margin-top: 10px;">
+          <div class="option-group">
+            <label for="modal-setting-voice-style">Referee Voice Pack</label>
+            <select id="modal-setting-voice-style">
+              <option value="russ_bray">🎙️ Russ Bray</option>
+              <option value="george_noble">👨‍⚖️ George Noble</option>
+              <option value="british_ref">🎩 British Referee</option>
+            </select>
+          </div>
+          <div class="checkbox-option-row" style="margin-top: 8px;">
+            <input type="checkbox" id="modal-setting-announce-total" />
+            <label for="modal-setting-announce-total">Call 3-Dart Total (e.g. "180!")</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Haptics / Vibration -->
+      <div class="setup-options-panel" style="margin-bottom: 16px; padding: 14px;">
+        <h3 class="setup-section-title" style="font-size: 1.05rem; margin-bottom: 8px;">Haptics</h3>
+        <div class="checkbox-option-row">
+          <input type="checkbox" id="modal-setting-vibration" />
+          <label for="modal-setting-vibration">Vibrate on dart hit (Touchscreens)</label>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btn-modal-resume-settings" class="modal-btn btn-modal-next modal-close" type="button" style="width: 100%; font-weight: 800; font-size: 1rem;">✓ Resume Match</button>
       </div>
     </div>
   </div>
@@ -614,7 +660,6 @@
   <aside id="drawer-burger-menu" class="drawer-sidebar" aria-label="Navigation Menu">
     <div class="drawer-header">
       <div class="drawer-brand">
-        <span class="drawer-bull-icon">🎯🐂</span>
         <span class="drawer-title">BullSheet</span>
       </div>
       <button id="btn-close-burger" class="btn-drawer-close" type="button" aria-label="Close Menu" onclick="window.app && window.app.closeBurgerDrawer()">✕</button>
@@ -622,7 +667,7 @@
 
     <nav class="drawer-nav">
       <button class="drawer-nav-item active" data-target="view-setup" type="button">
-        <span class="dnav-icon">🎯</span>
+        <span class="dnav-icon">🎮</span>
         <div class="dnav-text">
           <span class="dnav-title">Play Matches</span>
           <span class="dnav-desc">501, Cricket, Bob's 27, Party</span>
@@ -640,13 +685,6 @@
         <div class="dnav-text">
           <span class="dnav-title">Audio & Settings</span>
           <span class="dnav-desc">Caller voice, sound, themes</span>
-        </div>
-      </button>
-      <button class="drawer-nav-item" data-target="view-changelog" type="button">
-        <span class="dnav-icon">📜</span>
-        <div class="dnav-text">
-          <span class="dnav-title">Changelog & Updates</span>
-          <span class="dnav-desc">Release notes & improvements</span>
         </div>
       </button>
     </nav>

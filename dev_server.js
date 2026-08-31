@@ -47,6 +47,11 @@ const server = http.createServer((req, res) => {
       'Expires': '0'
     });
 
+    if (req.method === 'HEAD') {
+      res.end();
+      return;
+    }
+
     const stream = fs.createReadStream(filePath);
     stream.pipe(res);
   });

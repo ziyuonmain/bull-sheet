@@ -1,13 +1,11 @@
 // Ultra High-Visibility & Intuitive Scoreboard Renderer for BullSheet
 export class Scoreboard {
   renderNextPlayerBanner(game) {
-    if (!game || game.turnDarts.length < 3 || game.isMatchOver) return '';
-    const nextP = game.getNextPlayer ? game.getNextPlayer() : null;
+    if (!game || !game.turnDarts || game.turnDarts.length < 3 || game.isMatchOver) return '';
     return `
       <div class="next-player-banner">
         <button id="btn-scoreboard-next-player" class="btn-advance-turn-prominent" type="button">
-          <span class="btn-next-main-text">➔ NEXT PLAYER ${nextP ? `(${nextP.name})` : ''}</span>
-          <span class="btn-next-sub-hint">Tap to pass oche • or enter next dart</span>
+          <span class="btn-next-main-text">End Turn ➔</span>
         </button>
       </div>
     `;
@@ -101,6 +99,8 @@ export class Scoreboard {
               <span class="stat-val highlight-180">${active.count180}</span>
             </div>
           </div>
+
+          ${this.renderNextPlayerBanner(game)}
         </div>
 
         <!-- Multiplayer Standings Strip -->
@@ -157,6 +157,7 @@ export class Scoreboard {
             <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong></div>
             <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
           </div>
+          ${this.renderNextPlayerBanner(game)}
         </div>
 
         <div class="cricket-table-wrapper">
@@ -213,7 +214,6 @@ export class Scoreboard {
 
           <div class="hero-score-row">
             <div class="score-display-block">
-              
               <div class="hero-big-score">${active.score}</div>
             </div>
 
@@ -226,7 +226,7 @@ export class Scoreboard {
               </div>
             </div>
           </div>
-          
+          ${this.renderNextPlayerBanner(game)}
         </div>
 
         <div class="multiplayer-strip-container" style="margin-top:14px;">
@@ -265,7 +265,7 @@ export class Scoreboard {
           </div>
 
           <div class="shooter-target-hero-banner">
-            <div class="shooter-target-badge">🎯 RANDOM TARGET</div>
+            <div class="shooter-target-badge">🏹 TARGET</div>
             <div class="shooter-target-huge">${targetLabel}</div>
             <span class="shooter-target-sub">Single: +1 Hit • Double: +2 Hits • Treble: +3 Hits</span>
           </div>
@@ -275,7 +275,7 @@ export class Scoreboard {
             <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong></div>
             <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
           </div>
-          
+          ${this.renderNextPlayerBanner(game)}
         </div>
 
         <div class="multiplayer-strip-container" style="margin-top:14px;">
@@ -297,15 +297,14 @@ export class Scoreboard {
 
   // 5. Render Killer Scoreboard
   renderKiller(game) {
-    const active = game.getActivePlayer();
     const aliveOpponents = game.players.filter(p => !p.isEliminated && p.id !== active.id);
 
     let html = `
       <div class="scoreboard-killer">
         <!-- Giant Active Player Turn Card -->
         <div class="hero-player-card ${active.isKiller ? 'is-killer-hero' : ''}">
-          <div class="hero-header">
-            <div class="hero-player-name">
+          <div class="hero-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="hero-player-name" style="display: flex; align-items: center; gap: 8px;">
               <span class="active-pulse-badge">▶ THROWING</span>
               <h2>${active.name} ${active.isBot ? '<span class="bot-badge">BOT</span>' : ''}</h2>
               <span class="killer-status-badge ${active.isKiller ? 'status-killer' : 'status-qualifying'}">
@@ -361,6 +360,7 @@ export class Scoreboard {
               <strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong>
             </div>
           </div>
+          ${this.renderNextPlayerBanner(game)}
         </div>
 
         <!-- Standings / Roster Grid -->
@@ -426,7 +426,7 @@ export class Scoreboard {
 
           <!-- Massive Ultra-Glowing Target Box -->
           <div class="split-target-box-hero">
-            <span class="split-target-sublabel">ROUND TARGET</span>
+            <span class="split-target-sublabel">➗ ROUND TARGET</span>
             <div class="split-target-giant-title">${round.label}</div>
             <div class="split-target-desc-badge">
               ${round.targetType === 'num' ? `Aim for segment ${round.value} (Single, Double, Treble)` : (round.targetType === 'double' ? 'Aim for ANY Outer Ring Double or Bullseye' : (round.targetType === 'treble' ? 'Aim for ANY Inner Treble Ring' : 'Aim for the Center Bullseye'))}
@@ -438,7 +438,6 @@ export class Scoreboard {
 
           <!-- Turn Darts Progress -->
           <div class="turn-breakdown-box" style="margin-top:12px; align-items:center;">
-            
             <div class="hero-turn-darts">
               <div class="dart-slot ${game.turnDarts[0] ? (game.turnDarts[0].isHit ? 'filled-hit' : 'filled-miss') : ''}">
                 <span class="dart-slot-num">1</span>
@@ -468,7 +467,7 @@ export class Scoreboard {
               `;
             }).join('')}
           </div>
-          
+          ${this.renderNextPlayerBanner(game)}
         </div>
 
         <!-- Standings -->
@@ -510,7 +509,7 @@ export class Scoreboard {
           </div>
 
           <div class="shanghai-target-hero-banner">
-            <div class="shanghai-target-badge">🎯 TARGET NUMBER</div>
+            <div class="shanghai-target-badge">🏮 TARGET NUMBER</div>
             <div class="shanghai-target-huge">${target}</div>
             <div class="shanghai-combo-chips">
               <span class="combo-chip ${hasSingle ? 'hit' : ''}">Single ${hasSingle ? '✓' : ''}</span>
@@ -525,7 +524,7 @@ export class Scoreboard {
             <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong></div>
             <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
           </div>
-          
+          ${this.renderNextPlayerBanner(game)}
         </div>
 
         <div class="multiplayer-strip-container" style="margin-top:14px;">
@@ -566,7 +565,7 @@ export class Scoreboard {
 
           <!-- Hero Target Banner -->
           <div class="party-target-banner elim-target-banner">
-            <span class="banner-sublabel">🎯 SCORE TO BEAT</span>
+            <span class="banner-sublabel">💀 SCORE TO BEAT</span>
             <div class="banner-target-val">${target > 0 ? target : '👑 NEW TARGET'}</div>
             <div class="banner-target-hint">
               ${isFirstPlayer ? 'First player sets the target to beat!' : `Target set by <strong>${game.targetSetByPlayer || 'Leader'}</strong>`}
@@ -592,7 +591,7 @@ export class Scoreboard {
               <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
             </div>
           </div>
-          
+          ${this.renderNextPlayerBanner(game)}
         </div>
 
         <!-- Standings Cards Grid -->
@@ -629,8 +628,6 @@ export class Scoreboard {
     if (!this.container || !game) return;
     const active = game.getActivePlayer();
     const target = game.getCurrentTarget ? game.getCurrentTarget() : { label: 'D1', value: 2, number: 1 };
-    const isVisitDone = game.turnDarts && game.turnDarts.length >= 3;
-    const nextPlayer = game.getNextPlayer ? game.getNextPlayer() : active;
 
     let html = `
       <div class="scoreboard-bobs27">
@@ -644,13 +641,11 @@ export class Scoreboard {
           </div>
 
           <div class="bobs-target-hero-banner" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 14px; margin: 12px 0; text-align: center;">
-            
             <div class="bobs-target-huge" style="font-size: 2.5rem; font-weight: 900; color: var(--accent-gold); margin: 4px 0;">${target.label}</div>
             <span class="target-pts-sub" style="font-size: 0.9rem; color: var(--text-muted);">Hit: <strong style="color:#10b981;">+${target.value} pts</strong> each • 0 Hits: <strong style="color:#ef4444;">-${target.value} pts</strong></span>
           </div>
 
           <div class="hero-score-display" style="text-align: center; margin: 12px 0;">
-            
             <div class="main-score-huge" style="font-size: 3.5rem; font-weight: 900; color: ${active.score <= 10 ? '#ef4444' : 'var(--text-primary)'}; line-height: 1;">
               ${active.isEliminated ? '☠️ 0' : active.score}
             </div>
@@ -661,9 +656,6 @@ export class Scoreboard {
 
           <!-- 3-Dart Slots -->
           <div class="turn-breakdown-box" style="margin-top: 12px;">
-            <div class="turn-box-title" style="font-size: 0.8rem; color: var(--text-secondary); text-align: center; margin-bottom: 6px;">
-              
-            </div>
             <div class="hero-turn-darts" style="display: flex; justify-content: center; gap: 8px;">
               <div class="dart-slot ${game.turnDarts[0] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[0]?.label || '—'}</strong></div>
               <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong></div>
@@ -671,14 +663,7 @@ export class Scoreboard {
             </div>
           </div>
 
-          ${isVisitDone && !game.isMatchOver ? `
-            <div class="next-player-prompt-banner" style="margin-top: 14px;">
-              <button id="btn-scoreboard-next-player" class="btn-primary-start" type="button" style="width: 100%; padding: 12px; font-weight: 700; font-size: 1rem;">
-                ➔ NEXT ${game.players.length > 1 ? `PLAYER (${nextPlayer.name})` : 'ROUND ➔'}
-              </button>
-            </div>
-          ` : ''}
-          
+          ${this.renderNextPlayerBanner(game)}
         </div>
 
         ${game.players.length > 1 ? `
@@ -716,7 +701,6 @@ export class Scoreboard {
           </div>
 
           <div class="clock-hero-target">
-            
             <div class="clock-big-num">${active.currentTarget === 25 ? 'BULLSEYE' : active.currentTarget}</div>
             <div class="clock-progress-bar-container">
               <div class="clock-fill-bar" style="width: ${Math.min(100, (active.currentTarget / 21) * 100)}%"></div>
@@ -728,7 +712,7 @@ export class Scoreboard {
             <div class="dart-slot ${game.turnDarts[1] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[1]?.label || '—'}</strong></div>
             <div class="dart-slot ${game.turnDarts[2] ? 'filled' : ''}"><strong class="dart-slot-val">${game.turnDarts[2]?.label || '—'}</strong></div>
           </div>
-          
+          ${this.renderNextPlayerBanner(game)}
         </div>
 
         <div class="multiplayer-strip-container" style="margin-top:14px;">

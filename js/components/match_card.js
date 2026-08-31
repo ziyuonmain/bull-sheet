@@ -1,8 +1,65 @@
 // Shareable Match Card Generator (Text Copy & Canvas Image Export) for BullSheet
 
 export class MatchCardGenerator {
-  static extractPlayerStats(p) {
+  static extractPlayerStats(p, gameType = 'x01') {
     const score = p.score !== undefined ? p.score : (p.stats?.totalScore || 0);
+    
+    if (gameType === 'cricket') {
+      const mpr = p.mpr || (p.stats?.mpr) || (p.stats?.totalDarts > 0 ? ((p.stats.totalMarks / p.stats.totalDarts) * 3).toFixed(2) : '—');
+      const marks = p.totalMarks || p.stats?.totalMarks || 0;
+      return {
+        name: p.name || 'Player',
+        col1Label: 'Score',
+        col1Val: `${score} pts`,
+        col2Label: 'MPR',
+        col2Val: `${mpr}`,
+        col3Label: 'Marks',
+        col3Val: `${marks}`
+      };
+    }
+
+    if (gameType === 'bobs27') {
+      const doubles = p.totalDoublesHit || p.stats?.totalDoublesHit || 0;
+      const status = p.isEliminated ? 'Knockout' : 'Survived';
+      return {
+        name: p.name || 'Player',
+        col1Label: 'Score',
+        col1Val: `${score}`,
+        col2Label: 'Status',
+        col2Val: status,
+        col3Label: 'Doubles',
+        col3Val: `${doubles}`
+      };
+    }
+
+    if (gameType === 'killer') {
+      const kills = p.kills || p.stats?.kills || 0;
+      const lives = p.lives !== undefined ? p.lives : (p.stats?.lives || 0);
+      return {
+        name: p.name || 'Player',
+        col1Label: 'Status',
+        col1Val: p.won ? '👑 Winner' : (p.isEliminated ? '☠️ Out' : 'Alive'),
+        col2Label: 'Kills',
+        col2Val: `${kills}`,
+        col3Label: 'Lives',
+        col3Val: `${lives}`
+      };
+    }
+
+    if (gameType === 'elimination') {
+      const survived = p.roundsSurvived || p.stats?.roundsSurvived || 0;
+      return {
+        name: p.name || 'Player',
+        col1Label: 'Status',
+        col1Val: p.won ? '👑 Survivor' : '☠️ Out',
+        col2Label: 'Rounds',
+        col2Val: `${survived}`,
+        col3Label: 'Lives',
+        col3Val: `${p.lives !== undefined ? p.lives : 0}`
+      };
+    }
+
+    // Default / X01
     let avg = '—';
     if (p.threeDartAvg !== undefined) {
       avg = p.threeDartAvg;
@@ -17,6 +74,12 @@ export class MatchCardGenerator {
 
     return {
       name: p.name || 'Player',
+      col1Label: 'Score',
+      col1Val: `${score}`,
+      col2Label: '3-Dart Avg',
+      col2Val: `${avg}`,
+      col3Label: 'High / 180s',
+      col3Val: `${high}${maxes > 0 ? ` (${maxes}x 180)` : ''}`,
       score,
       avg,
       high,
@@ -32,17 +95,17 @@ export class MatchCardGenerator {
     const dateStr = new Date(match.date || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 
     let lines = [
-      `🎯 BullSheet Match Summary • ${dateStr}`,
+      `BullSheet Match Summary • ${dateStr}`,
       `🏆 Winner: ${winnerName}`,
       `━━━━━━━━━━━━━━━━━━━━━━`,
       `🎮 Mode: ${modeName}`,
-      `👥 Results & Statistics:`
+      `👥 Results:`
     ];
 
     if (match.players && Array.isArray(match.players)) {
       match.players.forEach(rawP => {
-        const p = this.extractPlayerStats(rawP);
-        lines.push(`• ${p.name}: ${p.score} pts | Avg: ${p.avg} | High: ${p.high}${p.maxes > 0 ? ` | 180s: ${p.maxes}` : ''}`);
+        const p = this.extractPlayerStats(rawP, match.gameType);
+        lines.push(`• ${p.name}: ${p.col1Label}: ${p.col1Val} | ${p.col2Label}: ${p.col2Val} | ${p.col3Label}: ${p.col3Val}`);
       });
     }
 
@@ -73,7 +136,7 @@ export class MatchCardGenerator {
     // Header Title
     ctx.fillStyle = '#eab308';
     ctx.font = 'bold 30px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('🎯 BULLSHEET MATCH SUMMARY', 40, 60);
+    ctx.fillText('BULLSHEET MATCH SUMMARY', 40, 60);
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -94,13 +157,13 @@ export class MatchCardGenerator {
 
     // Table Headers
     let y = 220;
+    const sample = match.players && match.players[0] ? this.extractPlayerStats(match.players[0], match.gameType) : null;
     ctx.fillStyle = '#eab308';
     ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
     ctx.fillText('PLAYER', 60, y);
-    ctx.fillText('FINAL SCORE', 260, y);
-    ctx.fillText('3-DART AVG', 430, y);
-    ctx.fillText('HIGH TURN', 580, y);
-    ctx.fillText('180s', 700, y);
+    ctx.fillText((sample?.col1Label || 'SCORE').toUpperCase(), 260, y);
+    ctx.fillText((sample?.col2Label || 'AVG / RESULT').toUpperCase(), 430, y);
+    ctx.fillText((sample?.col3Label || 'STATS').toUpperCase(), 600, y);
 
     ctx.strokeStyle = '#334155';
     ctx.beginPath();
@@ -111,17 +174,16 @@ export class MatchCardGenerator {
     y += 40;
     if (match.players && Array.isArray(match.players)) {
       match.players.slice(0, 4).forEach(rawP => {
-        const p = this.extractPlayerStats(rawP);
+        const p = this.extractPlayerStats(rawP, match.gameType);
         ctx.fillStyle = '#f1f5f9';
         ctx.font = 'bold 17px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.fillText(p.name, 60, y);
 
         ctx.fillStyle = '#94a3b8';
         ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        ctx.fillText(`${p.score}`, 260, y);
-        ctx.fillText(`${p.avg}`, 430, y);
-        ctx.fillText(`${p.high}`, 580, y);
-        ctx.fillText(`${p.maxes}`, 700, y);
+        ctx.fillText(`${p.col1Val}`, 260, y);
+        ctx.fillText(`${p.col2Val}`, 430, y);
+        ctx.fillText(`${p.col3Val}`, 600, y);
         y += 35;
       });
     }

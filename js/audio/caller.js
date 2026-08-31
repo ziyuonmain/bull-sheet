@@ -34,7 +34,7 @@ export class DartsCaller {
 
     this.currentAudio = null;
     this.audioCache = new Map();
-    this.synth = window.speechSynthesis;
+    this.synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
     this.synthVoice = null;
 
     if (this.synth) {
@@ -52,6 +52,29 @@ export class DartsCaller {
     if (!this.synth) return;
     const voices = this.synth.getVoices();
     if (!voices || voices.length === 0) return;
+
+    const preferredNames = [
+      'Google UK English Male',
+      'Daniel',
+      'Arthur',
+      'Oliver',
+      'George',
+      'Google UK English Female',
+      'Hazel',
+      'Samantha',
+      'Natural',
+      'Neural',
+      'en-GB',
+      'en_GB'
+    ];
+    for (const name of preferredNames) {
+      const match = voices.find(v => v.name.includes(name) || v.lang.includes(name));
+      if (match) {
+        this.synthVoice = match;
+        return;
+      }
+    }
+
     this.synthVoice = voices.find(v => (v.lang.includes('en-GB') || v.lang.includes('en_GB'))) ||
                       voices.find(v => v.lang.startsWith('en')) ||
                       voices[0];
@@ -220,8 +243,31 @@ export class DartsCaller {
     this.playHumanAudio('gameshot');
   }
 
-  callTurn(_playerName) {
-    // Pure human audio mode - no robotic speech between turns
+  callTurn(playerName) {
+    if (!this.enabled || !playerName) return;
+    if (!this.synth || typeof SpeechSynthesisUtterance === 'undefined') return;
+
+    try {
+      this.synth.cancel();
+      if (!this.synthVoice) {
+        this.loadSynthVoice();
+      }
+
+      const cleanName = playerName.trim();
+      // Comma provides natural referee cadence and clear player separation
+      const utterance = new SpeechSynthesisUtterance(`${cleanName}, your throw.`);
+      if (this.synthVoice) {
+        utterance.voice = this.synthVoice;
+      }
+      utterance.lang = this.synthVoice?.lang || 'en-GB';
+      utterance.rate = 0.85; // Clear, articulate cadence (not rushed)
+      utterance.pitch = 0.95; // Authoritative referee pitch
+      utterance.volume = this.volume;
+
+      this.synth.speak(utterance);
+    } catch (e) {
+      console.warn('Speech synthesis turn call error:', e);
+    }
   }
 }
 
