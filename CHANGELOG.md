@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.0] - 2026-08-31
+### 🎯 Dart Numpad View, In-Game Settings Modal, Leg Win Transitions & Voice Polish
+#### Added
+- **🧮 ATM-Style Dart Numpad View**: Added a fast numpad entry mode with 0–9 digit pad, 1-tap quick targets (`20`, `1`, `5`, `T20`, `Bull`, `25`), Double/Treble toggle rail, live calculation preview, and giant Enter key.
+- **⚙️ In-Game Settings Modal**: Dedicated non-interrupting settings modal accessible in-game via `⚙️ Settings` to adjust theme, master volume, audio mode, voice caller, and haptics without forfeiting or altering match state.
+- **🎉 Luminous Leg Win Celebration & Manual Transition**: Checkouts trigger confetti, toast announcements, running leg standing pills, and a manual `[ 🎯 START NEXT LEG ➔ ]` button so players transition to the next leg on their own terms.
+- **🏷️ Match Specifications Panel**: Clear setup section header with dynamic visibility that hides automatically on fixed-rule game modes like Around the Clock and Bob's 27.
+
+#### Changed
+- **🗣️ Natural Voice Caller Cadence**: Improved turn calls with human referee phrasing (`"{name}, your throw."`), deliberate pacing (`rate: 0.85`), and UK English neural voice priority.
+- **🎯 Outline-Only Target Highlighting**: Dartboard and keypad views now use crisp outer-line highlighting for valid targets, preserving the board's authentic wire and segment colors.
+- **📱 Touch Ergonomics & Default View**: Default view is now `🎯 Dartboard View`, with enlarged 1.25rem Treble/Double modifier typography and clean `❌ MISS` labels.
+- **📋 Expanded Rules Modal**: Thoroughly audited and updated descriptions across all 10 darts modes with a clean `"Got It"` confirmation button.
+- **📊 Tailored Final Match Statistics**: Match completion tables dynamically render metrics strictly relevant to each respective game mode.
+
+#### Fixed
+- **Dropdown Input View Selection**: Fixed `#select-input-mode` event listener to cleanly switch between Dartboard, Keypad, and Numpad views.
+- **Party Games Elimination Skipping**: Fixed turn cycling and undo in Killer and Elimination to safely skip players with 0 lives remaining.
+- **Non-X01 Lifetime Metrics Isolation**: Ensured Party and Training game stats do not pollute X01 3-Dart averages.
+
+---
+
 ## [1.4.3] - 2026-08-19
 ### 🎨 Logo Branding, Distinct Mode Emojis & UI Polish
 #### Added

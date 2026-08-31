@@ -6,7 +6,7 @@ export default defineConfig({
   fullyParallel: true,
   webServer: {
     command: 'node dev_server.js 8088',
-    url: 'http://127.0.0.1:8088',
+    port: 8088,
     reuseExistingServer: !process.env.CI,
     timeout: 15000
   },

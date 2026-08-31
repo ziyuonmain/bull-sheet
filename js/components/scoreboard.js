@@ -297,6 +297,7 @@ export class Scoreboard {
 
   // 5. Render Killer Scoreboard
   renderKiller(game) {
+    const active = game.getActivePlayer();
     const aliveOpponents = game.players.filter(p => !p.isEliminated && p.id !== active.id);
 
     let html = `

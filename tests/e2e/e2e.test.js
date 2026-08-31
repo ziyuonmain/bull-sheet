@@ -376,14 +376,17 @@ test.describe('BullSheet Web App & Chrome Extension E2E Suite', () => {
     // Verify standings strip has locked tag
     await expect(page.locator('.mini-in-tag.tag-locked').first()).toContainText('Locked');
 
+    // Switch to keypad mode
+    await page.locator('#select-input-mode').selectOption('keypad');
+
     // Throw single 20 via speed bar (score must remain locked at 501)
-    const btnSpeed20 = page.locator('.speed-dart-btn.btn-quick-s20');
+    const btnSpeed20 = page.locator('#dart-keypad-container .speed-dart-btn.btn-quick-s20');
     await btnSpeed20.click();
     await expect(heroScore).toContainText('501');
 
     // Switch to Double multiplier (x2) and click 20 on number grid -> D20
-    const btnMult2 = page.locator('.mult-btn[data-mult="2"]').first();
-    const btnGrid20 = page.locator('.dart-num-btn[data-num="20"]');
+    const btnMult2 = page.locator('#dart-keypad-container .mult-btn[data-mult="2"]');
+    const btnGrid20 = page.locator('#dart-keypad-container .dart-num-btn[data-num="20"]');
     await btnMult2.click();
     await btnGrid20.click();
 

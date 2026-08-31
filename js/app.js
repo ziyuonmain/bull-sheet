@@ -2319,19 +2319,6 @@ class BullSheetApp {
       return;
     }
 
-    const modeIcons = {
-      x01: '🎯',
-      cricket: '🏏',
-      split_score: '➗',
-      bobs27: '🎲',
-      killer: '⚔️',
-      elimination: '💀',
-      shanghai: '🏮',
-      around_clock: '⏰',
-      highscore: '🏆',
-      shooter: '🏹'
-    };
-
     listEl.innerHTML = filtered.map(m => {
       const modeKey = m.gameType || 'x01';
       const modeIcons = { x01: '🎯', cricket: '🏏', split_score: '⚡', highscore: '🏆', shooter: '🏹', killer: '🔪', elimination: '💥', shanghai: '🏮', around_clock: '⏰', bobs27: '🛡️' };
@@ -2339,7 +2326,6 @@ class BullSheetApp {
       const badgeCls = ['x01', 'cricket', 'split_score', 'bobs27'].includes(modeKey) ? `mode-${modeKey}` : 'mode-party';
       const winner = m.winner || m.players?.find(p => p.won) || m.players?.[0] || { name: 'Player' };
       const dateStr = new Date(m.date || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-      const modeIcon = modeIcons[modeKey] || '🎮';
       const sample = m.players && m.players[0] ? MatchCardGenerator.extractPlayerStats(m.players[0], modeKey) : null;
 
       return `
