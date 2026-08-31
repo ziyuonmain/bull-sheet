@@ -20,7 +20,7 @@ class StatsStore {
         voice: true,
         sarcasm: true,
         volume: 0.8,
-        inputMode: 'keypad',
+        inputMode: 'dartboard',
         vibration: true,
         announceTurnTotal: false
       };
@@ -31,7 +31,7 @@ class StatsStore {
         voice: true,
         sarcasm: true,
         volume: 0.8,
-        inputMode: 'keypad',
+        inputMode: 'dartboard',
         vibration: true,
         announceTurnTotal: false
       };
@@ -111,9 +111,10 @@ class StatsStore {
           const totalDarts = p.stats?.totalDarts || p.totalDartsThrown || 0;
           const totalScore = p.stats?.totalScore || p.totalScoreScored || p.score || 0;
           const highTurn = p.stats?.highTurn || p.highTurn || (p.turns && p.turns.length ? Math.max(0, ...p.turns) : 0);
-          const count180 = p.stats?.count180 || p.count180 || 0;
-          const count140 = p.stats?.count140 || p.count140 || 0;
-          const count100 = p.stats?.count100 || p.count100 || 0;
+          const count180 = p.stats?.count180 || p.count180 || (p.turns ? p.turns.filter(t => t === 180).length : 0);
+          const count140 = p.stats?.count140 || p.count140 || (p.turns ? p.turns.filter(t => t >= 140 && t < 180).length : 0);
+          const count100 = p.stats?.count100 || p.count100 || (p.turns ? p.turns.filter(t => t >= 100 && t < 140).length : 0);
+          const count60 = p.stats?.count60 || p.count60 || (p.turns ? p.turns.filter(t => t >= 60 && t < 100).length : 0);
           const avg = totalDarts > 0 ? Number(((totalScore / totalDarts) * 3).toFixed(1)) : 0;
 
           return {
@@ -121,6 +122,7 @@ class StatsStore {
             isBot: !!p.isBot,
             won: !!p.won,
             score: p.score !== undefined ? p.score : totalScore,
+            isEliminated: p.isEliminated !== undefined ? p.isEliminated : !!p.stats?.isEliminated,
             stats: {
               totalDarts,
               totalScore,
@@ -128,8 +130,14 @@ class StatsStore {
               count180,
               count140,
               count100,
+              count60,
               threeDartAvg: avg,
-              mpr: p.stats?.mpr || p.mpr || 0
+              mpr: p.stats?.mpr || p.mpr || 0,
+              totalMarks: p.stats?.totalMarks || p.totalMarks || 0,
+              totalDoublesHit: p.stats?.totalDoublesHit || p.totalDoublesHit || 0,
+              kills: p.stats?.kills || p.kills || 0,
+              roundsSurvived: p.stats?.roundsSurvived || p.roundsSurvived || 0,
+              isEliminated: p.stats?.isEliminated !== undefined ? p.stats.isEliminated : !!p.isEliminated
             }
           };
         }),
@@ -171,11 +179,25 @@ class StatsStore {
     let totalDarts = 0;
     let totalScore = 0;
     let highestTurn = 0;
+    let highScore = 0;
     let count180 = 0;
     let count140 = 0;
     let count100 = 0;
+    let count60 = 0;
+    let totalMarks = 0;
+    let cricketDarts = 0;
+    let totalDoublesHit = 0;
+    let survivedCount = 0;
+    let totalKills = 0;
+    let x01Darts = 0;
+    let x01Score = 0;
+
+    const modeCounts = {};
 
     matches.forEach(m => {
+      const g = m.gameType || 'x01';
+      modeCounts[g] = (modeCounts[g] || 0) + 1;
+
       if (!m.players) return;
       m.players.forEach(p => {
         const isTarget = playerName === 'all' || p.name.toLowerCase() === playerName.toLowerCase();
@@ -183,27 +205,105 @@ class StatsStore {
 
         if (p.won) wins++;
         const st = p.stats || {};
-        totalDarts += st.totalDarts || 0;
-        totalScore += st.totalScore || 0;
-        if ((st.highTurn || 0) > highestTurn) highestTurn = st.highTurn;
-        count180 += st.count180 || 0;
-        count140 += st.count140 || 0;
-        count100 += st.count100 || 0;
+        const pDarts = st.totalDarts || p.totalDartsThrown || p.totalDarts || 0;
+        const pScore = p.score !== undefined ? p.score : (st.totalScore || 0);
+
+        totalDarts += pDarts;
+        totalScore += pScore;
+        if (pScore > highScore) highScore = pScore;
+
+        if (m.gameType === 'x01') {
+          x01Darts += pDarts;
+          x01Score += (st.totalScore || 0);
+          if ((st.highTurn || 0) > highestTurn) highestTurn = st.highTurn;
+          count180 += st.count180 || 0;
+          count140 += st.count140 || 0;
+          count100 += st.count100 || 0;
+          count60 += st.count60 || 0;
+        } else if (m.gameType === 'cricket') {
+          totalMarks += st.totalMarks || p.totalMarks || 0;
+          cricketDarts += pDarts;
+        } else if (m.gameType === 'bobs27') {
+          totalDoublesHit += st.totalDoublesHit || p.totalDoublesHit || 0;
+          if (!st.isEliminated && !p.isEliminated && pScore > 0) survivedCount++;
+        } else if (m.gameType === 'killer') {
+          totalKills += st.kills || p.kills || 0;
+        }
       });
     });
 
-    const avg = totalDarts > 0 ? ((totalScore / totalDarts) * 3).toFixed(1) : '—';
+    const uniquePlayersSet = new Set();
+    matches.forEach(m => {
+      if (m.players) m.players.forEach(p => uniquePlayersSet.add(p.name));
+    });
+    const uniquePlayersCount = uniquePlayersSet.size;
+
+    let mostPlayedMode = '—';
+    let maxCount = 0;
+    const modeNames = {
+      x01: '501 / X01',
+      cricket: 'Cricket',
+      split_score: 'Split Score',
+      bobs27: "Bob's 27",
+      killer: 'Killer',
+      elimination: 'Elimination',
+      shanghai: 'Shanghai',
+      around_clock: 'Clock',
+      highscore: 'Highscore',
+      shooter: 'Shooter'
+    };
+
+    for (const [mKey, cnt] of Object.entries(modeCounts)) {
+      if (cnt > maxCount) {
+        maxCount = cnt;
+        mostPlayedMode = `${modeNames[mKey] || mKey} (${cnt}x)`;
+      }
+    }
+
+    let mostPlayedPartyGame = '—';
+    let maxPartyCount = 0;
+    const partyModes = ['killer', 'elimination', 'shanghai', 'shooter', 'highscore', 'around_clock'];
+    for (const [mKey, cnt] of Object.entries(modeCounts)) {
+      if (partyModes.includes(mKey) && cnt > maxPartyCount) {
+        maxPartyCount = cnt;
+        mostPlayedPartyGame = `${modeNames[mKey] || mKey} (${cnt}x)`;
+      }
+    }
+
+    const x01Avg = x01Darts > 0 ? ((x01Score / x01Darts) * 3).toFixed(1) : '—';
+    const cricketMPR = cricketDarts > 0 && totalMarks > 0 ? ((totalMarks / cricketDarts) * 3).toFixed(2) : '—';
+    const isSinglePlayer = playerName !== 'all';
     const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
+    const survivalRate = totalMatches > 0 ? Math.round((survivedCount / totalMatches) * 100) : 0;
+    const tonsCount = count100 + count140 + count180;
+    const qualityTurns = count60 + tonsCount;
 
     return {
+      mode: modeFilter,
+      playerName,
+      isSinglePlayer,
       totalMatches,
       wins,
       winRate,
-      avg,
+      avg: x01Avg,
+      x01Avg,
       highestTurn,
+      highScore,
       count180,
       count140,
       count100,
+      count60,
+      tonsCount,
+      qualityTurns,
+      mostPlayedMode,
+      mostPlayedPartyGame,
+      uniquePlayersCount,
+      totalMarks,
+      cricketMPR,
+      totalDoublesHit,
+      survivalRate,
+      survivedCount,
+      totalKills,
       totalDarts,
       totalScore
     };

@@ -24,7 +24,14 @@ export class EliminationGame {
   }
 
   getNextPlayer() {
-    const nextIdx = (this.activePlayerIdx + 1) % this.players.length;
+    const survivors = this.players.filter(p => !p.isEliminated);
+    if (survivors.length <= 1) return survivors[0] || this.getActivePlayer();
+    let nextIdx = (this.activePlayerIdx + 1) % this.players.length;
+    let attempts = 0;
+    while (this.players[nextIdx].isEliminated && attempts < this.players.length) {
+      nextIdx = (nextIdx + 1) % this.players.length;
+      attempts++;
+    }
     return this.players[nextIdx];
   }
 
@@ -84,12 +91,12 @@ export class EliminationGame {
 
       // Check remaining survivor
       const survivors = this.players.filter(p => !p.isEliminated);
-      if (this.players.length > 1 && survivors.length === 1) {
+      if (survivors.length <= 1) {
         this.isMatchOver = true;
-        this.winner = survivors[0];
+        this.winner = survivors[0] || player;
         return {
           type: 'match_win',
-          winner: survivors[0],
+          winner: this.winner,
           players: this.players
         };
       }
@@ -117,9 +124,19 @@ export class EliminationGame {
 
   finishTurn() {
     this.turnDarts = [];
-    do {
-      this.activePlayerIdx = (this.activePlayerIdx + 1) % this.players.length;
-    } while (this.players[this.activePlayerIdx].isEliminated && !this.isMatchOver);
+    const survivors = this.players.filter(p => !p.isEliminated);
+    if (survivors.length <= 1) {
+      this.isMatchOver = true;
+      this.winner = survivors[0] || this.players[0];
+      return { type: 'match_win', winner: this.winner, players: this.players };
+    }
+    let nextIdx = (this.activePlayerIdx + 1) % this.players.length;
+    let attempts = 0;
+    while (this.players[nextIdx].isEliminated && attempts < this.players.length) {
+      nextIdx = (nextIdx + 1) % this.players.length;
+      attempts++;
+    }
+    this.activePlayerIdx = nextIdx;
   }
 
   undo() {

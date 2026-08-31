@@ -96,7 +96,7 @@ export class CricketGame {
           });
         }
       }
-      player.totalMarks += marksScored;
+      player.totalMarks += hitMult;
     }
 
     // Check Win Condition

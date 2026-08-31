@@ -84,11 +84,6 @@ export class ShanghaiGame {
       const turnScore = this.turnDarts.reduce((a, d) => a + (d.pointsScored || 0), 0);
       player.roundScores.push(turnScore);
 
-      const finishRes = this.finishTurn();
-      if (finishRes && finishRes.type === 'match_win') {
-        return finishRes;
-      }
-
       return {
         type: 'visit_complete',
         player,
@@ -135,6 +130,11 @@ export class ShanghaiGame {
         };
       }
     }
+    return {
+      type: 'turn_advanced',
+      activePlayer: this.getActivePlayer(),
+      currentRound: this.currentRound
+    };
   }
 
   undo() {

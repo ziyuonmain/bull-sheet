@@ -105,4 +105,66 @@ describe('Party & Training Game Engines', () => {
 
     assert.equal(game.players[0].score, 20);
   });
+
+  test('Killer: eliminates opponent, skips eliminated player on getNextPlayer and finishTurn', () => {
+    const game = new KillerGame({
+      players: [
+        { name: 'Alice', targetNumber: 20 },
+        { name: 'Bob', targetNumber: 19 },
+        { name: 'Charlie', targetNumber: 18 }
+      ],
+      startingLives: 1
+    });
+
+    const aliceTarget = game.players[0].targetNumber;
+    const bobTarget = game.players[1].targetNumber;
+
+    // Alice hits her double -> becomes killer
+    game.recordDart({ number: aliceTarget, mult: 2, score: aliceTarget * 2, label: `D${aliceTarget}` });
+    assert.equal(game.players[0].isKiller, true);
+
+    // Alice hits Bob's number -> Bob is eliminated
+    game.recordDart({ number: bobTarget, mult: 1, score: bobTarget, label: `${bobTarget}` });
+    assert.equal(game.players[1].isEliminated, true);
+
+    // getNextPlayer should skip Bob and return Charlie
+    const next = game.getNextPlayer();
+    assert.equal(next.name, 'Charlie');
+
+    // Alice throws 3rd dart (miss)
+    game.recordDart({ number: 0, mult: 0, score: 0, label: 'Miss' });
+
+    // End turn -> advances to Charlie
+    game.finishTurn();
+    assert.equal(game.getActivePlayer().name, 'Charlie');
+  });
+
+  test('Elimination: eliminates player with 0 lives and skips eliminated players safely', () => {
+    const game = new EliminationGame({
+      players: [{ name: 'Alice' }, { name: 'Bob' }, { name: 'Charlie' }],
+      startingLives: 1
+    });
+
+    // Alice sets target 60 (T20)
+    game.recordDart({ number: 20, mult: 3, score: 60, label: 'T20' });
+    game.recordDart({ number: 0, mult: 0, score: 0, label: 'Miss' });
+    game.recordDart({ number: 0, mult: 0, score: 0, label: 'Miss' });
+    game.finishTurn();
+
+    assert.equal(game.targetScoreToBeat, 60);
+    assert.equal(game.getActivePlayer().name, 'Bob');
+
+    // Bob fails to beat 60 (scores 20) -> eliminated
+    game.recordDart({ number: 20, mult: 1, score: 20, label: '20' });
+    game.recordDart({ number: 0, mult: 0, score: 0, label: 'Miss' });
+    game.recordDart({ number: 0, mult: 0, score: 0, label: 'Miss' });
+
+    assert.equal(game.players[1].isEliminated, true);
+    // getNextPlayer skips Bob and returns Charlie
+    const next = game.getNextPlayer();
+    assert.equal(next.name, 'Charlie');
+
+    game.finishTurn();
+    assert.equal(game.getActivePlayer().name, 'Charlie');
+  });
 });

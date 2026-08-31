@@ -164,7 +164,7 @@ export const CHECKOUT_TABLE = {
   2: ['D1']
 };
 
-export const BOGEY_NUMBERS = [169, 168, 166, 165, 163, 162, 161, 159];
+export const BOGEY_NUMBERS = [169, 168, 166, 165, 163, 162, 159];
 
 export function getCheckoutSuggestion(score, dartsLeft = 3, outMode = 'double') {
   if (score <= 1) return null;

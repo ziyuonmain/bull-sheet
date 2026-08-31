@@ -32,6 +32,9 @@ export class X01Game {
     }));
 
     this.activePlayerIdx = 0;
+    this.legStartIndex = 0;
+    this.turnStartScore = null;
+    this.turnStartDoubledIn = null;
     this.turnDarts = []; // [ { number, mult, score, label } ]
     this.history = [];   // Full undo stack
     this.isMatchOver = false;
@@ -60,6 +63,11 @@ export class X01Game {
     }
 
     const player = this.getActivePlayer();
+    if (this.turnDarts.length === 0) {
+      this.turnStartScore = player.score;
+      this.turnStartDoubledIn = player.hasDoubledIn;
+    }
+
     const prevScore = player.score;
     const prevDoubledIn = player.hasDoubledIn;
     const dartNum = Number(dart.number);
@@ -276,13 +284,18 @@ export class X01Game {
   }
 
   getScoreAtStartOfTurn(player) {
+    if (this.turnStartScore !== null && this.turnStartScore !== undefined) {
+      return this.turnStartScore;
+    }
     const priorDartsThisTurn = this.turnDarts.slice(0, -1);
-    const scoredPriorDarts = priorDartsThisTurn.reduce((acc, d) => acc + (d.score || 0), 0);
+    const scoredPriorDarts = priorDartsThisTurn.reduce((acc, d) => acc + (d.effectiveScore !== undefined ? d.effectiveScore : (d.score || 0)), 0);
     return player.score + scoredPriorDarts;
   }
 
   finishTurn() {
     this.turnDarts = [];
+    this.turnStartScore = null;
+    this.turnStartDoubledIn = null;
     this.activePlayerIdx = (this.activePlayerIdx + 1) % this.players.length;
   }
 
@@ -292,7 +305,7 @@ export class X01Game {
 
     if (player.legsWon >= this.legsPerSet) {
       player.setsWon++;
-      player.legsWon = 0;
+      this.players.forEach(p => { p.legsWon = 0; });
       if (player.setsWon >= this.setsToWin) {
         matchWon = true;
       }
@@ -316,6 +329,12 @@ export class X01Game {
       p.hasDoubledIn = this.inMode === 'straight';
     });
     this.turnDarts = [];
+    this.turnStartScore = null;
+    this.turnStartDoubledIn = null;
+
+    // Alternate starter for next leg
+    this.legStartIndex = (this.legStartIndex + 1) % this.players.length;
+    this.activePlayerIdx = this.legStartIndex;
 
     return {
       type: 'leg_win',
