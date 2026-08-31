@@ -29,7 +29,7 @@ export class Dartboard {
       if (this.isVisitComplete) {
         nextBtn.classList.remove('hidden-action');
         nextBtn.classList.add('active-pulse');
-        nextBtn.innerHTML = `<span>➔ NEXT PLAYER (${this.nextPlayerName})</span>`;
+        nextBtn.innerHTML = `<span>End Turn ➔</span>`;
       } else {
         nextBtn.classList.add('hidden-action');
         nextBtn.classList.remove('active-pulse');
@@ -49,29 +49,17 @@ export class Dartboard {
     const rOuterBoard = 205;
 
     let html = `
-      <!-- Right-Half Primary Action Bar (UNDO • MISS • NEXT PLAYER) -->
-      <div class="right-actions-top-bar" style="margin-bottom: 8px;">
-        <button class="btn-panel-action btn-action-undo" type="button" id="btn-dartboard-undo" title="Undo Last Dart">
-          <span>↶ UNDO</span>
-        </button>
-        <button class="btn-panel-action btn-action-miss" type="button" id="btn-dartboard-miss" title="Record Miss (0 pts)">
-          <span>❌ MISS (0)</span>
-        </button>
-        <button class="btn-panel-action btn-action-next hidden-action" type="button" id="btn-dartboard-next" title="Advance Turn">
-          <span>➔ NEXT PLAYER</span>
-        </button>
-      </div>
+      <div class="dartboard-svg-wrapper" style="width: 100%; display: flex; justify-content: center;">
+        <svg id="svg-dartboard" viewBox="0 0 ${size} ${size}" class="dartboard-svg" role="img" aria-label="Interactive Dartboard" style="touch-action: manipulation; max-width: 100%; height: auto; user-select: none;">
+          <defs>
+            <filter id="hit-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
 
-      <svg id="svg-dartboard" viewBox="0 0 ${size} ${size}" class="dartboard-svg" role="img" aria-label="Interactive Dartboard">
-        <defs>
-          <filter id="hit-glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-        </defs>
-
-        <!-- Board Catch Ring / Background (Miss) -->
-        <circle cx="${center}" cy="${center}" r="${rOuterBoard}" class="board-catch-ring" data-score="0" data-num="0" data-mult="0" data-label="Miss" />
+          <!-- Board Catch Ring / Background (Miss) -->
+          <circle cx="${center}" cy="${center}" r="${rOuterBoard}" class="board-catch-ring" data-score="0" data-num="0" data-mult="0" data-label="Miss" />
     `;
 
     const degPerSeg = 18;
@@ -146,14 +134,31 @@ export class Dartboard {
     `;
 
     // Hit markers overlay group
-    html += `<g id="dart-hit-markers" style="pointer-events: none;"></g></svg>`;
+    html += `
+          <g id="dart-hit-markers" style="pointer-events: none;"></g>
+        </svg>
+      </div>
+
+      <!-- Right-Half Primary Action Bar (UNDO • MISS • END TURN) at BOTTOM -->
+      <div class="right-actions-bottom-bar" style="margin-top: 10px;">
+        <button class="btn-panel-action btn-action-undo" type="button" id="btn-dartboard-undo" title="Undo Last Dart">
+          <span>↶ UNDO</span>
+        </button>
+        <button class="btn-panel-action btn-action-miss" type="button" id="btn-dartboard-miss" title="Record Miss (0 pts)">
+          <span>❌ MISS</span>
+        </button>
+        <button class="btn-panel-action btn-action-next hidden-action" type="button" id="btn-dartboard-next" title="End Turn">
+          <span>End Turn ➔</span>
+        </button>
+      </div>
+    `;
 
     this.container.innerHTML = html;
     this.svg = this.container.querySelector('#svg-dartboard');
   }
 
   attachEvents() {
-    // Top Right Action Buttons: Undo, Miss & Next Player
+    // Action Buttons: Undo, Miss & Next Player
     this.container.querySelector('#btn-dartboard-undo')?.addEventListener('click', () => {
       if (this.onUndo) this.onUndo();
     });
@@ -170,8 +175,14 @@ export class Dartboard {
 
     if (!this.svg) return;
 
-    const handleHit = (e) => {
-      const target = e.target.closest('.board-segment, .board-catch-ring');
+    let pointerHandled = false;
+
+    const handleHit = (clientX, clientY, sourceEl) => {
+      let target = sourceEl?.closest('.board-segment, .board-catch-ring');
+      if (!target && clientX !== undefined && clientY !== undefined) {
+        const el = document.elementFromPoint(clientX, clientY);
+        target = el ? el.closest('.board-segment, .board-catch-ring') : null;
+      }
       if (!target) return;
 
       const score = parseInt(target.dataset.score, 10) || 0;
@@ -181,10 +192,7 @@ export class Dartboard {
 
       // Visual ripple
       const rect = this.svg.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-      if (clientX !== undefined && clientY !== undefined) {
+      if (clientX !== undefined && clientY !== undefined && rect.width > 0) {
         const svgX = ((clientX - rect.left) / rect.width) * 440;
         const svgY = ((clientY - rect.top) / rect.height) * 440;
         this.addHitMarker(svgX, svgY, label);
@@ -198,7 +206,19 @@ export class Dartboard {
       }
     };
 
-    this.svg.addEventListener('click', handleHit);
+    this.svg.addEventListener('pointerdown', (e) => {
+      if (e.isPrimary) {
+        pointerHandled = true;
+        handleHit(e.clientX, e.clientY, e.target);
+      }
+    });
+
+    this.svg.addEventListener('click', (e) => {
+      if (!pointerHandled) {
+        handleHit(e.clientX, e.clientY, e.target);
+      }
+      pointerHandled = false;
+    });
   }
 
   addHitMarker(x, y, _label) {
@@ -221,97 +241,106 @@ export class Dartboard {
     }
   }
 
-  highlightTarget(targetInfo) {
+  setBoardHighlights({ targets = [], secondaryTargets = [], avoids = [] } = {}) {
     if (!this.svg) return;
     this.clearHighlights();
 
+    targets.forEach(t => this.highlightSegment(t, 'target-highlight-active'));
+    secondaryTargets.forEach(st => this.highlightSegment(st, 'target-highlight-secondary'));
+    avoids.forEach(a => this.highlightSegment(a, 'target-avoid-warning'));
+  }
+
+  highlightTarget(targetInfo) {
+    if (!this.svg) return;
+    this.clearHighlights();
     if (!targetInfo) return;
 
-    if (typeof targetInfo === 'string') {
-      this.highlightSegmentByLabel(targetInfo, 'target-highlight-active');
+    if (typeof targetInfo === 'string' || typeof targetInfo === 'number') {
+      this.highlightSegment(targetInfo, 'target-highlight-active');
       return;
     }
 
     if (targetInfo.type === 'num') {
-      this.svg.querySelectorAll(`.seg-num-${targetInfo.value}`).forEach(el => {
-        el.classList.add('target-highlight-active');
-      });
+      this.highlightSegment(targetInfo.value, 'target-highlight-active');
     } else if (targetInfo.type === 'double') {
-      this.svg.querySelectorAll('.seg-double, .seg-bull-inner').forEach(el => {
-        el.classList.add('target-highlight-active');
-      });
+      this.highlightSegment(targetInfo.value ? `D${targetInfo.value}` : 'double', 'target-highlight-active');
     } else if (targetInfo.type === 'master') {
       this.svg.querySelectorAll('.seg-double, .seg-treble, .seg-bull-inner').forEach(el => {
         el.classList.add('target-highlight-active');
       });
     } else if (targetInfo.type === 'treble') {
-      this.svg.querySelectorAll('.seg-treble').forEach(el => {
-        el.classList.add('target-highlight-active');
-      });
+      this.highlightSegment(targetInfo.value ? `T${targetInfo.value}` : 'treble', 'target-highlight-active');
     } else if (targetInfo.type === 'bull') {
-      this.svg.querySelectorAll('.seg-num-25').forEach(el => {
-        el.classList.add('target-highlight-active');
-      });
+      this.highlightSegment('Bull', 'target-highlight-active');
     }
   }
 
   highlightCheckout(route, activeStepIdx = 0) {
-    if (!this.svg) return;
+    if (!this.svg || !route || route.length === 0) return;
     this.clearHighlights();
-
-    if (!route || route.length === 0) return;
 
     route.forEach((token, idx) => {
       if (idx === activeStepIdx) {
-        this.highlightSegmentByLabel(token, 'target-highlight-active');
+        this.highlightSegment(token, 'target-highlight-active');
       } else if (idx > activeStepIdx) {
-        this.highlightSegmentByLabel(token, 'target-highlight-secondary');
+        this.highlightSegment(token, 'target-highlight-secondary');
       }
     });
   }
 
-  highlightSegmentByLabel(token, cssClass = 'target-highlight-active') {
-    if (!this.svg || !token) return;
-    const cleanToken = token.trim().toUpperCase();
+  highlightSegment(token, cssClass = 'target-highlight-active') {
+    if (!this.svg || token === undefined || token === null) return;
+    const strToken = String(token).trim().toUpperCase();
 
-    if (cleanToken === 'BULL' || cleanToken === 'BULLSEYE' || cleanToken === 'D25' || cleanToken === '50') {
+    if (strToken === 'BULL' || strToken === 'BULLSEYE' || strToken === 'D25' || strToken === '50') {
       this.svg.querySelector('.seg-bull-inner')?.classList.add(cssClass);
       return;
     }
 
-    if (cleanToken === '25' || cleanToken === 'S25' || cleanToken === 'OUTER' || cleanToken === 'OUTER BULL') {
+    if (strToken === '25' || strToken === 'S25' || strToken === 'OUTER' || strToken === 'OUTER BULL') {
       this.svg.querySelector('.seg-bull-outer')?.classList.add(cssClass);
       return;
     }
 
-    if (cleanToken.startsWith('T')) {
-      const num = cleanToken.slice(1);
+    if (strToken === 'DOUBLE') {
+      this.svg.querySelectorAll('.seg-double, .seg-bull-inner').forEach(el => el.classList.add(cssClass));
+      return;
+    }
+
+    if (strToken === 'TREBLE') {
+      this.svg.querySelectorAll('.seg-treble').forEach(el => el.classList.add(cssClass));
+      return;
+    }
+
+    if (strToken.startsWith('T')) {
+      const num = strToken.slice(1);
       this.svg.querySelectorAll(`.seg-treble.seg-num-${num}`).forEach(el => el.classList.add(cssClass));
       return;
     }
 
-    if (cleanToken.startsWith('D')) {
-      const num = cleanToken.slice(1);
+    if (strToken.startsWith('D')) {
+      const num = strToken.slice(1);
       this.svg.querySelectorAll(`.seg-double.seg-num-${num}`).forEach(el => el.classList.add(cssClass));
       return;
     }
 
-    if (cleanToken.startsWith('S')) {
-      const num = cleanToken.slice(1);
+    if (strToken.startsWith('S')) {
+      const num = strToken.slice(1);
       this.svg.querySelectorAll(`.seg-single.seg-num-${num}`).forEach(el => el.classList.add(cssClass));
       return;
     }
 
-    const num = parseInt(cleanToken, 10);
+    const num = parseInt(strToken, 10);
     if (!isNaN(num)) {
-      this.svg.querySelectorAll(`.seg-single.seg-num-${num}`).forEach(el => el.classList.add(cssClass));
+      // Highlight whole number sector
+      this.svg.querySelectorAll(`.seg-num-${num}`).forEach(el => el.classList.add(cssClass));
     }
   }
 
   clearHighlights() {
     if (!this.svg) return;
-    this.svg.querySelectorAll('.target-highlight-active, .target-highlight-secondary').forEach(el => {
-      el.classList.remove('target-highlight-active', 'target-highlight-secondary');
+    this.svg.querySelectorAll('.target-highlight-active, .target-highlight-secondary, .target-avoid-warning').forEach(el => {
+      el.classList.remove('target-highlight-active', 'target-highlight-secondary', 'target-avoid-warning');
     });
   }
 

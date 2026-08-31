@@ -28,7 +28,7 @@ export class DartKeypad {
       if (this.isVisitComplete) {
         nextBtn.classList.remove('hidden-action');
         nextBtn.classList.add('active-pulse');
-        nextBtn.innerHTML = `<span>➔ NEXT PLAYER (${this.nextPlayerName})</span>`;
+        nextBtn.innerHTML = `<span>End Turn ➔</span>`;
       } else {
         nextBtn.classList.add('hidden-action');
         nextBtn.classList.remove('active-pulse');
@@ -46,6 +46,9 @@ export class DartKeypad {
 
     // Dynamically update the main number grid buttons with live math preview
     this.updateNumberGridLabels();
+
+    // Re-apply target highlighting according to active multiplier
+    this.applyHighlights();
   }
 
   updateNumberGridLabels() {
@@ -90,24 +93,7 @@ export class DartKeypad {
     let html = `
       <div class="pro-dart-keypad">
         
-        <!-- 1. Primary Action Bar (UNDO • MISS • NEXT PLAYER) -->
-        <div class="right-actions-top-bar">
-          <button class="btn-panel-action btn-action-undo" type="button" id="btn-keypad-undo" title="Undo Last Dart">
-            <span>↶ UNDO</span>
-          </button>
-          <button class="btn-panel-action btn-action-miss" type="button" data-num="0" data-mult="0" data-score="0" data-label="Miss" title="Record Miss (0 pts)">
-            <span>❌ MISS (0)</span>
-          </button>
-          <button class="btn-panel-action btn-action-next hidden-action" type="button" id="btn-keypad-next" title="Advance Turn">
-            <span>➔ NEXT PLAYER</span>
-          </button>
-        </div>
-
-        <!-- 2. 1-Tap Speed Bar (Pub Neighbors & Power Darts) -->
-        <div class="speed-bar-header">
-          <span class="speed-bar-label">⚡ 1-TAP COMMON DARTS & BULLS</span>
-        </div>
-
+        <!-- 1. 1-Tap Quick Common Darts & Bulls -->
         <div class="speed-darts-grid">
           ${quickDarts.map(d => `
             <button class="speed-dart-btn ${d.cls}" type="button" data-num="${d.num}" data-mult="${d.mult}" data-score="${d.score}" data-label="${d.label}">
@@ -117,20 +103,33 @@ export class DartKeypad {
           `).join('')}
         </div>
 
-        <!-- 3. Multiplier Modifier Bar -->
+        <!-- 2. Multiplier Modifier Bar -->
         <div class="dart-multiplier-bar">
           <button class="mult-btn ${this.currentMultiplier === 1 ? 'active' : ''}" type="button" data-mult="1">Single (1x)</button>
           <button class="mult-btn ${this.currentMultiplier === 2 ? 'active' : ''}" type="button" data-mult="2">Double (2x)</button>
           <button class="mult-btn ${this.currentMultiplier === 3 ? 'active' : ''}" type="button" data-mult="3">Treble (3x)</button>
         </div>
 
-        <!-- 4. Main Number Grid (1 to 20) with Live Point Preview -->
+        <!-- 3. Main Number Grid (1 to 20) with Live Point Preview -->
         <div class="dart-numbers-grid">
           ${numbers.map(n => `
             <button class="dart-num-btn ${n >= 18 ? 'top-target' : ''}" type="button" data-num="${n}">
               <span class="num-main">${n}</span>
             </button>
           `).join('')}
+        </div>
+
+        <!-- 4. Primary Action Bar (UNDO • MISS • END TURN) at BOTTOM -->
+        <div class="right-actions-bottom-bar" style="margin-top: 12px;">
+          <button class="btn-panel-action btn-action-undo" type="button" id="btn-keypad-undo" title="Undo Last Dart">
+            <span>↶ UNDO</span>
+          </button>
+          <button class="btn-panel-action btn-action-miss" type="button" data-num="0" data-mult="0" data-score="0" data-label="Miss" title="Record Miss (0 pts)">
+            <span>❌ MISS</span>
+          </button>
+          <button class="btn-panel-action btn-action-next hidden-action" type="button" id="btn-keypad-next" title="End Turn">
+            <span>End Turn ➔</span>
+          </button>
         </div>
 
       </div>
@@ -140,7 +139,7 @@ export class DartKeypad {
   }
 
   attachEvents() {
-    // Top Action Buttons: Undo & Next Player
+    // Action Buttons: Undo & Next Player
     this.container.querySelector('#btn-keypad-undo')?.addEventListener('click', () => {
       if (this.onUndo) this.onUndo();
     });
@@ -191,6 +190,93 @@ export class DartKeypad {
           this.setMultiplier(1);
         }
       });
+    });
+  }
+
+  setHighlights({ targets = [], avoids = [] } = {}) {
+    this.currentHighlights = { targets, avoids };
+    this.applyHighlights();
+  }
+
+  applyHighlights() {
+    this.clearHighlights();
+    if (!this.currentHighlights) return;
+
+    const { targets = [], avoids = [] } = this.currentHighlights;
+
+    targets.forEach(t => {
+      let num = null;
+      let reqMult = null;
+
+      if (typeof t === 'number') {
+        num = t;
+      } else if (typeof t === 'string') {
+        const clean = t.trim().toUpperCase();
+        if (clean.startsWith('D')) {
+          reqMult = 2;
+          num = parseInt(clean.slice(1), 10);
+        } else if (clean.startsWith('T')) {
+          reqMult = 3;
+          num = parseInt(clean.slice(1), 10);
+        } else if (clean.startsWith('S')) {
+          reqMult = 1;
+          num = parseInt(clean.slice(1), 10);
+        } else if (clean === 'BULL' || clean === '50') {
+          num = 25;
+          reqMult = 2;
+        } else if (clean === '25' || clean === 'OUTER') {
+          num = 25;
+          reqMult = 1;
+        } else {
+          num = parseInt(clean, 10);
+        }
+      } else if (t && typeof t === 'object') {
+        num = t.num !== undefined ? t.num : t.value;
+        reqMult = t.mult !== undefined ? t.mult : null;
+      }
+
+      if (!isNaN(num) && num !== null) {
+        if (reqMult === null || reqMult === this.currentMultiplier) {
+          this.container.querySelectorAll(`.dart-num-btn[data-num="${num}"]`).forEach(btn => {
+            btn.classList.add('keypad-target-active');
+          });
+        }
+      }
+
+      if (t === 'Bull' || num === 25) {
+        if (reqMult === 2 || reqMult === null) {
+          this.container.querySelector('.btn-quick-bull')?.classList.add('keypad-target-active');
+        }
+        if (reqMult === 1 || reqMult === null) {
+          this.container.querySelector('.btn-quick-outer')?.classList.add('keypad-target-active');
+        }
+      }
+      if (num === 20 && (reqMult === 3 || reqMult === null)) {
+        this.container.querySelector('.btn-quick-t20')?.classList.add('keypad-target-active');
+      }
+    });
+
+    avoids.forEach(a => {
+      let num = null;
+      if (typeof a === 'number') {
+        num = a;
+      } else if (typeof a === 'string') {
+        num = parseInt(a.replace(/^[STD]/i, ''), 10);
+      } else if (a && typeof a === 'object') {
+        num = a.num !== undefined ? a.num : a.value;
+      }
+
+      if (!isNaN(num) && num !== null) {
+        this.container.querySelectorAll(`.dart-num-btn[data-num="${num}"]`).forEach(btn => {
+          btn.classList.add('keypad-target-avoid');
+        });
+      }
+    });
+  }
+
+  clearHighlights() {
+    this.container.querySelectorAll('.keypad-target-active, .keypad-target-avoid').forEach(el => {
+      el.classList.remove('keypad-target-active', 'keypad-target-avoid');
     });
   }
 }
