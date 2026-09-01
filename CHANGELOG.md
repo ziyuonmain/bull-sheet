@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.1] - 2026-09-01
+### 📢 Referee Audio & Speech Synchronization, Bot Pacing & Caller Coordination
+#### Added
+- **🧪 Comprehensive Voice Caller Unit Test Suite**: Added dedicated unit tests covering audio playback tracking, speech queueing, turn synchronization, and cleanup across scenarios.
+
+#### Changed
+- **🤖 Realistic AI Bot Throw Pacing**: Adjusted initial bot throw delay after turn transitions so AI players don't throw darts while voice callouts are actively speaking.
+
+#### Fixed
+- **🔇 Turn Total & Next Player Voice Overlap**: Eliminated audio collisions where human referee score callouts (HTML5 Audio) and next thrower announcements (Web Speech API) played simultaneously upon ending a turn.
+- **⏹️ Audio Queue & Cleanup on Undo**: Ensured `undo` and match exit abort all pending scheduled speech utterances and actively playing audio clips immediately.
+
+---
+
 ## [1.5.0] - 2026-08-31
 ### 🎯 Dart Numpad View, In-Game Settings Modal, Leg Win Transitions & Voice Polish
 #### Added

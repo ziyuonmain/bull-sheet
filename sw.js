@@ -1,5 +1,5 @@
 // BullSheet PWA Service Worker (Network-First with Offline Cache Fallback)
-const CACHE_NAME = 'bullsheet-cache-v35';
+const CACHE_NAME = 'bullsheet-cache-v36';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

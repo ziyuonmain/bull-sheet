@@ -576,6 +576,7 @@ class BullSheetApp {
 
     document.getElementById('btn-confirm-leave')?.addEventListener('click', () => {
       sound.playClick();
+      caller.stop();
       document.getElementById('modal-confirm-exit')?.classList.remove('active');
       this.currentGame = null;
       store.clearActiveMatch();
@@ -1202,6 +1203,7 @@ class BullSheetApp {
     if (!this.currentGame) return;
     sound.playClick();
     this.vibrate(10);
+    caller.stop();
     if (this.isPausedForNextLeg) {
       this.isPausedForNextLeg = false;
       document.getElementById('leg-win-celebration-banner')?.remove();
@@ -1453,28 +1455,55 @@ class BullSheetApp {
     }
   }
 
-  triggerBotTurn() {
-    const player = this.currentGame.getActivePlayer();
+  triggerBotTurn(initialDelay = null) {
+    const player = this.currentGame?.getActivePlayer();
     if (!player || !player.isBot || this.currentGame.isMatchOver) return;
 
     this.bot.setProfile(player.botProfile || 'pub_regular');
 
+    let defaultDelay = 750;
+    if (store.settings.voice) {
+      defaultDelay = 1200;
+    }
+    const delay = initialDelay !== null ? initialDelay : defaultDelay;
+
     let dartIndex = 0;
-    const throwInterval = setInterval(() => {
-      if (this.currentGame.isMatchOver || dartIndex >= 3) {
-        clearInterval(throwInterval);
-        return;
-      }
+    let throwInterval = null;
 
-      // Intelligent Game-Mode-Aware AI Throw
-      const dart = this.bot.throwDart(this.selectedGameType, this.currentGame, player, dartIndex);
-      this.handleDartHit(dart);
-      dartIndex++;
+    const startThrowing = () => {
+      throwInterval = setInterval(() => {
+        if (!this.currentGame || this.currentGame.isMatchOver || dartIndex >= 3 || this.currentGame.getActivePlayer()?.id !== player.id) {
+          clearInterval(throwInterval);
+          return;
+        }
 
-      if (dartIndex >= 3 || this.currentGame.isMatchOver) {
-        clearInterval(throwInterval);
-      }
-    }, 750);
+        // Intelligent Game-Mode-Aware AI Throw
+        const dart = this.bot.throwDart(this.selectedGameType, this.currentGame, player, dartIndex);
+        this.handleDartHit(dart);
+        dartIndex++;
+
+        if (dartIndex >= 3 || this.currentGame.isMatchOver) {
+          clearInterval(throwInterval);
+        }
+      }, 750);
+    };
+
+    if (delay > 0) {
+      setTimeout(() => {
+        if (this.currentGame && !this.currentGame.isMatchOver && this.currentGame.getActivePlayer()?.id === player.id) {
+          if (dartIndex < 3) {
+            const dart = this.bot.throwDart(this.selectedGameType, this.currentGame, player, dartIndex);
+            this.handleDartHit(dart);
+            dartIndex++;
+            if (dartIndex < 3 && !this.currentGame.isMatchOver) {
+              startThrowing();
+            }
+          }
+        }
+      }, delay);
+    } else {
+      startThrowing();
+    }
   }
 
   trigger180Confetti() {
@@ -2090,7 +2119,9 @@ class BullSheetApp {
       caller.callTurn(nextPlayer.name);
 
       if (nextPlayer.isBot) {
-        this.triggerBotTurn();
+        const hasTurnScore = store.settings.announceTurnTotal && turnTotal > 0 && store.settings.voice;
+        const botDelay = hasTurnScore ? 2000 : (store.settings.voice ? 1200 : 750);
+        this.triggerBotTurn(botDelay);
       }
     }
   }
