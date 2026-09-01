@@ -440,7 +440,8 @@ class BullSheetApp {
   }
 
   // Brand Logo Click
-  handleBrandClick() {
+  handleBrandClick(e) {
+    if (e && e.target && e.target.closest('#btn-header-version, .brand-version-badge')) return;
     sound.playClick();
     this.closeBurgerDrawer();
     if (this.isMatchInProgress()) {

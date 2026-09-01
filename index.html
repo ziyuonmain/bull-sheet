@@ -27,16 +27,16 @@
     <!-- Top Navigation Header -->
     <header class="app-header">
       <div class="brand-logo-area">
-        <button class="brand-logo" id="brand-logo-btn" type="button" aria-label="BullSheet Home" onclick="window.app && window.app.handleBrandClick()">
+        <button class="brand-logo" id="brand-logo-btn" type="button" aria-label="BullSheet Home" onclick="window.app && window.app.handleBrandClick(event)">
           <img src="icons/icon.svg" alt="BullSheet Logo" class="brand-bull-icon brand-bull-img" width="38" height="38" />
           <div class="brand-text-wrap">
             <div class="brand-title-row">
               <span class="brand-title">BullSheet</span>
-              <span class="brand-version-badge" id="btn-header-version" title="Version 1.5.1 • Click to view Changelog">v1.5.1</span>
             </div>
             <span class="brand-tagline">Because pub math is total bull-sheet.</span>
           </div>
         </button>
+        <a href="https://github.com/ziyuonmain/bull-sheet/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="brand-version-badge" id="btn-header-version" title="Version 1.5.2 • View Changelog on GitHub">v1.5.2</a>
       </div>
       <div class="header-right-group">
         <nav class="nav-tabs" aria-label="Main Navigation">
@@ -455,13 +455,20 @@
         </div>
 
         <div class="setup-options-panel">
-          <h2 class="setup-section-title">About</h2>
-          <p style="color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
-            Free, open-source darts scoreboard licensed under GPL-3.0.
+          <h2 class="setup-section-title">About &amp; Version</h2>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary);">BullSheet</span>
+            <a href="https://github.com/ziyuonmain/bull-sheet/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="brand-version-badge" title="View Changelog on GitHub">v1.5.2</a>
+          </div>
+          <p style="color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; font-size: 0.9rem;">
+            Free, open-source darts scoreboard and caller licensed under GPL-3.0.
           </p>
-          <div>
-            <a href="https://github.com/ziyuonmain/bull-sheet" target="_blank" rel="noopener noreferrer" class="btn-primary-start" style="display:inline-flex; align-items:center; gap:8px; text-decoration:none; width:auto; padding:8px 16px; font-size:0.9rem;">
-              <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="https://github.com/ziyuonmain/bull-sheet/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="ctrl-btn" style="display:inline-flex; align-items:center; gap:6px; text-decoration:none; padding:8px 14px; font-size:0.85rem; font-weight:700; background: var(--bg-tertiary); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.4);">
+              📜 View Changelog
+            </a>
+            <a href="https://github.com/ziyuonmain/bull-sheet" target="_blank" rel="noopener noreferrer" class="ctrl-btn" style="display:inline-flex; align-items:center; gap:6px; text-decoration:none; padding:8px 14px; font-size:0.85rem; font-weight:700; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">
+              <svg height="15" width="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
               GitHub Repository
             </a>
           </div>
@@ -618,12 +625,21 @@
       </div>
 
       <!-- Haptics / Vibration -->
-      <div class="setup-options-panel" style="margin-bottom: 16px; padding: 14px;">
+      <div class="setup-options-panel" style="margin-bottom: 14px; padding: 14px;">
         <h3 class="setup-section-title" style="font-size: 1.05rem; margin-bottom: 8px;">Haptics</h3>
         <div class="checkbox-option-row">
           <input type="checkbox" id="modal-setting-vibration" />
           <label for="modal-setting-vibration">Vibrate on dart hit (Touchscreens)</label>
         </div>
+      </div>
+
+      <!-- About & Version Info -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 4px 14px 4px; border-top: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-muted);">
+        <span style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--text-primary);">
+          BullSheet
+          <a href="https://github.com/ziyuonmain/bull-sheet/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="brand-version-badge" title="View Changelog on GitHub">v1.5.2</a>
+        </span>
+        <a href="https://github.com/ziyuonmain/bull-sheet/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" style="color: var(--accent-gold); text-decoration: underline; font-weight: 600;">📜 Release Notes</a>
       </div>
 
       <div class="modal-actions">
@@ -687,6 +703,13 @@
     </nav>
 
     <div class="drawer-footer">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); display: inline-flex; align-items: center; gap: 6px;">
+          BullSheet
+          <a href="https://github.com/ziyuonmain/bull-sheet/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="brand-version-badge" title="View Changelog on GitHub">v1.5.2</a>
+        </span>
+        <a href="https://github.com/ziyuonmain/bull-sheet/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" style="font-size: 0.8rem; color: var(--accent-gold); text-decoration: underline; font-weight: 600;">📜 Release Notes</a>
+      </div>
       <a href="https://github.com/ziyuonmain/bull-sheet" target="_blank" rel="noopener noreferrer" class="drawer-github-link">
         <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         <span>Open Source on GitHub</span>

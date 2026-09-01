@@ -2195,6 +2195,7 @@ body.in-game-view .app-header {
 }
 
 /* ---------------- BRAND LOGO BUTTON STYLING ---------------- */
+.brand-logo,
 button.brand-logo {
   background: none;
   border: none;
@@ -2207,11 +2208,13 @@ button.brand-logo {
   outline: none;
 }
 
+.brand-logo .brand-text-wrap,
 button.brand-logo .brand-text-wrap {
   display: flex;
   flex-direction: column;
 }
 
+.brand-logo .brand-title,
 button.brand-logo .brand-title {
   font-size: 1.35rem;
   font-weight: 900;
@@ -2220,6 +2223,7 @@ button.brand-logo .brand-title {
   letter-spacing: -0.5px;
 }
 
+.brand-logo .brand-tagline,
 button.brand-logo .brand-tagline {
   font-size: 0.72rem;
   color: var(--accent-gold);
@@ -4863,6 +4867,7 @@ button.brand-version-badge:active {
   line-height: 1;
   display: inline-flex;
   align-items: center;
+  text-decoration: none;
 }
 
 .brand-version-badge:hover {
@@ -4870,4 +4875,10 @@ button.brand-version-badge:active {
   border-color: var(--accent-gold);
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+  color: #fff;
+  text-decoration: none;
+}
+
+.brand-version-badge:active {
+  transform: scale(0.95);
 }

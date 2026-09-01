@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.2] - 2026-09-01
+### 📜 Version Badge Direct Changelog Links & Settings About Integration
+#### Added
+- **🔗 Direct GitHub Changelog Linking**: Clicking the version badge on the header logo now forwards directly to the GitHub changelog preview in a new tab without interrupting logo navigation.
+- **🏷️ Settings & In-Game Modal About Integration**: Added version badge and direct release notes action buttons to the Settings About panel, in-game Settings modal, and mobile drawer footer.
+
+#### Changed
+- **⚙️ Version Synchronizer Script**: Upgraded `scripts/bump_version.js` to automatically synchronize all version badge locations across the codebase.
+
+---
+
 ## [1.5.1] - 2026-09-01
 ### 📢 Referee Audio & Speech Synchronization, Bot Pacing & Caller Coordination
 #### Added

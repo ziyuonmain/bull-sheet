@@ -1,6 +1,6 @@
 {
   "name": "bull-sheet",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "BullSheet — Zero-BS Browser Darts Scoreboard and caller",
   "type": "module",
   "scripts": {

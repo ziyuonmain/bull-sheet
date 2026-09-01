@@ -69,15 +69,19 @@ function run() {
     console.log(`✅ Updated package-lock.json (${nextVersion})`);
   }
 
-  // 3. Update index.html header badge
+  // 3. Update index.html version badges
   const indexPath = path.join(ROOT_DIR, 'index.html');
   let indexHtml = fs.readFileSync(indexPath, 'utf8');
   indexHtml = indexHtml.replace(
-    /id="btn-header-version"\s+title="Version [^"•]+•\s+Click to view Changelog">v[^<]+<\/span>/,
-    `id="btn-header-version" title="Version ${nextVersion} • Click to view Changelog">v${nextVersion}</span>`
+    /id="btn-header-version"([^>]*)>v[^<]+<\/(a|span)>/g,
+    `id="btn-header-version" title="Version ${nextVersion} • View Changelog on GitHub">v${nextVersion}</$2>`
+  );
+  indexHtml = indexHtml.replace(
+    /(class="brand-version-badge"[^>]*>v)[^<]+(<\/(a|span)>)/g,
+    `$1${nextVersion}$2`
   );
   fs.writeFileSync(indexPath, indexHtml);
-  console.log(`✅ Updated index.html header badge (v${nextVersion})`);
+  console.log(`✅ Updated index.html version badges (v${nextVersion})`);
 
   // 4. Update tests/unit/changelog.test.js
   const testPath = path.join(ROOT_DIR, 'tests/unit/changelog.test.js');
