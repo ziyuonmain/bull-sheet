@@ -211,6 +211,13 @@ When contributing to BullSheet, keep the following core principles in mind:
   - `chore:` Maintenance, git hygiene, tooling
 - **Release Notes**: When adding a user-facing change, update [`CHANGELOG.md`](CHANGELOG.md). The in-app changelog viewer automatically renders changes directly from this file!
 
+## 🤖 Agentic Development & Pair Programming
+
+BullSheet includes a complete agentic customization ecosystem with rules, skills, specialized subagents, and automated quality gates. For details on working with AI agents on this codebase, refer to:
+
+- [Agentic Development Workflow Guide](docs/AGENTIC_WORKFLOW.md)
+- [Agent Guidelines](AGENTS.md)
+
 ---
 
 ## 📄 License

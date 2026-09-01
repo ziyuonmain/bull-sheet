@@ -398,4 +398,42 @@ test.describe('BullSheet Web App & Chrome Extension E2E Suite', () => {
     // Score now unlocked from 501 - 40 = 461
     await expect(heroScore).toContainText('461');
   });
+
+  test('13: dartboard hit markers are properly placed and cleared on undo, end match, and new match', async ({ page }) => {
+    await page.goto('/');
+
+    // Start match (default 501, default input mode is Dartboard)
+    await page.locator('#btn-start-match').click();
+    await expect(page.locator('#view-game')).toHaveClass(/active/);
+
+    const hitMarkers = page.locator('#dart-hit-markers .hit-pin-anim');
+    await expect(hitMarkers).toHaveCount(0);
+
+    // Click D18 segment on SVG dartboard
+    const d18Seg = page.locator('.board-segment.seg-double.seg-num-18');
+    await d18Seg.click({ force: true });
+
+    // Verify 1 hit marker dot is placed
+    await expect(hitMarkers).toHaveCount(1);
+
+    // Click Undo button on dartboard action bar
+    await page.locator('#btn-dartboard-undo').click();
+    await expect(hitMarkers).toHaveCount(0);
+
+    // Click D18 again
+    await d18Seg.click({ force: true });
+    await expect(hitMarkers).toHaveCount(1);
+
+    // End match and return to setup
+    await page.locator('#btn-end-game').click();
+    await page.locator('#btn-confirm-leave').click();
+    await expect(page.locator('#view-setup')).toHaveClass(/active/);
+
+    // Start another match
+    await page.locator('#btn-start-match').click();
+    await expect(page.locator('#view-game')).toHaveClass(/active/);
+
+    // Verify dartboard has 0 leftover hit markers
+    await expect(hitMarkers).toHaveCount(0);
+  });
 });

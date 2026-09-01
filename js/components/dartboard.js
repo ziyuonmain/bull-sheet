@@ -344,8 +344,15 @@ export class Dartboard {
     });
   }
 
+  removeLastHit() {
+    const last = this.hits.pop();
+    if (last && last.parentNode) {
+      last.parentNode.removeChild(last);
+    }
+  }
+
   clearHits() {
-    const markersGroup = this.svg.querySelector('#dart-hit-markers');
+    const markersGroup = this.svg ? this.svg.querySelector('#dart-hit-markers') : this.container?.querySelector('#dart-hit-markers');
     if (markersGroup) markersGroup.innerHTML = '';
     this.hits = [];
   }

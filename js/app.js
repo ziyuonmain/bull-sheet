@@ -580,6 +580,10 @@ class BullSheetApp {
       this.currentGame = null;
       store.clearActiveMatch();
       this.removeResumeBanner();
+      if (this.dartboard) {
+        this.dartboard.clearHits();
+        this.dartboard.clearHighlights();
+      }
       if (this.pendingNavTarget) {
         this.showView(this.pendingNavTarget, true);
         this.pendingNavTarget = null;
@@ -1125,6 +1129,10 @@ class BullSheetApp {
     }
 
     this.saveCurrentMatchState();
+    if (this.dartboard) {
+      this.dartboard.clearHits();
+      this.dartboard.clearHighlights();
+    }
     this.setInputMode(this.inputMode);
     this.syncGameVoiceSelect();
     this.showView('view-game', true);
@@ -1199,7 +1207,13 @@ class BullSheetApp {
       document.getElementById('leg-win-celebration-banner')?.remove();
     }
     this.currentGame.undo();
-    if (this.dartboard) this.dartboard.clearHits();
+    if (this.dartboard) {
+      if (!this.currentGame.turnDarts || this.currentGame.turnDarts.length === 0) {
+        this.dartboard.clearHits();
+      } else {
+        this.dartboard.removeLastHit();
+      }
+    }
     this.saveCurrentMatchState();
     this.updateScoreboard();
   }
@@ -1211,6 +1225,10 @@ class BullSheetApp {
     if (res.type === 'match_win') {
       sound.playWin();
       caller.callGameShot(res.winner.name, true);
+      if (this.dartboard) {
+        this.dartboard.clearHits();
+        this.dartboard.clearHighlights();
+      }
       
       const matchRecord = {
         id: Date.now().toString(36),
@@ -1340,7 +1358,12 @@ class BullSheetApp {
     // Update target & avoid route highlighting on SVG dartboard, Keypad, and Numpad
     if (this.dartKeypad) this.dartKeypad.updateState(this.currentGame);
     if (this.dartNumpad) this.dartNumpad.updateState(this.currentGame);
-    if (this.dartboard) this.dartboard.updateState(this.currentGame);
+    if (this.dartboard) {
+      this.dartboard.updateState(this.currentGame);
+      if (!this.currentGame.turnDarts || this.currentGame.turnDarts.length === 0) {
+        this.dartboard.clearHits();
+      }
+    }
 
     const boardHighlights = { targets: [], secondaryTargets: [], avoids: [] };
     const keypadHighlights = { targets: [], avoids: [] };
@@ -1520,6 +1543,11 @@ class BullSheetApp {
     this.isPausedForNextLeg = false;
     const banner = document.getElementById('leg-win-celebration-banner');
     if (banner) banner.remove();
+
+    if (this.dartboard) {
+      this.dartboard.clearHits();
+      this.dartboard.clearHighlights();
+    }
 
     this.updateScoreboard();
 
