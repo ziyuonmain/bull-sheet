@@ -82,6 +82,11 @@ test.describe('BullSheet Web App & Chrome Extension E2E Suite', () => {
   test('04: navigation tabs switch between Settings and History views', async ({ page }) => {
     await page.goto('/');
 
+    // Verify exactly 3 main navigation tabs exist (Play, History, Settings) and no redundant Changelog tab
+    const navTabs = page.locator('.nav-tabs .nav-tab-btn');
+    await expect(navTabs).toHaveCount(3);
+    await expect(page.locator('.nav-tab-btn[data-target="view-changelog"]')).toHaveCount(0);
+
     // Switch to Settings tab
     await page.locator('.nav-tab-btn[data-target="view-settings"]').click();
     await expect(page.locator('#view-settings')).toHaveClass(/active/);
