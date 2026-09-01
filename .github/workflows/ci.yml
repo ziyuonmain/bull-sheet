@@ -144,6 +144,7 @@ jobs:
     name: GitHub Release & Auto-Tag
     needs: [filter, ci-status]
     if: |
+      always() &&
       github.ref == 'refs/heads/main' &&
       github.event_name == 'push' &&
       needs.ci-status.result == 'success'
