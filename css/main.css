@@ -4714,26 +4714,6 @@ button.brand-logo .brand-tagline {
 }
 
 
-.brand-version-badge {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: var(--accent-gold);
-  background: rgba(245, 158, 11, 0.18);
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  padding: 1px 6px;
-  border-radius: 10px;
-  font-family: var(--font-mono);
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  vertical-align: middle;
-}
-
-.brand-version-badge:hover {
-  background: rgba(245, 158, 11, 0.3);
-  border-color: var(--accent-gold);
-  transform: scale(1.05);
-}
 
 
 /* ---------------- DEDICATED CHANGELOG PAGE STYLES ---------------- */

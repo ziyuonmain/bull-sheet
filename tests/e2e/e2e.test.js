@@ -4,9 +4,12 @@ test.describe('BullSheet Web App & Chrome Extension E2E Suite', () => {
   test('01: homepage loads with brand title, tagline, and navigation tabs', async ({ page }) => {
     await page.goto('/');
     
-    // Check brand title
-    const title = page.locator('.brand-title');
+    // Check brand title and version badge in header
+    const title = page.locator('.brand-title-row .brand-title');
     await expect(title).toContainText('BullSheet');
+    const versionBadge = page.locator('.brand-title-row #btn-header-version');
+    await expect(versionBadge).toBeVisible();
+    await expect(versionBadge).toContainText('v1.5.2');
 
     // Check brand tagline (case-insensitive)
     const tagline = page.locator('.brand-tagline');

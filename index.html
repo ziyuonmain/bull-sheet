@@ -27,16 +27,16 @@
     <!-- Top Navigation Header -->
     <header class="app-header">
       <div class="brand-logo-area">
-        <button class="brand-logo" id="brand-logo-btn" type="button" aria-label="BullSheet Home" onclick="window.app && window.app.handleBrandClick(event)">
+        <div class="brand-logo" id="brand-logo-btn" role="button" tabindex="0" aria-label="BullSheet Home" onclick="window.app && window.app.handleBrandClick(event)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.app && window.app.handleBrandClick(event);}">
           <img src="icons/icon.svg" alt="BullSheet Logo" class="brand-bull-icon brand-bull-img" width="38" height="38" />
           <div class="brand-text-wrap">
             <div class="brand-title-row">
               <span class="brand-title">BullSheet</span>
+              <a href="https://github.com/ziyuonmain/bull-sheet/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="brand-version-badge" id="btn-header-version" title="Version 1.5.2 • View Changelog on GitHub">v1.5.2</a>
             </div>
             <span class="brand-tagline">Because pub math is total bull-sheet.</span>
           </div>
-        </button>
-        <a href="https://github.com/ziyuonmain/bull-sheet/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="brand-version-badge" id="btn-header-version" title="Version 1.5.2 • View Changelog on GitHub">v1.5.2</a>
+        </div>
       </div>
       <div class="header-right-group">
         <nav class="nav-tabs" aria-label="Main Navigation">
