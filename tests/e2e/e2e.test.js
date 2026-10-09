@@ -1,4 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+
+const { version: appVersion } = JSON.parse(
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf8')
+);
 
 test.describe('BullSheet Web App & Chrome Extension E2E Suite', () => {
   test('01: homepage loads with brand title, tagline, and navigation tabs', async ({ page }) => {
@@ -9,7 +14,7 @@ test.describe('BullSheet Web App & Chrome Extension E2E Suite', () => {
     await expect(title).toContainText('BullSheet');
     const versionBadge = page.locator('.brand-title-row #btn-header-version');
     await expect(versionBadge).toBeVisible();
-    await expect(versionBadge).toContainText('v1.5.3');
+    await expect(versionBadge).toContainText(`v${appVersion}`);
 
     // Check brand tagline (case-insensitive)
     const tagline = page.locator('.brand-tagline');
