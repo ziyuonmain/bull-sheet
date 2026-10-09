@@ -76,7 +76,7 @@ export class KillerGame {
 
     // 1. If not yet Killer, hitting own Double qualifies as Killer
     if (!player.isKiller) {
-      if (dartNum === player.targetNumber && dartMult >= 2) {
+      if (dartNum === player.targetNumber && dartMult === 2) {
         player.isKiller = true;
       }
     } else {

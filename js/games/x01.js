@@ -63,6 +63,8 @@ export class X01Game {
     }
 
     const player = this.getActivePlayer();
+    const previousTurnStartScore = this.turnStartScore;
+    const previousTurnStartDoubledIn = this.turnStartDoubledIn;
     if (this.turnDarts.length === 0) {
       this.turnStartScore = player.score;
       this.turnStartDoubledIn = player.hasDoubledIn;
@@ -129,6 +131,9 @@ export class X01Game {
     // Save snapshot for undo
     this.history.push({
       playerIdx: this.activePlayerIdx,
+      legStartIndex: this.legStartIndex,
+      turnStartScore: previousTurnStartScore,
+      turnStartDoubledIn: previousTurnStartDoubledIn,
       dart: { ...dart },
       prevScore,
       prevDoubledIn,
@@ -143,7 +148,15 @@ export class X01Game {
         setsWon: p.setsWon,
         totalScoreScored: p.totalScoreScored,
         totalDarts: p.totalDarts,
-        turns: [...p.turns]
+        turns: [...p.turns],
+        hasDoubledIn: p.hasDoubledIn,
+        highTurn: p.highTurn,
+        count180: p.count180,
+        count140: p.count140,
+        count100: p.count100,
+        count60: p.count60,
+        countBusts: p.countBusts,
+        doublesHit: p.doublesHit
       }))
     });
 
@@ -223,6 +236,9 @@ export class X01Game {
 
     this.history.push({
       playerIdx: this.activePlayerIdx,
+      legStartIndex: this.legStartIndex,
+      turnStartScore: this.turnStartScore,
+      turnStartDoubledIn: this.turnStartDoubledIn,
       turnScore,
       prevScore,
       prevDoubledIn: player.hasDoubledIn,
@@ -236,7 +252,15 @@ export class X01Game {
         setsWon: p.setsWon,
         totalScoreScored: p.totalScoreScored,
         totalDarts: p.totalDarts,
-        turns: [...p.turns]
+        turns: [...p.turns],
+        hasDoubledIn: p.hasDoubledIn,
+        highTurn: p.highTurn,
+        count180: p.count180,
+        count140: p.count140,
+        count100: p.count100,
+        count60: p.count60,
+        countBusts: p.countBusts,
+        doublesHit: p.doublesHit
       }))
     });
 
@@ -303,13 +327,13 @@ export class X01Game {
     player.legsWon++;
     let matchWon = false;
 
-    if (player.legsWon >= this.legsPerSet) {
-      player.setsWon++;
-      this.players.forEach(p => { p.legsWon = 0; });
-      if (player.setsWon >= this.setsToWin) {
-        matchWon = true;
+    if (this.setsToWin > 1) {
+      if (player.legsWon >= this.legsPerSet) {
+        player.setsWon++;
+        this.players.forEach(p => { p.legsWon = 0; });
+        if (player.setsWon >= this.setsToWin) matchWon = true;
       }
-    } else if (this.setsToWin === 1 && player.legsWon >= this.legsToWin) {
+    } else if (player.legsWon >= this.legsToWin) {
       matchWon = true;
     }
 
@@ -365,6 +389,9 @@ export class X01Game {
     const last = this.history.pop();
 
     this.activePlayerIdx = last.playerIdx;
+    this.legStartIndex = last.legStartIndex ?? this.legStartIndex;
+    this.turnStartScore = last.turnStartScore ?? null;
+    this.turnStartDoubledIn = last.turnStartDoubledIn ?? null;
     
     // Restore all players state if leg/set had changed
     if (last.allPlayersSnapshot) {
@@ -377,6 +404,14 @@ export class X01Game {
           p.totalScoreScored = snap.totalScoreScored;
           p.totalDarts = snap.totalDarts;
           p.turns = [...snap.turns];
+          p.hasDoubledIn = snap.hasDoubledIn;
+          p.highTurn = snap.highTurn;
+          p.count180 = snap.count180;
+          p.count140 = snap.count140;
+          p.count100 = snap.count100;
+          p.count60 = snap.count60;
+          p.countBusts = snap.countBusts;
+          p.doublesHit = snap.doublesHit;
         }
       });
     }
@@ -385,6 +420,10 @@ export class X01Game {
     player.score = last.prevScore;
     player.hasDoubledIn = last.prevDoubledIn;
     this.turnDarts = last.turnDartsSnapshot || [];
+    if (this.turnDarts.length === 0) {
+      this.turnStartScore = null;
+      this.turnStartDoubledIn = null;
+    }
 
     this.isMatchOver = false;
     this.winner = null;

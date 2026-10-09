@@ -11,7 +11,8 @@ export class ShanghaiGame {
       botProfile: p.botProfile || 'pub_regular',
       score: 0,
       roundScores: [],
-      totalDarts: 0
+      totalDarts: 0,
+      shanghaiWin: false
     }));
 
     this.activePlayerIdx = 0;
@@ -55,7 +56,7 @@ export class ShanghaiGame {
       points,
       prevScore: player.score,
       turnDartsSnapshot: [...this.turnDarts],
-      playersSnapshot: this.players.map(p => ({ score: p.score, roundScores: [...p.roundScores], totalDarts: p.totalDarts }))
+      playersSnapshot: this.players.map(p => ({ score: p.score, roundScores: [...p.roundScores], totalDarts: p.totalDarts, shanghaiWin: p.shanghaiWin }))
     });
 
     player.score += points;
@@ -69,6 +70,7 @@ export class ShanghaiGame {
     const hasTreble = targetDarts.some(d => Number(d.mult) === 3);
 
     if (hasSingle && hasDouble && hasTreble) {
+      player.shanghaiWin = true;
       this.isMatchOver = true;
         this.currentRound = this.maxRounds;
       this.winner = player;
@@ -151,6 +153,7 @@ export class ShanghaiGame {
           p.score = snap.score;
           p.roundScores = [...snap.roundScores];
           p.totalDarts = snap.totalDarts;
+          p.shanghaiWin = snap.shanghaiWin;
         }
       });
     }

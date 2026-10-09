@@ -156,6 +156,19 @@ class StatsStore {
     }
   }
 
+  removeMatch(matchId) {
+    const previousHistory = this.history;
+    this.history = this.history.filter(match => match.id !== matchId);
+    try {
+      localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(this.history));
+      return this.history.length !== previousHistory.length;
+    } catch (e) {
+      this.history = previousHistory;
+      console.warn('Could not remove match record:', e);
+      return false;
+    }
+  }
+
   // Aggregate statistics per player with optional game mode filter
   getAggregatedStats(playerName = 'all', modeFilter = 'all') {
     let matches = this.history || [];

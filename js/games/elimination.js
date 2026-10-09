@@ -13,7 +13,8 @@ export class EliminationGame {
       lives: this.startingLives,
       isEliminated: false,
       roundsSurvived: 0,
-      totalDarts: 0
+      totalDarts: 0,
+      highTurn: 0
     }));
 
     this.activePlayerIdx = 0;
@@ -60,7 +61,8 @@ export class EliminationGame {
         lives: p.lives,
         isEliminated: p.isEliminated,
         roundsSurvived: p.roundsSurvived,
-        totalDarts: p.totalDarts
+        totalDarts: p.totalDarts,
+        highTurn: p.highTurn
       }))
     });
 
@@ -69,10 +71,11 @@ export class EliminationGame {
 
     if (this.turnDarts.length === 3) {
       const turnTotal = this.turnDarts.reduce((a, d) => a + (d.score || 0), 0);
+      player.highTurn = Math.max(player.highTurn, turnTotal);
       let lostLife = false;
 
       if (this.targetScoreToBeat > 0) {
-        if (turnTotal <= this.targetScoreToBeat) {
+        if (turnTotal < this.targetScoreToBeat) {
           player.lives--;
           lostLife = true;
           if (player.lives <= 0) {
@@ -155,6 +158,7 @@ export class EliminationGame {
           p.isEliminated = snap.isEliminated;
           p.roundsSurvived = snap.roundsSurvived;
           p.totalDarts = snap.totalDarts;
+          p.highTurn = snap.highTurn;
         }
       });
     }

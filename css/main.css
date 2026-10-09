@@ -4600,6 +4600,45 @@ button.brand-logo .brand-tagline {
   margin-right: 0 !important;
 }
 
+.clock-hero-target {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  margin: 20px 0 8px;
+  padding: clamp(18px, 6vw, 36px) 16px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-gold) 12%, transparent);
+}
+
+.clock-big-num {
+  color: var(--accent-gold);
+  font-family: var(--font-mono);
+  font-size: clamp(3.5rem, 18vw, 7rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  text-align: center;
+  text-shadow: 0 0 24px color-mix(in srgb, var(--accent-gold) 28%, transparent);
+}
+
+.clock-progress-bar-container {
+  width: min(100%, 420px);
+  height: 12px;
+  overflow: hidden;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+}
+
+.clock-fill-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-green), var(--accent-gold));
+  border-radius: inherit;
+  transition: width 220ms ease-out;
+}
+
 .multiplayer-strip {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

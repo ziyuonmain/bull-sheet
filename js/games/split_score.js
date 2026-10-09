@@ -32,7 +32,10 @@ export class SplitScoreGame {
       score: this.startScore,
       roundScores: [],
       hitsThisRound: 0,
-      totalDarts: 0
+      totalDarts: 0,
+      halvedRounds: 0,
+      hitsLanded: 0,
+      turnScores: []
     }));
 
     this.activePlayerIdx = 0;
@@ -125,7 +128,7 @@ export class SplitScoreGame {
       prevScore: player.score,
       prevHits: player.hitsThisRound,
       turnDartsSnapshot: [...this.turnDarts],
-      playersSnapshot: this.players.map(p => ({ score: p.score, hitsThisRound: p.hitsThisRound, totalDarts: p.totalDarts, roundScores: [...p.roundScores] }))
+      playersSnapshot: this.players.map(p => ({ score: p.score, hitsThisRound: p.hitsThisRound, totalDarts: p.totalDarts, roundScores: [...p.roundScores], halvedRounds: p.halvedRounds, hitsLanded: p.hitsLanded, turnScores: [...p.turnScores] }))
     });
 
     player.totalDarts++;
@@ -133,6 +136,7 @@ export class SplitScoreGame {
 
     if (hit) {
       player.hitsThisRound++;
+      player.hitsLanded++;
       player.score += points;
     }
 
@@ -142,10 +146,12 @@ export class SplitScoreGame {
 
       if (player.hitsThisRound === 0) {
         player.score = Math.floor(player.score / 2);
+        player.halvedRounds++;
         halved = true;
       }
 
       player.roundScores[this.currentRoundIdx] = player.score;
+      player.turnScores.push(turnScore);
       const isLastRound = this.currentRoundIdx >= this.rounds.length - 1 && this.activePlayerIdx === this.players.length - 1;
 
       return {
@@ -229,6 +235,9 @@ export class SplitScoreGame {
           p.hitsThisRound = snap.hitsThisRound;
           p.totalDarts = snap.totalDarts;
           p.roundScores = [...snap.roundScores];
+          p.halvedRounds = snap.halvedRounds;
+          p.hitsLanded = snap.hitsLanded;
+          p.turnScores = [...snap.turnScores];
         }
       });
     } else {

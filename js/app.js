@@ -1186,10 +1186,12 @@ class BullSheetApp {
     if (!this.currentGame || this.currentGame.isMatchOver || this.isPausedForNextLeg) return;
     this.vibrate(20);
 
-    if (dart.mult === 3 || dart.score === 50) {
+    if (dart.score === 50 || (dart.number === 25 && dart.mult === 2)) {
+      sound.playBullseye();
+    } else if (dart.mult === 3) {
       sound.playTrebleHit();
     } else if (dart.score === 25) {
-      sound.playBullseye();
+      sound.playDartHit();
     } else {
       sound.playDartHit();
     }
@@ -1257,8 +1259,7 @@ class BullSheetApp {
         }))
       };
 
-      store.saveMatch(matchRecord);
-      this.lastMatchData = matchRecord;
+      this.lastMatchData = store.saveMatch(matchRecord) || matchRecord;
       store.clearActiveMatch();
 
       this.renderSummary(res.winner);
@@ -1279,6 +1280,14 @@ class BullSheetApp {
       caller.callBust(res.player.name);
       if (this.dartboard) this.dartboard.clearHits();
       this.showBanterToast("💥 Bust! Pub math strikes again!");
+      this.currentGame.finishTurn();
+      this.saveCurrentMatchState();
+      this.updateScoreboard();
+      const nextPlayer = this.currentGame.getActivePlayer();
+      if (nextPlayer) {
+        caller.callTurn(nextPlayer.name);
+        if (nextPlayer.isBot) this.triggerBotTurn(store.settings.voice ? 1200 : 750);
+      }
       return;
     }
 
@@ -1291,7 +1300,9 @@ class BullSheetApp {
 
     if (res.type === 'dart_recorded') {
       // Dart 1 or Dart 2: Announce single dart throw
-      const dartScore = res.dart?.score !== undefined ? res.dart.score : ((res.dart?.number || 0) * (res.dart?.mult || 1));
+      const dartScore = res.dart?.effectiveScore !== undefined
+        ? res.dart.effectiveScore
+        : (res.dart?.score !== undefined ? res.dart.score : ((res.dart?.number || 0) * (res.dart?.mult || 1)));
       caller.callSingleDart(dartScore, res.dart);
       return;
     }
@@ -1300,7 +1311,9 @@ class BullSheetApp {
       if (this.dartboard) this.dartboard.clearHits();
       
       const lastDart = res.dart || res.lastDart || (this.currentGame?.turnDarts && this.currentGame.turnDarts[this.currentGame.turnDarts.length - 1]);
-      const lastDartScore = lastDart?.score !== undefined ? lastDart.score : ((lastDart?.number || 0) * (lastDart?.mult || 1));
+      const lastDartScore = lastDart?.effectiveScore !== undefined
+        ? lastDart.effectiveScore
+        : (lastDart?.score !== undefined ? lastDart.score : ((lastDart?.number || 0) * (lastDart?.mult || 1)));
 
       // Quality sarcastic pub banter toasts on iconic scores
       const turnTotal = res.turnScore !== undefined ? res.turnScore : (res.player?.turnScore || 0);
@@ -1886,6 +1899,20 @@ class BullSheetApp {
       this.showBanterToast("📸 Match Card PNG Downloaded!");
     });
 
+    document.getElementById('btn-undo-final-dart')?.addEventListener('click', () => {
+      if (!this.currentGame || !this.lastMatchData) return;
+      sound.playClick();
+      const historyUpdated = store.removeMatch(this.lastMatchData.id);
+      this.currentGame.undo();
+      this.lastMatchData = null;
+      this.isPausedForNextLeg = false;
+      document.getElementById('leg-win-celebration-banner')?.remove();
+      this.saveCurrentMatchState();
+      this.updateScoreboard();
+      this.showView('view-game', true);
+      this.showBanterToast(historyUpdated ? '↩️ Final dart undone. Match history updated.' : '↩️ Final dart undone. Saved match history could not be updated.');
+    });
+
     document.getElementById('btn-test-26')?.addEventListener('click', () => {
       caller.callScore(26);
     });
@@ -1982,7 +2009,7 @@ class BullSheetApp {
           p.isEliminated ? `☠️ Knockout (R${p.eliminatedRound || this.currentGame.currentRound})` : '✅ Survived (21/21)',
           `${p.score} pts`,
           `${p.totalDoublesHit || 0} / 63`,
-          `${p.totalDarts > 0 ? ((p.totalDoublesHit / p.totalDarts) * 100).toFixed(1) + '%' : '0.0%'}`
+          `${p.totalDartsThrown > 0 ? ((p.totalDoublesHit / p.totalDartsThrown) * 100).toFixed(1) + '%' : '0.0%'}`
         ]);
         break;
 
@@ -2004,7 +2031,7 @@ class BullSheetApp {
           p.id === winner?.id ? '👑 Winner' : '☠️ Knocked Out',
           `${p.lives} / ${this.currentGame.startingLives || 5}`,
           `${p.roundsSurvived || 0}`,
-          `${p.highTurn || (p.turns?.length ? Math.max(0, ...p.turns) : 0)} pts`
+          `${p.highTurn || 0} pts`
         ]);
         break;
 
@@ -2014,9 +2041,9 @@ class BullSheetApp {
           `<strong>${p.name}</strong> ${p.isBot ? '<small>(BOT)</small>' : ''}`,
           p.id === winner?.id ? '🏆 Winner' : 'Runner-up',
           `${p.score} pts`,
-          `${p.turns?.reduce((a, b) => a + (b > 0 ? 1 : 0), 0) || 0} / ${this.currentGame.rounds?.length || 9}`,
-          `${p.scoreHistory ? p.scoreHistory.filter(s => s.halved).length : 0}`,
-          `${p.turns?.length ? Math.max(0, ...p.turns) : 0} pts`
+          `${p.hitsLanded || 0} / ${p.totalDarts || 0}`,
+          `${p.halvedRounds || 0}`,
+          `${p.turnScores?.length ? Math.max(0, ...p.turnScores) : 0} pts`
         ]);
         break;
 
@@ -2095,8 +2122,9 @@ class BullSheetApp {
     let turnTotal = 0;
     if (this.currentGame.turnDarts && this.currentGame.turnDarts.length > 0) {
       turnTotal = this.currentGame.turnDarts.reduce((acc, d) => {
-        if (d.score !== undefined) return acc + d.score;
+        if (d.effectiveScore !== undefined) return acc + d.effectiveScore;
         if (d.pointsScored !== undefined) return acc + d.pointsScored;
+        if (d.score !== undefined) return acc + d.score;
         return acc + ((d.number || 0) * (d.mult || 1));
       }, 0);
     }

@@ -225,7 +225,7 @@ test.describe('BullSheet Web App & Chrome Extension E2E Suite', () => {
     const rulesModal = page.locator('#modal-rules');
     await expect(rulesModal).toHaveClass(/active/);
     await expect(page.locator('#rules-modal-title')).toContainText('X01 Darts');
-    await expect(page.locator('#rules-modal-objective')).toContainText('Reduce score from your starting total');
+    await expect(page.locator('#rules-modal-objective')).toContainText('Reduce your starting score');
 
     // Close rules modal
     await page.locator('#modal-rules .modal-close').first().click();

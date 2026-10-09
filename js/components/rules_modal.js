@@ -1,13 +1,13 @@
 // Comprehensive & Accurate Game Rules Reference for BullSheet
 export const GAME_RULES = {
   x01: {
-    title: "X01 Darts (301 / 501 / 701+)",
+    title: "X01 Darts",
     icon: "🎯",
-    objective: "Reduce score from your starting total (101, 201, 301, 501, 701, 901, or 1001) to exactly zero.",
+    objective: "Reduce your starting score (101, 301, 501, 701, or 901) to exactly zero.",
     rules: [
-      "Starting Scores: Choose from 101, 201, 301, 501, 701, 901, or 1001.",
-      "Match Formats: Play Best of Legs (e.g. First to 1, 3, 5, 7) or Sets & Legs format.",
-      "In Rules: Straight In (score immediately) or Double In (scoring begins only after hitting a double ring).",
+      "Starting Scores: Choose 101, 301, 501, 701, or 901.",
+      "Leg Format: First to 1, 3, 5, or 7 legs wins.",
+      "In Rules: Straight In (score immediately), Double In (start scoring after a double), or Master In (start scoring after a double or treble).",
       "Out Rules: Double Out (official PDC finish on a double or bullseye), Single Out, or Master Out (finish on double or treble).",
       "Bust Rule: Exceeding your score, reaching 1 on Double Out, or failing the checkout condition reverts your score back to the start of the visit.",
       "PDC Checkout Guide: Automatically suggests optimal multi-dart checkout combinations when your score reaches 170 or below."
@@ -33,10 +33,10 @@ export const GAME_RULES = {
     objective: "Hit your assigned Double to become a Killer, then eliminate opponents' lives while defending your own.",
     rules: [
       "Assigned Numbers: Each player receives a unique target sector (1–20) on the board.",
-      "Qualification: You must hit the Double ring of your assigned number (e.g. D10) to become a Killer.",
+      "Qualification: Hit the Double ring of your assigned number (e.g. D10) to become a Killer.",
       "Eliminating Opponents: Once you are a Killer, hitting any opponent's number (Single, Double, or Treble) removes their lives.",
-      "Friendly Fire: Hitting your own number after qualifying costs you 1 life!",
-      "Elimination: Players start with 1 to 10 lives. When a player reaches 0 lives, they are eliminated. Last surviving player wins."
+      "Life Changes: A hit removes lives based on its multiplier (1 for Single, 2 for Double, 3 for Treble). Hitting your own number after qualifying also costs lives.",
+      "Starting Lives: Choose 3, 5, or 7. A player at 0 lives is eliminated; the last survivor wins."
     ],
     proTip: "Watch the board highlights! Your targets glow gold, while your own sector outlines in hazard red once you are a Killer."
   },
@@ -62,7 +62,7 @@ export const GAME_RULES = {
       "Sequences: Play the Classic sequence (15, 16, Double, 17, 18, Treble, 19, 20, Bull), Random, or Custom target sequences.",
       "Starting Score: Configurable starting score (0, 40, 50, or 100 points).",
       "Target Hits: All successful hits add points to your cumulative score (Doubles and Trebles multiply score accordingly).",
-      "Halving Penalty: If you fail to hit the target with all 3 darts in a round, your total score is cut in half (rounded down).",
+      "Halving Penalty: If you miss the target with all 3 darts in a round, your total score is cut in half (rounded down).",
       "The player with the highest total score after the final round wins."
     ],
     proTip: "Aim for a safe Single on your first dart to secure your score before risking doubles or trebles."
@@ -94,10 +94,10 @@ export const GAME_RULES = {
   elimination: {
     title: "Elimination",
     icon: "💀",
-    objective: "Score higher than or equal to the previous player's visit, or lose a life.",
+    objective: "Score at least as many points as the previous player's visit, or lose a life.",
     rules: [
-      "Starting Lives: Players start with 1 to 5 lives.",
-      "Target Score: Each player must equal or beat the total 3-dart score of the preceding player.",
+      "Starting Lives: Choose 3, 5, or 7 lives.",
+      "Target Score: Each player must equal or beat the previous player's 3-dart score.",
       "Life Loss: If your 3-dart score is lower than the previous player's score, you lose 1 life.",
       "Elimination: Players who lose all lives are eliminated. The last survivor wins."
     ],
@@ -106,7 +106,7 @@ export const GAME_RULES = {
   highscore: {
     title: "Highscore",
     icon: "🏆",
-    objective: "Score as many points as possible across a fixed number of rounds (5, 7, or 10 rounds).",
+    objective: "Score as many points as possible across 5, 7, or 10 rounds.",
     rules: [
       "Round Count: Choose between 5, 7, or 10 rounds.",
       "Open Scoring: Throw 3 darts per round at any segment on the board (no bust rules).",
@@ -118,10 +118,10 @@ export const GAME_RULES = {
   shooter: {
     title: "Shooter",
     icon: "🏹",
-    objective: "Hit the random target called by the referee each round across 5 to 10 rounds.",
+    objective: "Hit each randomly ordered target across 5, 7, or 10 rounds.",
     rules: [
-      "Random Calling: A new target number (1–20 or Bull) is randomly designated for each round.",
-      "Scoring: Only hits on the active called target score points (Single = 1 pt, Double = 2 pts, Treble = 3 pts, Bull = 2 pts).",
+      "Targets: Numbers are randomly ordered, with Bull as the final round's target.",
+      "Scoring: Only hits on the active target score points (Single = 1 pt, Double = 2 pts, Treble = 3 pts; Outer Bull = 1 pt, Inner Bull = 2 pts).",
       "Player with the most target points after all rounds wins."
     ],
     proTip: "A supreme training routine for developing consistent accuracy across all 20 board sectors."
