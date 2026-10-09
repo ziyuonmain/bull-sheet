@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a match-summary action to undo the winning dart and remove that result from local match history.
 
 #### Changed
+- Reduced AI bot accuracy and tactical skill across all profiles, especially Beginner and Casual, to make opponents more beatable.
 - X01 busts now end the visit and move play to the next player.
 - Hit sounds now distinguish bullseyes, trebles, and ordinary segments.
 - Normalized all referee clips across the three caller packs to bring their playback levels closer together.

@@ -7,60 +7,60 @@ export const BOT_PROFILES = {
     name: '🤡 Beginner',
     description: 'Casual beginner with shaky aim, frequent misses, and chaotic pressure play.',
     skillRating: 'Beginner',
-    t20Chance: 0.02,
-    trebleHitChance: 0.02,
-    doubleHitChance: 0.08,
-    singleChance: 0.50,
-    missChance: 0.35,
-    tacticalIQ: 0.15
+    t20Chance: 0.01,
+    trebleHitChance: 0.01,
+    doubleHitChance: 0.04,
+    singleChance: 0.35,
+    missChance: 0.50,
+    tacticalIQ: 0.05
   },
   pub_regular: {
     id: 'pub_regular',
     name: '🍺 Casual',
     description: 'Steady pub league thrower with dependable single scoring and relaxed rhythm.',
     skillRating: 'Casual',
-    t20Chance: 0.15,
-    trebleHitChance: 0.15,
-    doubleHitChance: 0.25,
-    singleChance: 0.60,
-    missChance: 0.15,
-    tacticalIQ: 0.40
+    t20Chance: 0.08,
+    trebleHitChance: 0.08,
+    doubleHitChance: 0.16,
+    singleChance: 0.50,
+    missChance: 0.28,
+    tacticalIQ: 0.25
   },
   accountant: {
     id: 'accountant',
     name: '📊 Tactician',
     description: 'Disciplined match player. Calculates every risk and excels in defensive play.',
     skillRating: 'Tactician',
-    t20Chance: 0.35,
-    trebleHitChance: 0.35,
-    doubleHitChance: 0.45,
-    singleChance: 0.52,
-    missChance: 0.05,
-    tacticalIQ: 0.70
+    t20Chance: 0.24,
+    trebleHitChance: 0.24,
+    doubleHitChance: 0.34,
+    singleChance: 0.48,
+    missChance: 0.12,
+    tacticalIQ: 0.55
   },
   oche_master: {
     id: 'oche_master',
     name: '🏅 Semi-Pro',
     description: 'Tournament county ace with heavy treble scoring and clutch double finishes.',
     skillRating: 'Semi-Pro',
-    t20Chance: 0.58,
-    trebleHitChance: 0.58,
-    doubleHitChance: 0.68,
-    singleChance: 0.38,
-    missChance: 0.02,
-    tacticalIQ: 0.90
+    t20Chance: 0.42,
+    trebleHitChance: 0.42,
+    doubleHitChance: 0.55,
+    singleChance: 0.40,
+    missChance: 0.05,
+    tacticalIQ: 0.78
   },
   machine180: {
     id: 'machine180',
     name: '👑 Master',
     description: 'World-class stage champion. Near-flawless precision across all game modes.',
     skillRating: 'Master',
-    t20Chance: 0.80,
-    trebleHitChance: 0.80,
-    doubleHitChance: 0.88,
-    singleChance: 0.19,
-    missChance: 0.01,
-    tacticalIQ: 1.00
+    t20Chance: 0.68,
+    trebleHitChance: 0.68,
+    doubleHitChance: 0.78,
+    singleChance: 0.25,
+    missChance: 0.02,
+    tacticalIQ: 0.95
   }
 };
 
