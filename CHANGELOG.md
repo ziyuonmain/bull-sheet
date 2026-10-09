@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased] - 2026-10-07
+## [1.5.3] - 2026-10-09
 ### Casual Player UX Review
 #### Added
 - Added a match-summary action to undo the winning dart and remove that result from local match history.
@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Normalized all referee clips across the three caller packs to bring their playback levels closer together.
 - Updated in-app rules to match the available X01 scores, leg formats, life counts, and mode scoring.
 - Added themed target and progress styling to Around the Clock.
-- Refreshed the README feature guide and screenshots for desktop, mobile input views, match history, and Excel theme settings.
+- Updated README screenshots for setup, landscape and portrait match play, history, and the gravity excuse.
+- Added gameplay screenshots for Cricket, Killer, Bob's 27, Shanghai, and Around the Clock.
 - Clarified game rules, engine undo requirements, and local development commands in the documentation.
 - Shortened the mobile drawer repository link label to “GitHub.”
 
@@ -27,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - X01 first-to-5 and first-to-7 matches now continue to the selected leg count.
 - Locked double-in darts now use their effective score for single-dart and visit-total announcements.
 - Elimination ties now preserve a life, and Killer qualification requires the highlighted double.
+
+---
 
 ## [1.5.2] - 2026-09-01
 ### 📜 Version Badge Direct Changelog Links & Settings About Integration

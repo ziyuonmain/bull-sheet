@@ -4,9 +4,7 @@
 
 A darts scoreboard for matches and practice on phones, tablets, and desktops. No ads, no account required and no telemetry collected.
 
-<p align="center">
-  <strong>🎯 <a href="https://ziyuonmain.github.io/bull-sheet/">Play BullSheet</a> 🎯</strong>
-</p>
+<p align="center"><a href="https://ziyuonmain.github.io/bull-sheet/"><strong>🎯 Play BullSheet 🎯</strong></a></p>
 
 ## Highlights
 
@@ -18,23 +16,25 @@ A darts scoreboard for matches and practice on phones, tablets, and desktops. No
 
 ## Screenshots
 
-Two views from the same X01 match: landscape with the dartboard and portrait with the numpad.
+**Landing page**
 
-| Landscape · dartboard | Portrait · numpad |
+  [![BullSheet setup screen with X01 selected and saved players The Nuke and Mighty Mike](assets/screenshots/landscape/setup.png)](assets/screenshots/landscape/setup.png)
+
+**Match play**
+
+| Landscape - dartboard | Portrait - numpad |
 | :---: | :---: |
-| <img src="assets/screenshots/landscape/x01_dartsboard.png" alt="Landscape X01 match with the interactive dartboard" width="100%" /> | <img src="assets/screenshots/portrait/x01_numpad.png" alt="Portrait X01 match with the dart numpad" width="390" /> |
+| [![Landscape X01 match with the interactive dartboard](assets/screenshots/landscape/x01_dartsboard.png)](assets/screenshots/landscape/x01_dartsboard.png) | [![Portrait X01 match with the numpad](assets/screenshots/portrait/x01_numpad.png)](assets/screenshots/portrait/x01_numpad.png) |
 
-### Match history
+**Match history**
 
-An example of the local match log and player stats:
+[![Match history for The Nuke and Mighty Mike](assets/screenshots/landscape/history.png)](assets/screenshots/landscape/history.png)
 
-![Match history overview with sample match results and player statistics](assets/screenshots/landscape/history_top.png)
+**And if you miss the dart:**
 
-And for the occasional missed dart:
+<p align="center"><a href="assets/screenshots/excuse.png"><img src="assets/screenshots/excuse.png" alt="Pub excuse generator"></a></p>
 
-<p align="center">
-  <img src="assets/screenshots/excuse.png" alt="Pub excuse generator showing the gravity excuse" width="420" />
-</p>
+> :camera: More screenshots available in the [assets/screenshots](assets/screenshots) folder.
 
 ## Get started
 

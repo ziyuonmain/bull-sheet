@@ -9,7 +9,7 @@ test.describe('BullSheet Web App & Chrome Extension E2E Suite', () => {
     await expect(title).toContainText('BullSheet');
     const versionBadge = page.locator('.brand-title-row #btn-header-version');
     await expect(versionBadge).toBeVisible();
-    await expect(versionBadge).toContainText('v1.5.2');
+    await expect(versionBadge).toContainText('v1.5.3');
 
     // Check brand tagline (case-insensitive)
     const tagline = page.locator('.brand-tagline');
