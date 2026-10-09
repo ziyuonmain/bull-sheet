@@ -18,23 +18,23 @@ A darts scoreboard for matches and practice on phones, tablets, and desktops. No
 
 **Landing page**
 
-  [![BullSheet setup screen with X01 selected and saved players The Nuke and Mighty Mike](assets/screenshots/landscape/setup.png)](assets/screenshots/landscape/setup.png)
+  [![BullSheet setup screen with X01 selected and saved players The Nuke and Mighty Mike](docs/screenshots/landscape/setup.png)](docs/screenshots/landscape/setup.png)
 
 **Match play**
 
 | Landscape - dartboard | Portrait - numpad |
 | :---: | :---: |
-| [![Landscape X01 match with the interactive dartboard](assets/screenshots/landscape/x01_dartsboard.png)](assets/screenshots/landscape/x01_dartsboard.png) | [![Portrait X01 match with the numpad](assets/screenshots/portrait/x01_numpad.png)](assets/screenshots/portrait/x01_numpad.png) |
+| [![Landscape X01 match with the interactive dartboard](docs/screenshots/landscape/x01_dartsboard.png)](docs/screenshots/landscape/x01_dartsboard.png) | [![Portrait X01 match with the numpad](docs/screenshots/portrait/x01_numpad.png)](docs/screenshots/portrait/x01_numpad.png) |
 
 **Match history**
 
-[![Match history for The Nuke and Mighty Mike](assets/screenshots/landscape/history.png)](assets/screenshots/landscape/history.png)
+[![Match history for The Nuke and Mighty Mike](docs/screenshots/landscape/history.png)](docs/screenshots/landscape/history.png)
 
 **And if you miss the dart:**
 
-<p align="center"><a href="assets/screenshots/excuse.png"><img src="assets/screenshots/excuse.png" alt="Pub excuse generator"></a></p>
+<p align="center"><a href="docs/screenshots/excuse.png"><img src="docs/screenshots/excuse.png" alt="Pub excuse generator"></a></p>
 
-> :camera: More screenshots available in the [assets/screenshots](assets/screenshots) folder.
+> :camera: More screenshots available in the [docs/screenshots](docs/screenshots) folder.
 
 ## Get started
 

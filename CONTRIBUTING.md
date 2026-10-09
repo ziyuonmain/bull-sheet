@@ -20,7 +20,7 @@ bull-sheet/
 ├── playwright.config.js        # Playwright E2E browser test configuration
 ├── dev_server.js               # Zero-dependency static HTTP dev server
 ├── audio/                      # Bundled referee voice clips
-├── assets/screenshots/         # README and app screenshots
+├── docs/screenshots/           # README screenshots
 ├── css/
 │   ├── main.css                # Layout, components, and responsive styles
 │   ├── themes.css              # Theme CSS variables (Pub Chalkboard, Excel, PDC, OLED)
