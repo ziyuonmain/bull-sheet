@@ -34,7 +34,7 @@ describe('Changelog Parser & Integrity', () => {
     const changelogContent = fs.readFileSync(changelogPath, 'utf8');
 
     const html = parseChangelogMarkdown(changelogContent);
-    assert.ok(html.includes('v1.5.3'), 'CHANGELOG.md should contain current v1.5.3');
+    assert.ok(html.includes('v1.5.4'), 'CHANGELOG.md should contain current v1.5.4');
     assert.ok(!html.includes('No releases found'), 'Changelog parser should succeed on actual file');
   });
 });
