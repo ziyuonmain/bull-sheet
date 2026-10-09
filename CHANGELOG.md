@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [1.5.3] - 2026-10-09
-### Casual Player UX Review
+### Gameplay, Audio & Quality-of-Life Improvements
 #### Added
 - Added a match-summary action to undo the winning dart and remove that result from local match history.
 
