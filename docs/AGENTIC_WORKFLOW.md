@@ -160,26 +160,16 @@ When rebasing or resolving merge conflicts:
 
 ## 5. Automated Quality Gates
 
-Before concluding any task or pushing to `main`, all 4 quality gates must pass:
+Before committing or pushing, run the full test suite and linter:
 
 ```bash
-# Gate 1: Code Quality & ESLint Linter
-npm run lint
-
-# Gate 2: Unit & Asset/Service Worker Integrity Tests
-npm run test:unit
-
-# Gate 3: Headless Playwright Browser E2E Tests
-npm run test:e2e
-
-# Gate 4: Combined Full Test Suite
-npm test
+npm test && npm run lint
 ```
 
-| Quality Gate | Tool / Runner | Success Criteria |
+`npm test` runs the Node.js unit tests and Playwright browser tests. The unit suite also checks service-worker asset integrity and changelog parsing. For focused development, run `npm run test:unit` or `npm run test:e2e` separately.
+
+| Check | Tool / Runner | Success Criteria |
 | :--- | :--- | :--- |
-| **Linting** | ESLint (`eslint .`) | 0 errors, 0 warnings |
-| **Unit Tests** | Node.js Test Runner (`node --test`) | 100% pass across all 8 suites |
-| **Cache Integrity** | `integrity.test.js` | All cached assets exist on disk |
-| **Changelog Integrity** | `changelog.test.js` | `CHANGELOG.md` parses to valid HTML matching current version |
-| **E2E Browser Tests** | Playwright (`playwright test`) | 100% pass across mobile & desktop viewports |
+| **Unit & integrity tests** | Node.js Test Runner (`node --test`) | All configured unit tests pass; cached assets exist and the changelog parses |
+| **Browser tests** | Playwright (`playwright test`) | All configured end-to-end flows pass |
+| **Linting** | ESLint (`eslint .`) | No lint errors or warnings |

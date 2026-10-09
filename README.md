@@ -2,130 +2,56 @@
 
 > *Because pub math is total bull-sheet.*
 
-A darts scoreboard web app that runs in your browser. No ads, no accounts, no install required. Works offline once loaded.
+A darts scoreboard for matches and practice on phones, tablets, and desktops. No ads, no account required and no telemetry collected.
 
 <p align="center">
   <strong>🎯 <a href="https://ziyuonmain.github.io/bull-sheet/">Play BullSheet</a> 🎯</strong>
 </p>
 
-Designed to run on a phone or tablet at the oche. Or honestly, a laptop on the kitchen table.
+## Highlights
 
-`<rant>` Mostly vibe-coded in an evening, because every other darts app insists on showing you endless 30-second ads with an "x" button harder to find than Waldo — all before you can subtract 180 (or in my case, 26) from 501. `</rant>`
+- **Choose how to score:** switch between the interactive dartboard, speed keypad, and numpad.
+- **Play solo or with friends:** ten game modes, training drills, and five bot skill levels.
+- **Keep your match records:** review stats and high turns, undo darts, import or export history, and share a match card.
+- **Make it yours:** four themes and an installable PWA. Match data stays local, and play works offline after the first load.
+- **Extras:** X01 checkout suggestions, announcer voice packs, and a pub excuse generator for missed darts.
 
----
+## Screenshots
 
-## 📸 Screenshots
+Two views from the same X01 match: landscape with the dartboard and portrait with the numpad.
 
-> For more examples, check out `assets/screenshots/`, or just start playing!
-
-| Keypad Buttons | Interactive Dartsboard |
+| Landscape · dartboard | Portrait · numpad |
 | :---: | :---: |
-| <img src="assets/screenshots/landscape/x01_keypad.png" alt="BullSheet Pro Speed Keypad" width="100%" /> | <img src="assets/screenshots/landscape/x01_dartsboard.png" alt="Interactive SVG Dartboard" width="100%" /> |
+| <img src="assets/screenshots/landscape/x01_dartsboard.png" alt="Landscape X01 match with the interactive dartboard" width="100%" /> | <img src="assets/screenshots/portrait/x01_numpad.png" alt="Portrait X01 match with the dart numpad" width="390" /> |
 
-| History Stats | Various Themes |
-| :---: | :---: |
-| <img src="assets/screenshots/landscape/history_top.png" alt="Lifetime Stats & Match Log" width="100%" /> | <img src="assets/screenshots/portrait/settings_excel.png" alt="Match Setup and Game Modes" width="50%" /> |
+### Match history
 
----
+An example of the local match log and player stats:
 
-## ✨ What It Does
+![Match history overview with sample match results and player statistics](assets/screenshots/landscape/history_top.png)
 
-### 10 Game Modes
-
-| Mode | What It Is |
-| :--- | :--- |
-| **X01** | 101 / 301 / 501 (default) / 701 with configurable In/Out rules (Straight In, Double Out, etc.), Legs & Sets |
-| **Cricket** | Standard and Cutthroat, with marks-per-round tracking |
-| **Split Score** | Halve-It — miss your target, lose half your score |
-| **Killer** | Party game: claim a double, gain killer status, hunt opponents' lives |
-| **Elimination** | Beat the previous player's 3-dart total or lose a life |
-| **Shanghai** | Sequential rounds, instant win if you hit single + double + treble in one turn |
-| **Around the Clock** | Race from 1 → 20 → Bull, with double/treble jumps |
-| **Bob's 27** | The classic doubles training drill (start at 27, hit your doubles or lose points) |
-| **Highscore** | Fixed-round scoring practice (5, 7, or 10 rounds) |
-| **Shooter** | Random target accuracy drill |
-
-### Two Input Methods
-- **Pro Speed Keypad** — Quick-tap buttons for common scores (20, 1, 5, T20, Bull, 25, Miss) with multiplier toggles (Double, Treble). Fast enough for real match play.
-- **Interactive SVG Dartboard** — Tap directly on the board. Highlights checkout routes during X01 finishes.
-
-Toggle between them mid-game with the 🎯 button.
-
-### Caller Voice Packs
-Three pre-recorded audio caller packs with score announcements:
-- **🎙️ Russ Bray** ("The Voice")
-- **🎯 George Noble**
-- **🎩 British Referee**
-
-Volume control and mute toggle in settings.
-
-### AI Opponents
-Five bot difficulty profiles for solo practice:
-
-| Bot | Skill |
-| :--- | :--- |
-| 🤡 Beginner | Your mate who's "never played before" |
-| 🍺 Casual | Pub league regular |
-| 📊 Tactician | Plays the percentages |
-| 🎯 Semi-Pro | County-level |
-| 👑 Master | Not fun to play against |
-### Other Stuff
-
-- **Save your mates** — Add regulars, tap to add them to the lineup
-- **Match history** — Local match log with 3-dart averages, 180 counts, and high turns
-- **Match card export** — Generates a shareable PNG summary of the match
-- **History import/export** — Backup and restore match data as JSON
-- **Rules reference** — Built-in rules popup for each game mode
-- **Checkout suggestions** — PDC checkout route lookup for X01 finishes
-- **Multi-step undo** — Works across all game modes
-- **4 color themes** — Pub Chalkboard (default), Excel Sheet, PDC Arena (neon), OLED Midnight
-- **Pub excuse generator** — Missed the board? No worries, I got you covered.
-
-  ![Pub Excuses](assets/screenshots/excuse.png)
-
-### Mobile at the Oche (PWA)
-- Installable as a Progressive Web App (Add to Home Screen on mobile browsers)
-- High-contrast, large touch targets designed for phone mounts and kitchen tablets
-- Everything stored locally in `localStorage` — 100% offline-first, no accounts or telemetry
+And for the occasional missed dart:
 
 <p align="center">
-  <img src="assets/screenshots/portrait/home_top.png" alt="Mobile Game Modes" width="23%" />
-  &nbsp;&nbsp;
-  <img src="assets/screenshots/portrait/home_bottom.png" alt="Mobile Match Setup & Lineup" width="23%" />
-  &nbsp;&nbsp;
-  <img src="assets/screenshots/portrait/x01_keypad.png" alt="Mobile Match Play" width="23%" />
-  &nbsp;&nbsp;
-  <img src="assets/screenshots/portrait/x01_dartsboard.png" alt="Mobile Interactive Dartboard" width="23%" />
+  <img src="assets/screenshots/excuse.png" alt="Pub excuse generator showing the gravity excuse" width="420" />
 </p>
 
----
+## Get started
 
-## 💻 Tech Stack
+Add players, choose a game, and start a match. Use the input selector during play to change how you enter darts.
 
-Built with pure web standards — zero frameworks, zero runtime dependencies, zero build steps:
+The app has no runtime dependencies or build step.
 
-- **Logic**: Vanilla ES6+ JavaScript (Modular classes)
-- **UI & Themes**: Semantic HTML5 & CSS3 variables (Dark-mode & oche-contrast)
-- **Dartboard**: Pure SVG with coordinate-based ring and segment hit detection
-- **Audio Engine**: Web Audio API with pre-recorded MP3 caller voice packs
-- **Storage & PWA**: Service Worker cache & `localStorage` (100% offline-first)
-
----
-
-## 🛠️ Development & Contributing
+## Development
 
 ```bash
-# Start local dev server (http://localhost:8080)
-npm start
-
-# Run full test suite
-npm test
+npm start       # local server at http://localhost:8080
+npm test        # unit and browser tests
+npm run lint    # ESLint
 ```
 
-For project architecture, test suite organization, and contributor guidelines, see [**CONTRIBUTING.md**](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for project structure and contributor guidance.
 
----
-
-## 📄 License
+## License
 
 [GPL-3.0](LICENSE)

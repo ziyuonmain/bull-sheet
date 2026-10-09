@@ -19,13 +19,15 @@ bull-sheet/
 ├── eslint.config.js            # ESLint static analysis configuration
 ├── playwright.config.js        # Playwright E2E browser test configuration
 ├── dev_server.js               # Zero-dependency static HTTP dev server
+├── audio/                      # Bundled referee voice clips
+├── assets/screenshots/         # README and app screenshots
 ├── css/
 │   ├── main.css                # Layout, components, and responsive styles
-│   ├── themes.css              # Theme CSS variables (Pub Chalkboard, OLED, etc.)
+│   ├── themes.css              # Theme CSS variables (Pub Chalkboard, Excel, PDC, OLED)
 │   └── animations.css          # Subtle UI transitions
 ├── js/
 │   ├── app.js                  # Main controller and route switcher
-│   ├── audio/                  # Audio caller and procedural sound synthesizer
+│   ├── audio/                  # Audio caller and procedural sound effects
 │   ├── bot/                    # Tactical AI engine and skill profiles
 │   ├── components/             # Dartboard, Keypad, Scoreboard, Match Card
 │   ├── games/                  # Modular game engines (10 modes)
@@ -91,6 +93,7 @@ tests/
 │   ├── bot_engine.test.js     # 5 bot difficulty profiles, accuracy scaling, dart simulation
 │   ├── checkout.test.js       # Complete 170-to-2 checkout paths & bogey number detection
 │   ├── stats_store.test.js    # LocalStorage persistence, lifetime stats, JSON import/export
+│   ├── caller.test.js         # Audio caller behavior and announcement synchronization
 │   ├── changelog.test.js      # CHANGELOG.md markdown structure & parser verification
 │   └── integrity.test.js      # Static assets (audio/icons) & Service Worker cache validation
 └── e2e/
@@ -103,8 +106,18 @@ When adding new game modes or components, please add corresponding unit tests in
 
 ## ➕ Adding a New Game Engine
 
-All game engines are modular ES6 classes in `js/games/`.
-Standard boilerplate for a new game engine:
+Game engines are modular ES6 classes in `js/games/`. Implement the shared contract:
+
+- `constructor(config)` initializes players and match state.
+- `recordDart(dart)` records an action and returns its result.
+- `finishTurn()` advances play and clears the current visit.
+- `undo()` restores the exact prior state.
+- `getActivePlayer()` returns the active player.
+- `isMatchOver` and `winner` expose match completion.
+
+Before mutating state in `recordDart()` or `finishTurn()`, save a history snapshot. `undo()` must restore player scores, turns, and match flags. For elimination games, skip eliminated players when choosing and advancing the active player. Keep non-X01 statistics separate from X01 averages and checkout metrics.
+
+Use this shape as a starting point:
 
 ```javascript
 export class CustomGame {
@@ -118,7 +131,6 @@ export class CustomGame {
   }
 
   getActivePlayer() { return this.players[this.activePlayerIdx]; }
-  getNextPlayer() { ... }
   recordDart(dart) { ... }
   finishTurn() { ... }
   undo() { ... }
@@ -155,9 +167,8 @@ npm run bump major
 ### GitHub Actions Auto-Release & CI Pipeline
 When code is pushed or merged into `main`:
 - Changed files are automatically detected to run only affected checks in parallel.
-- When an incremented version is detected, GitHub Actions automatically creates and pushes the annotated git tag `vX.Y.Z`.
-- Automatically publishes a GitHub Release using the release notes from `CHANGELOG.md`.
-- Automatically deploys the updated app to GitHub Pages.
+- After successful CI on `main`, GitHub Actions creates and pushes an annotated `vX.Y.Z` tag when that version is not tagged yet, then publishes a GitHub Release using `CHANGELOG.md`.
+- GitHub Pages deploys after successful CI when app files changed. A repository owner can also start a manual deployment from Actions.
 
 ```mermaid
 flowchart TD
@@ -174,8 +185,8 @@ flowchart TD
     E2E --> CIStatus
     
     subgraph Deployment & Publishing
-        CIStatus --> Release[GitHub Release & Auto-Tag]
-        CIStatus --> Deploy[Deploy to GitHub Pages]
+    CIStatus --> Release[Create release if version tag is missing]
+    CIStatus --> Deploy[Deploy changed app files to GitHub Pages]
     end
 ```
 
